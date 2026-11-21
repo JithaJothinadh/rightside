@@ -8,3 +8,7 @@ __pycache__/
 # OS clutter
 .DS_Store
 Thumbs.db
+
+
+.vercel
+.env*

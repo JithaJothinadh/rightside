@@ -4,7 +4,8 @@ Rightside helps newcomers to Switzerland (immigrants, refugees, international st
 
 Many Swiss stops have two or more poles with the same name, often facing each other across a street, with buses leaving in opposite directions. A navigation app tells you the stop name. Rightside tells you which pole.
 
-**Try it:** https://jithajothinadh.github.io/rightside/ (opens on Bern, Zytglogge. "Use my location" works on this address.)
+**Try it:** https://rightside-ch.vercel.app (opens on Bern, Zytglogge. "Use my location" uses real GPS here.)
+Mirror on GitHub Pages: https://jithajothinadh.github.io/rightside/. Both redeploy automatically on every push to `main`.
 
 ## What it does
 
