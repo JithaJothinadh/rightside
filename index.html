@@ -9,7 +9,7 @@
   --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
   --asphalt:#c9cdc9; --asphalt-edge:#aeb3af; --path:#9aa29d; --block:#e6e8e4;
   --go:#0f8a4a; --go-soft:#d8f0e2; --here:#1f5fd1; --here-soft:#dde7fa; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#b45309; --warn-soft:#fdf0dc;
-  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans SC","PingFang SC","Microsoft YaHei",Tahoma,sans-serif;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans SC","PingFang SC","Microsoft YaHei","Nirmala UI","Noto Sans Tamil","Tamil Sangam MN","Noto Sans Ethiopic","Nyala","Ebrima","Kefa",Tahoma,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431;
@@ -341,11 +341,90 @@ const T_AUDIO={
 for(const l in T_AUDIO) Object.assign(T[l],T_AUDIO[l]);
 const VOICE_WORD={en:"Voice",de:"Stimme",fr:"Voix",it:"Voce",es:"Voz",pt:"Voz",sq:"Zëri",bs:"Glas",tr:"Ses",uk:"Голос",ru:"Голос",ar:"الصوت",fa:"صدا",zh:"语音"};
 for(const l in VOICE_WORD) T[l].voiceUsed=VOICE_WORD[l];
+// Six more, to cover the 20 languages most spoken by immigrants and refugees in Switzerland.
+// ta, ti and ku are marked beta in the menu until a native speaker has reviewed them.
+const T_20={
+ pl:{tagline:"Znajdź właściwą stronę ulicy dla swojego autobusu lub tramwaju",stopLabel:"Przystanek",destLabel:"Dokąd jedziesz?",destPh:"Wpisz przystanek, np. Seebach",
+  waitAt:"Czekaj na przystanku {p}",waitSub:"Przystanki do {d}: {n}",towards:"kierunek",next:"następny przystanek",travels:"Kierunek odjazdu: {dir}.",
+  pickHere:"Dotknij na mapie poniżej znacznika, przy którym teraz stoisz, aby dostać wskazówki.",same:"Jesteś już na właściwym przystanku. Zostań tutaj.",
+  cross:"Przejdź z przystanku {a} na przystanek {b}, około {m} m. {c}",crossZebra:"Skorzystaj z przejścia dla pieszych (zebry) — najbliższe jest około {z} m od ciebie.",crossNone:"Przechodź przez ulicę tylko na przejściu dla pieszych lub na światłach.",
+  noMatch:"Z {s} nie jedzie bezpośrednio żaden autobus ani tramwaj do „{d}”. Sprawdź pisownię lub wybierz z listy.",empty:"Wpisz, dokąd chcesz jechać. Pokażemy, gdzie czekać.",
+  tapHint:"Dotknij znacznika, aby pokazać, gdzie stoisz.",lgGo:"Twój przystanek",lgHere:"Jesteś tutaj",lgOther:"Inne przystanki o tej nazwie",lgArrow:"Strzałka = kierunek odjazdu",
+  allPoles:"Wszystkie przystanki „{s}”",poleN:"Przystanek {p}",sayLab:"Pokaż to komuś obok",sayTr:"Znaczy: „Przepraszam, chcę dojechać do {d}. Czy to właściwy przystanek?”",
+  dirs:["północ","północny wschód","wschód","południowy wschód","południe","południowy zachód","zachód","północny zachód"],
+  foot:"Prototyp. Przystanki i linie z OpenStreetMap (© współtwórcy OpenStreetMap, ODbL), nazwy z opentransportdata.swiss, dane z {date}. Przystanki mają literę z tabliczki, jeśli OSM ją zapisał, w przeciwnym razie A, B, C. Sprawdź tabliczkę i rozkład na miejscu.",
+  locBtn:"Użyj mojej lokalizacji",locWait:"Szukam twojej lokalizacji…",locNear:"Jesteś około {d} m od {s}. Najbliższy przystanek to {p}.",locRough:" Lokalizacja jest dokładna tylko do około {a} m, więc sprawdź literę na tabliczce przystanku.",locFar:"Najbliższy przystanek w tym prototypie to {s}, {km} km stąd.",locDenied:"Lokalizacja jest tu zablokowana. Zezwól na nią w przeglądarce albo wpisz współrzędne poniżej.",locNA:"Lokalizacja jest tu niedostępna. Wpisz współrzędne lub link do mapy poniżej.",locPaste:"Wpisz współrzędne lub wklej link do mapy",locGo:"Znajdź przystanek",locBad:"Nie udało się odczytać. Przykład: 46.8065, 7.1620",
+  twinWarn:"Uwaga: przystanek {q} jest tylko {m} m dalej i jedzie w przeciwną stronę (kierunek {o}).",signCheck:"Sprawdź tabliczkę na przystanku: musi być linia {l}, kierunek {d}. Jeśli jest {o}, przejdź na drugą stronę.",sides:["strona północna","strona wschodnia","strona południowa","strona zachodnia"],zoomAll:"Pokaż wszystkie przystanki",zoomMine:"Przybliż mój przystanek",
+  listen:"Odsłuchaj",stopAudio:"Zatrzymaj",playPhrase:"Odtwórz na głos",noVoice:"To urządzenie nie ma głosu dla tego języka. Przeczytaj tekst powyżej.",audioOff:"Czytanie na głos jest wyłączone dla tej strony.",metres:"metrów",lineSay:"Linia {l}",voiceUsed:"Głos"},
+ ro:{tagline:"Găsește partea corectă a străzii pentru autobuzul sau tramvaiul tău",stopLabel:"Stația",destLabel:"Unde mergi?",destPh:"Scrie o stație, de ex. Seebach",
+  waitAt:"Așteaptă la stația {p}",waitSub:"{n} stații până la {d}",towards:"direcția",next:"stația următoare",travels:"Direcția de plecare: {dir}.",
+  pickHere:"Atinge pe harta de mai jos marcajul unde stai acum, ca să primești indicații.",same:"Ești deja la stația corectă. Rămâi aici.",
+  cross:"Mergi de la stația {a} la stația {b}, cam {m} m. {c}",crossZebra:"Folosește trecerea de pietoni (zebra) — cea mai apropiată e la cam {z} m de tine.",crossNone:"Traversează strada doar pe trecerea de pietoni sau la semafor.",
+  noMatch:"Niciun autobuz sau tramvai nu merge direct de la {s} la „{d}”. Verifică scrierea sau alege din listă.",empty:"Scrie unde vrei să mergi. Îți arătăm unde să aștepți.",
+  tapHint:"Atinge un marcaj ca să arăți unde stai.",lgGo:"Stația ta",lgHere:"Ești aici",lgOther:"Alte stații cu același nume",lgArrow:"Săgeata = direcția de plecare",
+  allPoles:"Toate stațiile „{s}”",poleN:"Stația {p}",sayLab:"Arată asta cuiva din apropiere",sayTr:"Înseamnă: „Scuzați-mă, vreau să merg la {d}. Sunt la stația corectă?”",
+  dirs:["nord","nord-est","est","sud-est","sud","sud-vest","vest","nord-vest"],
+  foot:"Prototip. Stații și linii din OpenStreetMap (© contribuitorii OpenStreetMap, ODbL), nume de pe opentransportdata.swiss, date din {date}. Stațiile poartă litera de pe indicator dacă OSM o are, altfel A, B, C. Verifică indicatorul și orarul la fața locului.",
+  locBtn:"Folosește locația mea",locWait:"Se caută locația ta…",locNear:"Ești la aproximativ {d} m de {s}. Cea mai apropiată stație este {p}.",locRough:" Locația e precisă doar la aproximativ {a} m, așa că verifică litera de pe indicatorul stației.",locFar:"Cea mai apropiată stație din acest prototip este {s}, la {km} km.",locDenied:"Locația este blocată aici. Permite-o în browser sau introdu coordonatele mai jos.",locNA:"Locația nu este disponibilă aici. Introdu coordonatele sau un link de hartă mai jos.",locPaste:"Introdu coordonatele sau lipește un link de hartă",locGo:"Găsește stația",locBad:"Nu s-a putut citi. Exemplu: 46.8065, 7.1620",
+  twinWarn:"Atenție: stația {q} e la doar {m} m și merge în sens opus (spre {o}).",signCheck:"Verifică indicatorul stației: trebuie să scrie linia {l} direcția {d}. Dacă scrie {o}, treci pe partea cealaltă.",sides:["partea de nord","partea de est","partea de sud","partea de vest"],zoomAll:"Arată toate stațiile",zoomMine:"Mărește stația mea",
+  listen:"Ascultă",stopAudio:"Oprește",playPhrase:"Redă cu voce tare",noVoice:"Acest dispozitiv nu are o voce pentru această limbă. Citește textul de mai sus.",audioOff:"Citirea cu voce tare este dezactivată pentru această pagină.",metres:"metri",lineSay:"Linia {l}",voiceUsed:"Voce"},
+ mk:{tagline:"Најдете ја вистинската страна на улицата за вашиот автобус или трамвај",stopLabel:"Постојка",destLabel:"Каде одите?",destPh:"Внесете постојка, на пр. Seebach",
+  waitAt:"Чекајте на постојката {p}",waitSub:"{n} постојки до {d}",towards:"насока",next:"следна постојка",travels:"Насока на поаѓање: {dir}.",
+  pickHere:"Допрете ја на картата подолу ознаката каде што стоите сега за да добиете упатства.",same:"Веќе сте на вистинската постојка. Останете тука.",
+  cross:"Одете од постојката {a} до постојката {b}, околу {m} м. {c}",crossZebra:"Користете пешачки премин (зебра) — најблискиот е околу {z} м од вас.",crossNone:"Преминувајте ја улицата само на пешачки премин или на семафор.",
+  noMatch:"Ниеден автобус или трамвај не оди директно од {s} до „{d}“. Проверете го пишувањето или изберете од листата.",empty:"Внесете каде сакате да одите. Ќе ви покажеме каде да чекате.",
+  tapHint:"Допрете ознака за да покажете каде стоите.",lgGo:"Вашата постојка",lgHere:"Вие сте тука",lgOther:"Други постојки со истото име",lgArrow:"Стрелка = насока на поаѓање",
+  allPoles:"Сите постојки „{s}“",poleN:"Постојка {p}",sayLab:"Покажете го ова на некого во близина",sayTr:"Значи: „Извинете, сакам да одам до {d}. Дали сум на вистинската постојка?“",
+  dirs:["север","североисток","исток","југоисток","југ","југозапад","запад","северозапад"],
+  foot:"Прототип. Постојки и линии од OpenStreetMap (© соработниците на OpenStreetMap, ODbL), имиња од opentransportdata.swiss, податоци од {date}. Постојките ја носат буквата од таблата ако OSM ја има, инаку A, B, C. Проверете ја таблата и возниот ред на место.",
+  locBtn:"Користи ја мојата локација",locWait:"Ја бараме вашата локација…",locNear:"Вие сте околу {d} м од {s}. Најблиската постојка е {p}.",locRough:" Локацијата е точна само до околу {a} м, затоа проверете ја буквата на таблата.",locFar:"Најблиската постојка во овој прототип е {s}, на {km} км.",locDenied:"Локацијата е блокирана тука. Дозволете ја во прелистувачот или внесете координати подолу.",locNA:"Локацијата не е достапна тука. Внесете координати или линк од карта подолу.",locPaste:"Внесете координати или залепете линк од карта",locGo:"Најди постојка",locBad:"Не може да се прочита. Пример: 46.8065, 7.1620",
+  twinWarn:"Внимание: постојката {q} е само {m} м подалеку и оди во спротивна насока (кон {o}).",signCheck:"Проверете ја таблата на постојката: мора да пишува линија {l} насока {d}. Ако пишува {o}, преминете на другата страна.",sides:["северна страна","источна страна","јужна страна","западна страна"],zoomAll:"Прикажи ги сите постојки",zoomMine:"Зумирај на мојата постојка",
+  listen:"Слушај",stopAudio:"Стоп",playPhrase:"Пушти гласно",noVoice:"Овој уред нема глас за овој јазик. Прочитајте го текстот погоре.",audioOff:"Читањето на глас е исклучено за оваа страница.",metres:"метри",lineSay:"Линија {l}",voiceUsed:"Глас"},
+ ku:{tagline:"Ji bo otobûs an tramwaya xwe aliyê rast ê kolanê bibîne",stopLabel:"Rawestgeh",destLabel:"Tu diçî ku derê?",destPh:"Navê rawestgehekê binivîse, mînak Seebach",
+  waitAt:"Li rawestgeha {p} li bendê bimîne",waitSub:"Heta {d}: {n} rawestgeh",towards:"ber bi",next:"rawestgeha din",travels:"Aliyê derketinê: {dir}.",
+  pickHere:"Li ser nexşeya jêrîn, nîşana ku tu niha li ber sekinî bitikîne da ku rêberî bistînî.",same:"Tu jixwe li rawestgeha rast î. Li vir bimîne.",
+  cross:"Ji rawestgeha {a} here rawestgeha {b}, nêzî {m} m. {c}",crossZebra:"Ji derbasgeha peyayan (zebra) derbas bibe — ya herî nêzîk nêzî {z} m dûrî te ye.",crossNone:"Tenê li derbasgeha peyayan an li ber ronahiya trafîkê ji kolanê derbas bibe.",
+  noMatch:"Ji {s} tu otobûs an tramwa rasterast naçe «{d}». Rastnivîsê kontrol bike an ji lîsteyê hilbijêre.",empty:"Binivîse tu dixwazî biçî ku derê. Em ê nîşanî te bidin ku li ku derê li bendê bimînî.",
+  tapHint:"Nîşanekê bitikîne da ku nîşan bidî tu li ku sekinî.",lgGo:"Rawestgeha te",lgHere:"Tu li vir î",lgOther:"Rawestgehên din ên bi heman navî",lgArrow:"Tîr = aliyê derketinê",
+  allPoles:"Hemû rawestgehên «{s}»",poleN:"Rawestgeh {p}",sayLab:"Vê nîşanî kesekî nêzîk bide",sayTr:"Tê wateya: «Bibore, ez dixwazim biçim {d}. Ez li rawestgeha rast im?»",
+  dirs:["bakur","bakur-rojhilat","rojhilat","başûr-rojhilat","başûr","başûr-rojava","rojava","bakur-rojava"],
+  foot:"Prototîp. Rawestgeh û xet ji OpenStreetMap (© beşdarên OpenStreetMap, ODbL), nav ji opentransportdata.swiss, daneyên {date}. Heke OSM tîpa ser tabelê hebe, rawestgeh wê tîpê digirin; wekî din A, B, C. Tabel û demjimêrê li cih kontrol bike.",
+  locBtn:"Cihê min bi kar bîne",locWait:"Cihê te tê dîtin…",locNear:"Tu nêzî {d} m dûrî {s} î. Rawestgeha herî nêzîk {p} e.",locRough:" Cih tenê heta nêzî {a} m rast e, ji ber vê tîpa ser tabela rawestgehê kontrol bike.",locFar:"Rawestgeha herî nêzîk di vê prototîpê de {s} e, {km} km dûr.",locDenied:"Cih li vir hatiye astengkirin. Di gerokê de destûr bide an jî koordînatan li jêr binivîse.",locNA:"Cih li vir tune ye. Koordînat an girêdana nexşeyê li jêr binivîse.",locPaste:"Koordînatan binivîse an girêdana nexşeyê bizeliqîne",locGo:"Rawestgehê bibîne",locBad:"Nehat xwendin. Mînak: 46.8065, 7.1620",
+  twinWarn:"Hişyar be: rawestgeha {q} tenê {m} m dûr e û ber bi aliyê din ve diçe (ber bi {o}).",signCheck:"Tabela rawestgehê kontrol bike: divê xeta {l} ber bi {d} nîşan bide. Heke {o} nîşan bide, derbasî aliyê din bibe.",sides:["aliyê bakur","aliyê rojhilat","aliyê başûr","aliyê rojava"],zoomAll:"Hemû rawestgehan nîşan bide",zoomMine:"Rawestgeha min mezin bike",
+  listen:"Guhdarî bike",stopAudio:"Rawestîne",playPhrase:"Bi dengê bilind lê bide",noVoice:"Li ser vê amûrê ji bo vî zimanî deng tune ye. Nivîsa jorîn bixwîne.",audioOff:"Xwendina bi deng ji bo vê rûpelê girtî ye.",metres:"metre",lineSay:"Xeta {l}",voiceUsed:"Deng"},
+ ta:{tagline:"உங்கள் பேருந்து அல்லது டிராமுக்கு சாலையின் சரியான பக்கத்தைக் கண்டறியுங்கள்",stopLabel:"நிறுத்தம்",destLabel:"நீங்கள் எங்கே போகிறீர்கள்?",destPh:"நிறுத்தத்தின் பெயரை எழுதுங்கள், எ.கா. Seebach",
+  waitAt:"நிறுத்தம் {p}-இல் காத்திருங்கள்",waitSub:"{d} வரை {n} நிறுத்தங்கள்",towards:"செல்லும் இடம்:",next:"அடுத்த நிறுத்தம்",travels:"புறப்படும் திசை: {dir}.",
+  pickHere:"வழிகாட்டல் பெற, கீழே உள்ள வரைபடத்தில் நீங்கள் இப்போது நிற்கும் குறியைத் தொடுங்கள்.",same:"நீங்கள் ஏற்கனவே சரியான நிறுத்தத்தில் இருக்கிறீர்கள். இங்கேயே இருங்கள்.",
+  cross:"நிறுத்தம் {a}-இலிருந்து நிறுத்தம் {b}-க்குச் செல்லுங்கள், சுமார் {m} மீ. {c}",crossZebra:"பாதசாரிகள் கடவையைப் (வரிக்குதிரைக் கோடுகள்) பயன்படுத்துங்கள் — அருகிலுள்ளது உங்களிடமிருந்து சுமார் {z} மீ தொலைவில் உள்ளது.",crossNone:"பாதசாரிகள் கடவையில் அல்லது போக்குவரத்து விளக்கில் மட்டுமே சாலையைக் கடக்கவும்.",
+  noMatch:"{s}-இலிருந்து “{d}”-க்கு நேரடிப் பேருந்தோ டிராமோ இல்லை. எழுத்துக்கூட்டலைச் சரிபார்க்கவும் அல்லது பட்டியலிலிருந்து தேர்ந்தெடுக்கவும்.",empty:"நீங்கள் போக விரும்பும் இடத்தை எழுதுங்கள். எங்கே காத்திருக்க வேண்டும் என்று காட்டுவோம்.",
+  tapHint:"நீங்கள் நிற்கும் இடத்தைக் காட்ட ஒரு குறியைத் தொடுங்கள்.",lgGo:"உங்கள் நிறுத்தம்",lgHere:"நீங்கள் இங்கே",lgOther:"இதே பெயருள்ள மற்ற நிறுத்தங்கள்",lgArrow:"அம்பு = புறப்படும் திசை",
+  allPoles:"“{s}” எனும் அனைத்து நிறுத்தங்களும்",poleN:"நிறுத்தம் {p}",sayLab:"இதை அருகிலுள்ள ஒருவரிடம் காட்டுங்கள்",sayTr:"பொருள்: “மன்னிக்கவும், நான் {d}-க்குப் போக வேண்டும். இது சரியான நிறுத்தமா?”",
+  dirs:["வடக்கு","வடகிழக்கு","கிழக்கு","தென்கிழக்கு","தெற்கு","தென்மேற்கு","மேற்கு","வடமேற்கு"],
+  foot:"முன்மாதிரி. நிறுத்தங்களும் வழித்தடங்களும் OpenStreetMap-இலிருந்து (© OpenStreetMap பங்களிப்பாளர்கள், ODbL), பெயர்கள் opentransportdata.swiss-இலிருந்து, {date} தேதியிட்ட தரவு. OSM-இல் இருந்தால் நிறுத்தங்களுக்குப் பலகையிலுள்ள எழுத்து, இல்லையெனில் A, B, C. பலகையையும் நேர அட்டவணையையும் அங்கேயே சரிபார்க்கவும்.",
+  locBtn:"என் இருப்பிடத்தைப் பயன்படுத்து",locWait:"உங்கள் இருப்பிடம் தேடப்படுகிறது…",locNear:"நீங்கள் {s}-இலிருந்து சுமார் {d} மீ தொலைவில் இருக்கிறீர்கள். அருகிலுள்ள நிறுத்தம் {p}.",locRough:" இருப்பிடம் சுமார் {a} மீ வரை மட்டுமே துல்லியமானது, எனவே நிறுத்தப் பலகையிலுள்ள எழுத்தைச் சரிபார்க்கவும்.",locFar:"இந்த முன்மாதிரியில் அருகிலுள்ள நிறுத்தம் {s}, {km} கி.மீ. தொலைவில்.",locDenied:"இங்கே இருப்பிடம் தடுக்கப்பட்டுள்ளது. உலாவியில் அனுமதியுங்கள் அல்லது கீழே ஆயத்தொலைவுகளை உள்ளிடுங்கள்.",locNA:"இங்கே இருப்பிடம் கிடைக்கவில்லை. கீழே ஆயத்தொலைவுகளையோ வரைபட இணைப்பையோ உள்ளிடுங்கள்.",locPaste:"ஆயத்தொலைவுகளை உள்ளிடுங்கள் அல்லது வரைபட இணைப்பை ஒட்டுங்கள்",locGo:"நிறுத்தத்தைக் கண்டறி",locBad:"படிக்க முடியவில்லை. எடுத்துக்காட்டு: 46.8065, 7.1620",
+  twinWarn:"கவனம்: நிறுத்தம் {q} வெறும் {m} மீ தொலைவில் உள்ளது, அது எதிர்த் திசையில் செல்கிறது ({o} நோக்கி).",signCheck:"நிறுத்தப் பலகையைச் சரிபார்க்கவும்: அதில் வழித்தடம் {l}, {d} நோக்கி என்று இருக்க வேண்டும். {o} என்று இருந்தால், மறுபக்கத்துக்குக் கடந்து செல்லுங்கள்.",sides:["வடக்குப் பக்கம்","கிழக்குப் பக்கம்","தெற்குப் பக்கம்","மேற்குப் பக்கம்"],zoomAll:"அனைத்து நிறுத்தங்களையும் காட்டு",zoomMine:"என் நிறுத்தத்தைப் பெரிதாக்கு",
+  listen:"கேளுங்கள்",stopAudio:"நிறுத்து",playPhrase:"உரக்க ஒலிக்கச் செய்",noVoice:"இந்தச் சாதனத்தில் இந்த மொழிக்குக் குரல் இல்லை. மேலே உள்ள உரையைப் படியுங்கள்.",audioOff:"இந்தப் பக்கத்துக்கு உரக்கப் படித்தல் முடக்கப்பட்டுள்ளது.",metres:"மீட்டர்",lineSay:"வழித்தடம் {l}",voiceUsed:"குரல்"},
+ ti:{tagline:"ንኣውቶቡስኩም ወይ ትራምኩም ቅኑዕ ወገን ጽርግያ ርኸቡ",stopLabel:"መዕረፊ",destLabel:"ናበይ ትኸዱ?",destPh:"ስም መዕረፊ ጽሓፉ፡ ንኣብነት Seebach",
+  waitAt:"ኣብ መዕረፊ {p} ተጸበዩ",waitSub:"ክሳብ {d}: {n} መዕረፍታት",towards:"ናብ",next:"ዝቕጽል መዕረፊ",travels:"ኣንፈት ምብጋስ: {dir}።",
+  pickHere:"መምርሒ ንምርካብ፡ ኣብቲ ታሕቲ ዘሎ ካርታ ሕጂ ደው ኢልኩምሉ ዘለኹም ምልክት ጠውቑ።",same:"ኣብቲ ቅኑዕ መዕረፊ ኢኹም ዘለኹም። ኣብዚ ጽንሑ።",
+  cross:"ካብ መዕረፊ {a} ናብ መዕረፊ {b} ኪዱ፡ ኣስታት {m} ሜ። {c}",crossZebra:"መሳገሪ እግረኛ (ዜብራ) ተጠቐሙ — እቲ ዝቐረበ ኣስታት {z} ሜ ካባኹም ይርሕቕ።",crossNone:"ጽርግያ ኣብ መሳገሪ እግረኛ ወይ ኣብ መብራህቲ ትራፊክ ጥራይ ስገሩ።",
+  noMatch:"ካብ {s} ናብ «{d}» ብቐጥታ ዝኸይድ ኣውቶቡስ ወይ ትራም የለን። ኣጸሓሕፋ ኣረጋግጹ ወይ ካብቲ ዝርዝር ምረጹ።",empty:"ናበይ ክትከዱ ከም ትደልዩ ጽሓፉ። ኣበይ ክትጽበዩ ከም ዘለኩም ከነርእየኩም ኢና።",
+  tapHint:"ኣበይ ደው ከም ዘለኹም ንምርኣይ ሓደ ምልክት ጠውቑ።",lgGo:"መዕረፊኹም",lgHere:"ኣብዚ ኣለኹም",lgOther:"ካልኦት መዕረፍታት ብተመሳሳሊ ስም",lgArrow:"ፍላጻ = ኣንፈት ምብጋስ",
+  allPoles:"ኩሎም መዕረፍታት «{s}»",poleN:"መዕረፊ {p}",sayLab:"ነዚ ንሓደ ኣብ ጥቓኹም ዘሎ ሰብ ኣርእይዎ",sayTr:"ትርጉሙ: «ይቕሬታ፡ ናብ {d} ክኸይድ እደሊ። እዚ ቅኑዕ መዕረፊ ድዩ?»",
+  dirs:["ሰሜን","ሰሜን ምብራቕ","ምብራቕ","ደቡብ ምብራቕ","ደቡብ","ደቡብ ምዕራብ","ምዕራብ","ሰሜን ምዕራብ"],
+  foot:"ፕሮቶታይፕ። መዕረፍታትን መስመራትን ካብ OpenStreetMap (© ተሳተፍቲ OpenStreetMap, ODbL)፡ ኣስማት ካብ opentransportdata.swiss፡ ሓበሬታ ናይ {date}። OSM እንተሊዩዎ መዕረፍታት ናይቲ ሰሌዳ ፊደል ይወስዱ፡ እንተዘይኮይኑ A, B, C። ሰሌዳን ሰዓታትን ኣብ ቦታኡ ኣረጋግጹ።",
+  locBtn:"ቦታይ ተጠቐም",locWait:"ቦታኹም ይድለ ኣሎ…",locNear:"ካብ {s} ኣስታት {d} ሜ ርሒቕኩም ኣለኹም። እቲ ዝቐረበ መዕረፊ {p} እዩ።",locRough:" ቦታ ክሳብ ኣስታት {a} ሜ ጥራይ ልክዕ እዩ፡ ስለዚ ኣብ ሰሌዳ መዕረፊ ዘሎ ፊደል ኣረጋግጹ።",locFar:"ኣብዚ ፕሮቶታይፕ እቲ ዝቐረበ መዕረፊ {s} እዩ፡ {km} ኪ.ሜ ርሒቑ።",locDenied:"ቦታ ኣብዚ ተኸልኪሉ ኣሎ። ኣብ መርበብ ፍቐዱ ወይ ኣብ ታሕቲ ኮኦርዲኔት ኣእትዉ።",locNA:"ቦታ ኣብዚ ኣይርከብን። ኣብ ታሕቲ ኮኦርዲኔት ወይ መላግቦ ካርታ ኣእትዉ።",locPaste:"ኮኦርዲኔት ኣእትዉ ወይ መላግቦ ካርታ ለጥፉ",locGo:"መዕረፊ ርኸብ",locBad:"ክንበብ ኣይከኣለን። ኣብነት: 46.8065, 7.1620",
+  twinWarn:"ተጠንቀቑ: መዕረፊ {q} {m} ሜ ጥራይ ይርሕቕ፡ ናብ ተቓራኒ ኣንፈት ድማ ይኸይድ (ናብ {o})።",signCheck:"ሰሌዳ መዕረፊ ኣረጋግጹ: መስመር {l} ናብ {d} ክጽሕፍ ኣለዎ። {o} እንተጸሓፈ፡ ናብቲ ካልእ ወገን ስገሩ።",sides:["ሰሜናዊ ወገን","ምብራቓዊ ወገን","ደቡባዊ ወገን","ምዕራባዊ ወገን"],zoomAll:"ኩሎም መዕረፍታት ኣርኢ",zoomMine:"መዕረፊይ ኣጉልሕ",
+  listen:"ስምዑ",stopAudio:"ጠጠው",playPhrase:"ብዓብዪ ድምጺ ኣስምዕ",noVoice:"እዚ መሳርሒ ነዚ ቋንቋ ድምጺ የብሉን። ነቲ ኣብ ላዕሊ ዘሎ ጽሑፍ ኣንብቡ።",audioOff:"ብድምጺ ምንባብ ነዚ ገጽ ተዓጽዩ ኣሎ።",metres:"ሜትሮ",lineSay:"መስመር {l}",voiceUsed:"ድምጺ"}
+};
+Object.assign(T,T_20);
 // shown in each language's own script, so people can find theirs without reading English
-const LANG_NAMES={en:"English",de:"Deutsch",fr:"Français",it:"Italiano",es:"Español",pt:"Português",sq:"Shqip",bs:"Bosanski / Hrvatski / Srpski",tr:"Türkçe",uk:"Українська",ru:"Русский",ar:"العربية",fa:"فارسی / دری",zh:"中文"};
+// Menu order: English and the national languages first, then the largest immigrant language communities.
+// "beta" = not yet checked by a native speaker.
+const LANG_NAMES={en:"English",de:"Deutsch",fr:"Français",it:"Italiano",pt:"Português",sq:"Shqip",es:"Español",bs:"Bosanski / Hrvatski / Srpski",mk:"Македонски",tr:"Türkçe",ku:"Kurdî (Kurmancî) · beta",ar:"العربية",fa:"فارسی / دری",ta:"தமிழ் · beta",ti:"ትግርኛ · beta",uk:"Українська",ru:"Русский",pl:"Polski",ro:"Română",zh:"中文"};
 const RTL=new Set(["ar","fa"]);
 // browser language codes that map onto one of ours
-const LANG_ALIAS={hr:"bs",sr:"bs",sh:"bs",cnr:"bs",prs:"fa",pb:"fa"};
+const LANG_ALIAS={hr:"bs",sr:"bs",sh:"bs",cnr:"bs",prs:"fa",pb:"fa",kmr:"ku",mo:"ro"};
 // What a local would understand at the stop: the region's own language.
 const LOCAL={de:"Entschuldigung, ich möchte nach {d}. Bin ich hier an der richtigen Haltestelle?",
   fr:"Excusez-moi, je veux aller à {d}. Est-ce que je suis au bon arrêt ?",it:"Mi scusi, voglio andare a {d}. Sono alla fermata giusta?"};
@@ -400,7 +479,7 @@ function renderAnswer(){
   const q=s=>(el.querySelector(s)?.textContent||"").trim();
   answerSpeech=forSpeech([q("h2"),q(".side"),q(".big h2 ~ p:last-of-type"),
     ...same.map(x=>`${fmt(L.lineSay,{l:x.r.line})}, ${L.towards} ${x.r.to}. ${L.next}: ${x.r.next}`),
-    q(".careful b"),q(".careful span"),q(".step")].filter(Boolean).map(s=>s.replace(/[.。]$/,"")).join(". ")+".");
+    q(".careful b"),q(".careful span"),q(".step")].filter(Boolean).map(s=>s.replace(/[.。።]$/,"")).join(". ")+".");
   drawMap(best);renderPlats(best);renderPhrase(name);
   return best;
 }
@@ -408,7 +487,7 @@ function renderAnswer(){
 // ---- reading aloud ---------------------------------------------------------
 // Claude's voice where the viewer has it (claude.ai, Chromium); otherwise the phone's own
 // voice, which also works offline. Swiss regional tags first for the local-phrase card.
-const SPEECH_TAG={en:"en-GB",de:"de-CH",fr:"fr-CH",it:"it-CH",es:"es-ES",pt:"pt-PT",sq:"sq-AL",bs:"bs-BA",tr:"tr-TR",uk:"uk-UA",ru:"ru-RU",ar:"ar",fa:"fa-IR",zh:"zh-CN"};
+const SPEECH_TAG={en:"en-GB",de:"de-CH",fr:"fr-CH",it:"it-CH",es:"es-ES",pt:"pt-PT",sq:"sq-AL",bs:"bs-BA",tr:"tr-TR",uk:"uk-UA",ru:"ru-RU",ar:"ar",fa:"fa-IR",zh:"zh-CN",pl:"pl-PL",ro:"ro-RO",mk:"mk-MK",ku:"ku",ta:"ta-LK",ti:"ti-ER"};
 const SPEECH_ALT={bs:["hr","sr"]};
 let TTS=null,ttsOff=false,speaking=null,VOICES=[]; // speaking: "answer" | "phrase" | null
 let answerSpeech="",phraseSpeech=null;
@@ -431,7 +510,7 @@ function pickVoice(tag){
   return null;
 }
 // one utterance per sentence: long single utterances get cut off in Chrome
-function sentences(text){return text.split(/(?<=[.!?。؟])\s+/).map(s=>s.trim()).filter(Boolean)}
+function sentences(text){return text.split(/(?<=[.!?。؟።])\s+/).map(s=>s.trim()).filter(Boolean)}
 function speakBtn(id,kind,label){
   const on=speaking===kind,L=t();
   return `<button type="button" class="speak" id="${id}" data-kind="${kind}" aria-pressed="${on}">${on?STOP_ICON:SPEAK_ICON}<span>${esc(on?L.stopAudio:label)}</span></button>`;
@@ -452,7 +531,7 @@ function stopSpeech(){
 // and written plural hints become the spoken plural: stop(s)→stops, Halt(e)→Halte, paragem(ns)→paragens, fermata/e→fermate
 function forSpeech(s){const L=t();return s.replace(/\s*·\s*/g,". ")
   .replace(/m\(ns\)/g,"ns").replace(/(\p{L})a\/e\b/gu,"$1e").replace(/(\p{L}+)\((\p{L}{1,2})\)/gu,"$1$2")
-  .replace(/(\d+)\s?(m|м|م)(?=[\s.,،)]|$)/g,`$1 ${L.metres}`)}
+  .replace(/(\d+)\s?(m|м|م|மீ|ሜ)(?=[\s.,،።)]|$)/g,`$1 ${L.metres}`)}
 
 function speakText(kind,text,tag){
   const L=t();stopSpeech();audioMsg(kind,"");
