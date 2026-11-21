@@ -22,15 +22,16 @@ scanner. Prototype: eight stops, data snapshot in `stops.json`.
 
 `stops.json` = `{generated, stops[]}`. A stop has `name`, `sbbId`, `lat`, `lon`,
 `platforms[]`, `streets[]` (OSM ways with kind, name and points) and `xings[]` (crossings
-with `sig` and `kerb`). A platform has `id` (`node/...` or `way/...`), `x`, `y` in metres on
-a local grid centred on the stop, `label`, `routes[]` and, once enriched, `acc`.
-A route has `line`, `mode`, `to`, `next`, `bearing` and `via` (stops in order; `via[0]` is
-the boarding stop, so the index plus one is the number of stops).
+with `sig` and `kerb`). A platform has `id` (`node/...` or `way/...`), `lat`/`lon` (GPS
+distance), `x`/`y` in metres on a local grid centred on the stop (everything drawn or
+measured), `label`, `routes[]` and, once enriched, `acc`. A route has `line`, `mode`, `to`,
+`next`, `bearing` and `via` (the stops after this one, in order; `via[0]` is the next stop,
+so an index plus one is the number of stops).
 
-Invariants, all checked by `check_data.py`: pole labels unique within a stop, platform ids
-unique, every platform has a position and at least one route, `label` matches the sign
-letter when OSM records one. Coordinates are metres, and the same grid is used by the map,
-the route finder and the crossing search; never store lat/lon in a platform.
+`check_data.py` checks: at least two poles per stop, labels unique, platform ids unique,
+every platform has a position and at least one route. `merge_data.py` gives each pole the
+letter on the real sign when OSM records one (`local_ref`), otherwise the next free letter;
+the app trusts that label, so a wrong `local_ref` becomes a wrong instruction.
 
 ## Pipeline
 
@@ -53,9 +54,10 @@ python -m http.server 8000    # then open http://localhost:8000
 
 `index.html` fetches `stops.json`, so it must be served over HTTP. Verify a change in a
 browser, not by reading the code: load the page, check the console for errors, then check
-at 390x844 as well as desktop. The behaviour that has broken before: a claimed "you are
-here" without a tap or GPS, a lost destination after using the location button, map labels
-at an unreadable size, and RTL layouts that reverse numbers.
+at 390x844 as well as desktop. The behaviour that has broken before: a lost destination
+after using the location button, map labels at an unreadable size, and RTL layouts that
+reverse numbers. The demo pole on first load is deliberate: it shows the crossing help at a
+stop with several poles. A tap, GPS or a scanned sign replaces it.
 
 Do not add a framework or a build step. Keep `index.html` self-contained; the only external
 runtime dependency is Tesseract.js for the sign scanner and Google Fonts for the type.
