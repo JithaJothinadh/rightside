@@ -52,10 +52,12 @@ The prototype covers eight stops with confusing same-named poles:
 python build_data.py "Winterthur, Technikum" "Bern, Bahnhof"   # writes stops.json
 mv stops.json stops_c.json                                       # keep each batch as stops_<x>.json
 python merge_data.py                                             # merges every stops_*.json into stops.json
+python add_access.py                                             # adds step-free / accessibility details (run last)
 ```
 
 - `build_data.py` looks up each stop on [transport.opendata.ch](https://transport.opendata.ch) and then queries OpenStreetMap through the Overpass API. It collects the stop's poles, the bus and tram routes serving each one in stop order (which gives the direction), and the surrounding streets and crossings. Overpass is often busy. The script retries, but a stop can still time out, so run it again later. Set `OUT=stops_x.json` to write to another file.
 - `merge_data.py` removes duplicate lines. It labels each pole with the letter on its real stop sign where OSM records one (`local_ref`), otherwise A, B, C. It also trims streets that fall outside the drawn map.
+- `add_access.py` adds what OSM records about accessibility: for each pole, step-free access (`wheelchair`), tactile paving, bench and shelter; for nearby crossings, traffic lights and lowered kerbs. Run it after `merge_data.py`, which rebuilds `stops.json` without these fields. It saves after every stop and skips stops already done, so if the Overpass servers time out, just run it again.
 - `stops_a.json` and `stops_b.json` are the raw batches behind the current `stops.json`.
 
 ## Before real-world use

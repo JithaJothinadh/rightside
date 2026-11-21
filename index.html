@@ -108,6 +108,15 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .rides{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
 .rides li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .ln{font:700 13px var(--display);min-width:38px;text-align:center;padding:2px 7px;border-radius:5px;background:var(--fg);color:var(--bg);font-variant-numeric:tabular-nums}
+/* bus vs tram: an icon + word before the line, and tram line numbers on blue */
+.ln.tram{background:var(--here);color:var(--surface)}
+.mode{display:inline-flex;align-items:center;gap:4px;font:600 12px var(--body);color:var(--muted);white-space:nowrap}
+.mode svg{flex:none;color:var(--fg)}
+.mode.tram svg{color:var(--here)}
+.ride-line{display:inline-flex;align-items:center;gap:6px}
+#destList li .hint{display:inline-flex;align-items:center;gap:4px}
+.legend .sq{border-radius:3px}
+.legend .lg-pin{display:inline-flex;align-items:center;gap:5px}
 .big{flex-wrap:wrap}
 .big>div:not(.pole){min-width:0;flex:1 1 170px}
 .speak{margin-inline-start:auto;align-self:flex-start;flex:none;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
@@ -122,6 +131,21 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .amsg a{color:var(--here);font-weight:600;text-underline-offset:2px;white-space:nowrap}
 .phrase .amsg a{color:inherit}
 .side{margin:2px 0 0;font-weight:600;color:var(--fg)}
+/* step-free / accessibility */
+.wcrow{grid-column:1/-1;display:flex;align-items:center;gap:10px}
+.wcrow input{width:20px;height:20px;margin:0;flex:none;accent-color:var(--here)}
+.wcrow label{display:inline-flex;align-items:center;gap:7px;margin:0;font:500 14px var(--body);letter-spacing:0;text-transform:none;color:var(--fg);cursor:pointer}
+.wcicon{flex:none;color:var(--here)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:0;padding:0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:4px;font:600 12px/1 var(--body);padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.chip svg{flex:none}
+.chip.ok{border-color:var(--go);background:var(--go-soft)}
+.chip.lim{border-color:var(--warn);background:var(--warn-soft)}
+.chip.no{border-color:var(--stop);color:var(--stop)}
+.plat .chips{margin-top:2px}.plat .chip{font-size:11px;padding:3px 6px}
+.wcwarn{padding:10px 12px;border-radius:8px;border:1px solid var(--warn);background:var(--warn-soft);font-weight:600}
+.wcwarn.no{border-color:var(--stop)}
+.wcwarn.unk{border-color:var(--line);background:var(--bg);font-weight:500}
 .careful{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:8px;background:var(--warn-soft);border:1px solid var(--warn)}
 .careful b{font-weight:600}
 .plat h3 .sd{display:block;font:500 12px var(--body);color:var(--muted)}
@@ -173,6 +197,7 @@ footer a{color:inherit}
   <div class="ask">
     <div><div class="lbl"><label for="stop" data-t="stopLabel"></label><button type="button" class="info" id="infoBtn" aria-haspopup="dialog"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/></svg><span data-t="infoTitle"></span></button></div><select id="stop"></select></div>
     <div><label for="dest" data-t="destLabel"></label><div class="combo"><input id="dest" role="combobox" aria-expanded="false" aria-controls="destList" aria-autocomplete="list" autocomplete="off" spellcheck="false"><button type="button" id="destClear" class="clear" aria-label="Clear">×</button><ul id="destList" role="listbox" hidden></ul></div></div>
+    <div class="wcrow"><input type="checkbox" id="wcToggle"><label for="wcToggle"><svg class="wcicon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="3.6" r="2.1" fill="currentColor"/><path d="M10 7.2v6h6.2l2.6 5.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 10.4h5" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><path d="M7.4 10.6a6 6 0 1 0 8.2 7.7" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></svg><span data-t="wcToggle"></span></label></div>
   </div>
 
   <div class="locate">
@@ -191,9 +216,11 @@ footer a{color:inherit}
     <div class="hint"><span data-t="tapHint"></span><button type="button" id="zoomBtn" class="linkbtn" hidden></button></div>
     <svg class="map" id="map" viewBox="-150 -150 300 300" role="img"></svg>
     <div class="legend">
-      <span><i style="background:var(--go)"></i><span data-t="lgGo"></span></span>
-      <span><i style="background:var(--here)"></i><span data-t="lgHere"></span></span>
+      <span class="lg-pin"><svg width="14" height="17" viewBox="-2 -30 17 22" aria-hidden="true"><path d="M0,-8.6V-28" stroke="var(--go)" stroke-width="2" stroke-linecap="round"/><path d="M1,-28H14L10.8,-23.3L14,-18.6H1Z" fill="var(--go)"/><path d="M3.9,-23.4l2.3,2.3l4.2-4.4" fill="none" stroke="var(--surface)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-t="lgGo"></span></span>
+      <span class="lg-pin"><svg width="12" height="17" viewBox="-8 -29.5 16 22" aria-hidden="true"><path d="M0,-8.6 C-3,-12 -7,-15.5 -7,-20 A7,7 0 1 1 7,-20 C7,-15.5 3,-12 0,-8.6Z" fill="var(--here)"/><circle cx="0" cy="-22.4" r="1.9" fill="var(--surface)"/><path d="M-3.4,-16.2a3.4,3.4 0 0 1 6.8,0Z" fill="var(--surface)"/></svg><span data-t="lgHere"></span></span>
       <span><i style="background:var(--pole)"></i><span data-t="lgOther"></span></span>
+      <span><i style="background:var(--pole);box-shadow:inset 0 0 0 1.5px var(--fg)"></i><span data-t="modeBus"></span></span>
+      <span><i class="sq" style="background:var(--pole);box-shadow:inset 0 0 0 1.5px var(--fg)"></i><span data-t="modeTram"></span></span>
       <span data-t="lgArrow"></span>
     </div>
   </section>
@@ -219,16 +246,16 @@ footer a{color:inherit}
 <script>
 const T={
  en:{tagline:"Find the right side of the road for your bus or tram",stopLabel:"Stop",destLabel:"Where are you going?",destPh:"Type a stop, e.g. Seebach",
-  waitAt:"Wait at stop {p}",waitSub:"{n} stop(s) to {d}",take:"Take",towards:"towards",next:"next stop",travels:"The bus leaves heading {dir}.",
+  waitAt:"Wait at stop {p}",waitSub:"{n} stop(s) to {d}",take:"Take",towards:"towards",next:"next stop",travels:"It leaves heading {dir}.",
   pickHere:"Tap the marker you are standing at now on the map below to get walking help.",same:"You are already at the right stop. Stay here.",
   cross:"Go from stop {a} to stop {b}, about {m} m. {c}",crossZebra:"Use the pedestrian crossing (zebra stripes) — the nearest is about {z} m from you.",crossNone:"Cross only at a pedestrian crossing or traffic light.",
   noMatch:"No bus or tram from {s} goes to “{d}” directly. Try another spelling, or pick from the list.",empty:"Type where you want to go. We will show which stop to wait at.",
-  tapHint:"Tap a marker to say where you are standing.",lgGo:"Your stop",lgHere:"You are here",lgOther:"Other stops with this name",lgArrow:"Arrow = direction the bus leaves",
+  tapHint:"Tap a marker to say where you are standing.",lgGo:"Your stop",lgHere:"You are here",lgOther:"Other stops with this name",lgArrow:"Arrow = direction of departure",
   allPoles:"Every stop called “{s}”",poleN:"Stop {p}",sayLab:"Show this to someone nearby",sayTr:"Means: “Excuse me, I want to go to {d}. Is this the right stop?”",
   dirs:["north","north-east","east","south-east","south","south-west","west","north-west"],
   foot:"Prototype. Stop positions and routes come from OpenStreetMap (© OpenStreetMap contributors, ODbL) and stop names from opentransportdata.swiss, snapshot of {date}. Markers are labelled by the letter on the stop sign where OSM records one, otherwise A, B, C. Check the sign and the timetable on site."},
  de:{tagline:"Finde die richtige Strassenseite für deinen Bus oder dein Tram",stopLabel:"Haltestelle",destLabel:"Wohin willst du?",destPh:"Haltestelle eingeben, z. B. Seebach",
-  waitAt:"Warte an Haltekante {p}",waitSub:"{n} Halt(e) bis {d}",take:"Nimm",towards:"Richtung",next:"nächster Halt",travels:"Der Bus fährt Richtung {dir} ab.",
+  waitAt:"Warte an Haltekante {p}",waitSub:"{n} Halt(e) bis {d}",take:"Nimm",towards:"Richtung",next:"nächster Halt",travels:"Abfahrt Richtung {dir}.",
   pickHere:"Tippe auf der Karte unten auf die Markierung, an der du gerade stehst.",same:"Du stehst schon richtig. Bleib hier.",
   cross:"Geh von Kante {a} zu Kante {b}, etwa {m} m. {c}",crossZebra:"Nutze den Fussgängerstreifen – der nächste ist etwa {z} m entfernt.",crossNone:"Überquere die Strasse nur am Fussgängerstreifen oder an der Ampel.",
   noMatch:"Von {s} fährt kein Bus oder Tram direkt nach «{d}». Prüfe die Schreibweise oder wähle aus der Liste.",empty:"Gib dein Ziel ein. Wir zeigen dir, wo du warten musst.",
@@ -237,7 +264,7 @@ const T={
   dirs:["Norden","Nordosten","Osten","Südosten","Süden","Südwesten","Westen","Nordwesten"],
   foot:"Prototyp. Haltekanten und Linien aus OpenStreetMap (© OpenStreetMap-Mitwirkende, ODbL), Namen von opentransportdata.swiss, Stand {date}. Kanten tragen den Buchstaben vom Haltestellenschild, sofern in OSM erfasst, sonst A, B, C. Bitte Schild und Fahrplan vor Ort prüfen."},
  fr:{tagline:"Trouvez le bon côté de la rue pour votre bus ou tram",stopLabel:"Arrêt",destLabel:"Où allez-vous ?",destPh:"Tapez un arrêt, p. ex. Seebach",
-  waitAt:"Attendez au quai {p}",waitSub:"{n} arrêt(s) jusqu’à {d}",take:"Prenez",towards:"direction",next:"prochain arrêt",travels:"Le bus part vers le {dir}.",
+  waitAt:"Attendez au quai {p}",waitSub:"{n} arrêt(s) jusqu’à {d}",take:"Prenez",towards:"direction",next:"prochain arrêt",travels:"Départ vers le {dir}.",
   pickHere:"Touchez sur la carte le repère où vous vous trouvez pour être guidé.",same:"Vous êtes déjà au bon arrêt. Restez ici.",
   cross:"Allez du quai {a} au quai {b}, environ {m} m. {c}",crossZebra:"Traversez au passage piéton – le plus proche est à environ {z} m.",crossNone:"Traversez uniquement au passage piéton ou au feu.",
   noMatch:"Aucun bus ni tram ne va directement de {s} à « {d} ». Vérifiez l’orthographe ou choisissez dans la liste.",empty:"Indiquez votre destination. Nous vous montrons où attendre.",
@@ -246,7 +273,7 @@ const T={
   dirs:["nord","nord-est","est","sud-est","sud","sud-ouest","ouest","nord-ouest"],
   foot:"Prototype. Quais et lignes issus d’OpenStreetMap (© contributeurs OpenStreetMap, ODbL), noms d’opentransportdata.swiss, état du {date}. Les quais portent la lettre du panneau si OSM la connaît, sinon A, B, C. Vérifiez le panneau et l’horaire sur place."},
  it:{tagline:"Trova il lato giusto della strada per il tuo bus o tram",stopLabel:"Fermata",destLabel:"Dove vuoi andare?",destPh:"Scrivi una fermata, es. Seebach",
-  waitAt:"Aspetta alla fermata {p}",waitSub:"{n} fermata/e fino a {d}",take:"Prendi",towards:"direzione",next:"prossima fermata",travels:"Il bus parte verso {dir}.",
+  waitAt:"Aspetta alla fermata {p}",waitSub:"{n} fermata/e fino a {d}",take:"Prendi",towards:"direzione",next:"prossima fermata",travels:"Parte verso {dir}.",
   pickHere:"Tocca sulla mappa il segnaposto dove ti trovi ora per avere indicazioni.",same:"Sei già alla fermata giusta. Resta qui.",
   cross:"Vai dalla fermata {a} alla fermata {b}, circa {m} m. {c}",crossZebra:"Attraversa sulle strisce pedonali – le più vicine sono a circa {z} m.",crossNone:"Attraversa solo sulle strisce o al semaforo.",
   noMatch:"Nessun bus o tram va direttamente da {s} a «{d}». Controlla l’ortografia o scegli dalla lista.",empty:"Scrivi la tua destinazione. Ti mostriamo dove aspettare.",
@@ -255,7 +282,7 @@ const T={
   dirs:["nord","nord-est","est","sud-est","sud","sud-ovest","ovest","nord-ovest"],
   foot:"Prototipo. Fermate e linee da OpenStreetMap (© collaboratori di OpenStreetMap, ODbL), nomi da opentransportdata.swiss, aggiornato al {date}. Le fermate hanno la lettera del cartello se OSM la registra, altrimenti A, B, C. Controlla cartello e orario sul posto."},
  es:{tagline:"Encuentra el lado correcto de la calle para tu bus o tranvía",stopLabel:"Parada",destLabel:"¿A dónde vas?",destPh:"Escribe una parada, p. ej. Seebach",
-  waitAt:"Espera en la parada {p}",waitSub:"{n} parada(s) hasta {d}",take:"Toma",towards:"dirección",next:"próxima parada",travels:"El bus sale hacia el {dir}.",
+  waitAt:"Espera en la parada {p}",waitSub:"{n} parada(s) hasta {d}",take:"Toma",towards:"dirección",next:"próxima parada",travels:"Sale hacia el {dir}.",
   pickHere:"Toca en el mapa el marcador donde estás ahora para recibir indicaciones.",same:"Ya estás en la parada correcta. Quédate aquí.",
   cross:"Ve de la parada {a} a la parada {b}, unos {m} m. {c}",crossZebra:"Cruza por el paso de peatones; el más cercano está a unos {z} m.",crossNone:"Cruza solo por un paso de peatones o semáforo.",
   noMatch:"Ningún bus ni tranvía va directo de {s} a «{d}». Revisa cómo se escribe o elige de la lista.",empty:"Escribe tu destino. Te mostramos dónde esperar.",
@@ -264,7 +291,7 @@ const T={
   dirs:["norte","noreste","este","sureste","sur","suroeste","oeste","noroeste"],
   foot:"Prototipo. Paradas y líneas de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), nombres de opentransportdata.swiss, datos del {date}. Las paradas llevan la letra del poste si OSM la tiene; si no, A, B, C. Comprueba el poste y el horario en el lugar."},
  uk:{tagline:"Знайдіть правильний бік вулиці для свого автобуса чи трамвая",stopLabel:"Зупинка",destLabel:"Куди ви їдете?",destPh:"Введіть зупинку, напр. Seebach",
-  waitAt:"Чекайте на зупинці {p}",waitSub:"{n} зуп. до {d}",take:"Сідайте на",towards:"напрямок",next:"наступна зупинка",travels:"Автобус від’їжджає на {dir}.",
+  waitAt:"Чекайте на зупинці {p}",waitSub:"{n} зуп. до {d}",take:"Сідайте на",towards:"напрямок",next:"наступна зупинка",travels:"Напрямок відправлення: {dir}.",
   pickHere:"Торкніться на мапі нижче позначки, де ви зараз стоїте.",same:"Ви вже на правильній зупинці. Залишайтеся тут.",
   cross:"Перейдіть від зупинки {a} до зупинки {b}, приблизно {m} м. {c}",crossZebra:"Переходьте по пішохідному переходу — найближчий приблизно за {z} м.",crossNone:"Переходьте лише по переходу або на світлофорі.",
   noMatch:"З {s} немає прямого автобуса чи трамвая до «{d}». Перевірте написання або виберіть зі списку.",empty:"Введіть пункт призначення. Ми покажемо, де чекати.",
@@ -329,7 +356,7 @@ const T_MORE={
   pickHere:"المس على الخريطة أدناه العلامة التي تقف عندها الآن لتحصل على إرشادات.",same:"أنت في الموقف الصحيح. ابقَ هنا.",
   cross:"اذهب من الموقف {a} إلى الموقف {b}، حوالي {m} م. {c}",crossZebra:"استخدم ممر المشاة (الخطوط البيضاء) — أقربها على بعد حوالي {z} م منك.",crossNone:"اعبر الشارع فقط من ممر المشاة أو عند الإشارة الضوئية.",
   noMatch:"لا توجد حافلة أو ترام مباشر من {s} إلى «{d}». تحقق من الكتابة أو اختر من القائمة.",empty:"اكتب وجهتك. سنريك أين تنتظر.",
-  tapHint:"المس علامة لتحدد أين تقف.",lgGo:"موقفك",lgHere:"أنت هنا",lgOther:"مواقف أخرى بالاسم نفسه",lgArrow:"السهم = اتجاه انطلاق الحافلة",
+  tapHint:"المس علامة لتحدد أين تقف.",lgGo:"موقفك",lgHere:"أنت هنا",lgOther:"مواقف أخرى بالاسم نفسه",lgArrow:"السهم = اتجاه الانطلاق",
   allPoles:"كل مواقف «{s}»",poleN:"الموقف {p}",sayLab:"اعرض هذا على شخص قريب",sayTr:"المعنى: «عذرًا، أريد الذهاب إلى {d}. هل هذه هي المحطة الصحيحة؟»",
   dirs:["الشمال","الشمال الشرقي","الشرق","الجنوب الشرقي","الجنوب","الجنوب الغربي","الغرب","الشمال الغربي"],
   foot:"نموذج أولي. المواقف والخطوط من OpenStreetMap (© المساهمون في OpenStreetMap، ODbL)، والأسماء من opentransportdata.swiss، بيانات بتاريخ {date}. تحمل المواقف الحرف المكتوب على لافتة المحطة إن وُجد في OSM، وإلا A وB وC. تحقق من اللافتة والجدول الزمني في المكان.",
@@ -529,6 +556,38 @@ const T_INFO={
  zh:{infoTitle:"包含哪些车站？",infoBody:"Rightside 是一个原型。它只包含这 {n} 个车站，这些车站都有多个同名站台：",infoMore:"其他车站暂未收录。",close:"关闭",faq:"常见问题"}
 };
 for(const l in T_INFO) Object.assign(T[l],T_INFO[l]);
+// Step-free access: badges, the wheelchair switch, warnings and crossing advice
+const ACC_KEYS=["accStepFree","accLimited","accNo","accTactile","accBench","accShelter","wcToggle","wcLimited","wcNo","wcUnknown","crossSignals","kerbUnknown","kerbOk"];
+const T_ACC={
+ en:["Step-free","Limited step-free access","Not step-free","Tactile paving","Bench","Shelter","I use a wheelchair or walking aid","This stop has only limited step-free access. You may need help boarding: check on site or ask the driver.","This stop is not step-free. Boarding without help may not be possible.","Step-free access at this stop is not recorded. Check on site.","Use the crossing with traffic lights, about {z} m from you.","Kerb ramps at this crossing are not recorded.","This crossing has lowered kerbs."],
+ de:["Stufenlos","Eingeschränkt stufenlos","Nicht stufenlos","Taktile Leitlinien","Sitzbank","Unterstand","Ich nutze einen Rollstuhl oder eine Gehhilfe","Diese Haltekante ist nur eingeschränkt stufenlos. Beim Einsteigen brauchst du eventuell Hilfe: Prüfe es vor Ort oder frag die Person am Steuer.","Diese Haltekante ist nicht stufenlos. Einsteigen ohne Hilfe ist eventuell nicht möglich.","Ob diese Haltekante stufenlos ist, ist nicht erfasst. Prüfe es vor Ort.","Nutze den Übergang mit Ampel, etwa {z} m entfernt.","Ob dieser Übergang abgesenkte Randsteine hat, ist nicht erfasst.","Dieser Übergang hat abgesenkte Randsteine."],
+ fr:["Sans marche","Accès sans marche limité","Pas sans marche","Bandes podotactiles","Banc","Abri","J’utilise un fauteuil roulant ou une aide à la marche","Ce quai n’est que partiellement accessible sans marche. Vous aurez peut-être besoin d’aide pour monter : vérifiez sur place ou demandez au chauffeur.","Ce quai n’est pas accessible sans marche. Monter sans aide n’est peut-être pas possible.","L’accès sans marche de ce quai n’est pas renseigné. Vérifiez sur place.","Utilisez le passage avec feux, à environ {z} m.","Les bordures abaissées de ce passage ne sont pas renseignées.","Ce passage a des bordures abaissées."],
+ it:["Senza gradini","Accesso senza gradini limitato","Non senza gradini","Percorso tattile","Panchina","Pensilina","Uso una sedia a rotelle o un ausilio per camminare","Questa fermata è accessibile senza gradini solo in parte. Potresti aver bisogno di aiuto per salire: verifica sul posto o chiedi all’autista.","Questa fermata non è senza gradini. Salire senza aiuto potrebbe non essere possibile.","L’accesso senza gradini di questa fermata non è registrato. Verifica sul posto.","Usa l’attraversamento con semaforo, a circa {z} m.","I marciapiedi ribassati di questo attraversamento non sono registrati.","Questo attraversamento ha marciapiedi ribassati."],
+ es:["Sin escalones","Acceso sin escalones limitado","Con escalones","Pavimento táctil","Banco","Marquesina","Uso silla de ruedas o ayuda para caminar","Esta parada solo es accesible sin escalones en parte. Puede que necesites ayuda para subir: compruébalo en el lugar o pregunta al conductor.","Esta parada no es accesible sin escalones. Puede que no sea posible subir sin ayuda.","No consta si esta parada es accesible sin escalones. Compruébalo en el lugar.","Usa el paso con semáforo, a unos {z} m.","No consta si este paso tiene bordillos rebajados.","Este paso tiene bordillos rebajados."],
+ pt:["Sem degraus","Acesso sem degraus limitado","Com degraus","Piso tátil","Banco","Abrigo","Uso cadeira de rodas ou apoio para andar","Esta paragem só é parcialmente acessível sem degraus. Pode precisar de ajuda para entrar: confirme no local ou pergunte ao motorista.","Esta paragem não é acessível sem degraus. Entrar sem ajuda pode não ser possível.","Não está registado se esta paragem é acessível sem degraus. Confirme no local.","Use a passadeira com semáforo, a cerca de {z} m.","Não está registado se esta passadeira tem lancis rebaixados.","Esta passadeira tem lancis rebaixados."],
+ sq:["Pa shkallë","Qasje pa shkallë e kufizuar","Me shkallë","Shirita prekës","Stol","Strehë","Përdor karrige me rrota ose mjet ndihmës për ecje","Ky stacion ka qasje pa shkallë vetëm të kufizuar. Mund të të duhet ndihmë për të hipur: kontrollo në vend ose pyet shoferin.","Ky stacion nuk është pa shkallë. Hipja pa ndihmë mund të mos jetë e mundur.","Qasja pa shkallë në këtë stacion nuk është regjistruar. Kontrollo në vend.","Përdor vendkalimin me semafor, rreth {z} m larg.","Nuk është regjistruar nëse ky vendkalim ka trotuar të ulur.","Ky vendkalim ka trotuar të ulur."],
+ bs:["Bez stepenica","Ograničen pristup bez stepenica","Sa stepenicama","Taktilna staza","Klupa","Nadstrešnica","Koristim invalidska kolica ili pomagalo za hodanje","Ova stanica je samo djelimično pristupačna bez stepenica. Možda ti treba pomoć pri ulasku: provjeri na licu mjesta ili pitaj vozača.","Ova stanica nije bez stepenica. Ulazak bez pomoći možda nije moguć.","Nije zabilježeno da li je ova stanica bez stepenica. Provjeri na licu mjesta.","Koristi prelaz sa semaforom, oko {z} m od tebe.","Nije zabilježeno ima li ovaj prelaz spušteni ivičnjak.","Ovaj prelaz ima spušteni ivičnjak."],
+ mk:["Без скали","Ограничен пристап без скали","Со скали","Тактилна патека","Клупа","Настрешница","Користам инвалидска количка или помагало за одење","Оваа постојка е само делумно пристапна без скали. Можеби ќе ви треба помош при качување: проверете на место или прашајте го возачот.","Оваа постојка не е без скали. Качувањето без помош можеби не е можно.","Не е запишано дали оваа постојка е без скали. Проверете на место.","Користете го преминот со семафор, околу {z} м од вас.","Не е запишано дали овој премин има спуштени рабници.","Овој премин има спуштени рабници."],
+ tr:["Basamaksız","Kısıtlı basamaksız erişim","Basamaklı","Hissedilebilir yüzey","Bank","Sundurma","Tekerlekli sandalye veya yürüme yardımcısı kullanıyorum","Bu durak yalnızca kısmen basamaksız. Binerken yardıma ihtiyacın olabilir: yerinde kontrol et ya da sürücüye sor.","Bu durak basamaksız değil. Yardımsız binmek mümkün olmayabilir.","Bu durağın basamaksız olup olmadığı kayıtlı değil. Yerinde kontrol et.","Trafik ışıklı geçidi kullan, yaklaşık {z} m uzakta.","Bu geçitte rampa olup olmadığı kayıtlı değil.","Bu geçitte alçaltılmış kaldırım var."],
+ ku:["Bê pêlik","Gihîştina bê pêlik a sînordar","Bi pêlik","Rêya hestbar","Kursî","Siwanok","Ez kursiya bi teker an alîkarê meşê bi kar tînim","Ev rawestgeh tenê bi awayekî sînordar bê pêlik e. Dibe ku ji bo siwarbûnê alîkarî lazim be: li cih kontrol bike an ji ajokar bipirse.","Ev rawestgeh ne bê pêlik e. Dibe ku bê alîkarî siwarbûn ne gengaz be.","Ma ev rawestgeh bê pêlik e, nehatiye tomarkirin. Li cih kontrol bike.","Derbasgeha bi ronahiya trafîkê bi kar bîne, nêzî {z} m dûr.","Ma vê derbasgehê rampa heye, nehatiye tomarkirin.","Vê derbasgehê kevirên kêlekê yên nizm hene."],
+ ar:["بدون درج","وصول محدود بدون درج","بها درج","بلاط إرشادي للمكفوفين","مقعد","مظلة","أستخدم كرسيًا متحركًا أو أداة مساعدة على المشي","هذا الموقف لا يتيح الوصول بدون درج إلا جزئيًا. قد تحتاج إلى مساعدة للصعود: تحقق في المكان أو اسأل السائق.","هذا الموقف ليس بدون درج. قد لا يمكن الصعود دون مساعدة.","لم يُسجَّل إن كان هذا الموقف بدون درج. تحقق في المكان.","استخدم ممر المشاة ذا الإشارة الضوئية، على بعد حوالي {z} م.","لم يُسجَّل إن كان لهذا الممر رصيف منخفض.","لهذا الممر رصيف منخفض."],
+ fa:["بدون پله","دسترسی بدون پلهٔ محدود","دارای پله","مسیر لمسی نابینایان","نیمکت","سایبان","از ویلچر یا وسیلهٔ کمک‌حرکتی استفاده می‌کنم","این ایستگاه فقط تا حدی بدون پله است. شاید برای سوار شدن به کمک نیاز داشته باشید: در محل بررسی کنید یا از راننده بپرسید.","این ایستگاه بدون پله نیست. شاید سوار شدن بدون کمک ممکن نباشد.","بدون پله بودن این ایستگاه ثبت نشده است. در محل بررسی کنید.","از گذرگاه دارای چراغ راهنمایی استفاده کنید، حدود {z} متر با شما فاصله دارد.","ثبت نشده که این گذرگاه لبهٔ پیاده‌روی پایین‌آمده دارد یا نه.","این گذرگاه لبهٔ پیاده‌روی پایین‌آمده دارد."],
+ ta:["படியில்லாதது","படியில்லா அணுகல் குறைவு","படிகள் உள்ளன","தொட்டுணர் வழித்தடம்","இருக்கை","நிழற்குடை","நான் சக்கர நாற்காலி அல்லது நடைக்கான உதவிக்கருவியைப் பயன்படுத்துகிறேன்","இந்த நிறுத்தத்தில் படியில்லா அணுகல் ஓரளவு மட்டுமே உள்ளது. ஏற உதவி தேவைப்படலாம்: அங்கேயே சரிபார்க்கவும் அல்லது ஓட்டுநரிடம் கேளுங்கள்.","இந்த நிறுத்தம் படியில்லாதது அல்ல. உதவியின்றி ஏறுவது சாத்தியமில்லாமல் இருக்கலாம்.","இந்த நிறுத்தம் படியில்லாததா என்பது பதிவு செய்யப்படவில்லை. அங்கேயே சரிபார்க்கவும்.","போக்குவரத்து விளக்குள்ள கடவையைப் பயன்படுத்துங்கள், சுமார் {z} மீ தொலைவில்.","இந்தக் கடவையில் தாழ்வான நடைபாதை விளிம்பு உள்ளதா என்பது பதிவு செய்யப்படவில்லை.","இந்தக் கடவையில் தாழ்வான நடைபாதை விளிம்பு உள்ளது."],
+ ti:["ብዘይ መደያይቦ","ብዘይ መደያይቦ ውሱን ምእታው","መደያይቦ ዘለዎ","ብምትንካፍ ዝፍለጥ መንገዲ","መቐመጢ","መጸለሊ","ዓረብያ ስንኩላን ወይ ሓጋዚ መሳርሒ ምኻድ እጥቀም","እዚ መዕረፊ ብዘይ መደያይቦ ብከፊል ጥራይ እዩ። ንምድያብ ሓገዝ ከድልየኩም ይኽእል: ኣብ ቦታኡ ኣረጋግጹ ወይ ንመራሕ መኪና ሕተቱ።","እዚ መዕረፊ ብዘይ መደያይቦ ኣይኮነን። ብዘይ ሓገዝ ምድያብ ዘይከኣል ክኸውን ይኽእል።","እዚ መዕረፊ ብዘይ መደያይቦ ምዃኑ ኣይተመዝገበን። ኣብ ቦታኡ ኣረጋግጹ።","መሳገሪ ምስ መብራህቲ ትራፊክ ተጠቐሙ፡ ኣስታት {z} ሜ ርሒቑ።","እዚ መሳገሪ ዝተነከየ ጠርዚ ከም ዘለዎ ኣይተመዝገበን።","እዚ መሳገሪ ዝተነከየ ጠርዚ ኣለዎ።"],
+ uk:["Без сходинок","Обмежений доступ без сходинок","Зі сходинками","Тактильна плитка","Лавка","Навіс","Я користуюся кріслом колісним або засобом для ходьби","Ця зупинка лише частково доступна без сходинок. Може знадобитися допомога під час посадки: перевірте на місці або запитайте водія.","Ця зупинка не має доступу без сходинок. Сісти без допомоги може бути неможливо.","Чи доступна ця зупинка без сходинок, не зазначено. Перевірте на місці.","Скористайтеся переходом зі світлофором, приблизно за {z} м від вас.","Не зазначено, чи має цей перехід занижений бордюр.","Цей перехід має занижений бордюр."],
+ ru:["Без ступенек","Ограниченный доступ без ступенек","Со ступеньками","Тактильная плитка","Скамейка","Навес","Я пользуюсь инвалидной коляской или средством для ходьбы","Эта остановка лишь частично доступна без ступенек. Может понадобиться помощь при посадке: проверьте на месте или спросите водителя.","Эта остановка недоступна без ступенек. Сесть без помощи может быть невозможно.","Доступность этой остановки без ступенек не указана. Проверьте на месте.","Используйте переход со светофором, примерно в {z} м от вас.","Не указано, есть ли у этого перехода пониженный бордюр.","У этого перехода пониженный бордюр."],
+ pl:["Bez stopni","Ograniczony dostęp bez stopni","Ze stopniami","Ścieżka dotykowa","Ławka","Wiata","Poruszam się na wózku lub z pomocą do chodzenia","Ten przystanek jest tylko częściowo dostępny bez stopni. Przy wsiadaniu może być potrzebna pomoc: sprawdź na miejscu lub zapytaj kierowcę.","Ten przystanek nie jest dostępny bez stopni. Wejście bez pomocy może być niemożliwe.","Nie zapisano, czy ten przystanek jest dostępny bez stopni. Sprawdź na miejscu.","Skorzystaj z przejścia ze światłami, około {z} m od ciebie.","Nie zapisano, czy to przejście ma obniżony krawężnik.","To przejście ma obniżony krawężnik."],
+ ro:["Fără trepte","Acces fără trepte limitat","Cu trepte","Pavaj tactil","Bancă","Adăpost","Folosesc un scaun cu rotile sau un ajutor pentru mers","Această stație este doar parțial accesibilă fără trepte. Este posibil să ai nevoie de ajutor la urcare: verifică la fața locului sau întreabă șoferul.","Această stație nu este fără trepte. Urcarea fără ajutor s-ar putea să nu fie posibilă.","Nu este înregistrat dacă această stație este fără trepte. Verifică la fața locului.","Folosește trecerea cu semafor, la aproximativ {z} m de tine.","Nu este înregistrat dacă această trecere are bordura coborâtă.","Această trecere are bordura coborâtă."],
+ zh:["无台阶","无台阶通行受限","有台阶","盲道","长椅","候车亭","我使用轮椅或助行器","此站台只能部分无台阶通行。上车时可能需要帮助：请在现场确认或询问司机。","此站台不是无台阶的。没有帮助可能无法上车。","未记录此站台是否无台阶。请在现场确认。","请走有红绿灯的人行横道，离你约 {z} 米。","未记录这个人行横道是否有缘石坡道。","这个人行横道有缘石坡道。"]
+};
+for(const l in T_ACC) ACC_KEYS.forEach((k,i)=>{T[l][k]=T_ACC[l][i]});
+// Bus / Tram / Trolleybus
+const T_MODE={en:["Bus","Tram","Trolleybus"],de:["Bus","Tram","Trolleybus"],fr:["Bus","Tram","Trolleybus"],it:["Bus","Tram","Filobus"],
+ es:["Autobús","Tranvía","Trolebús"],pt:["Autocarro","Elétrico","Troleicarro"],sq:["Autobus","Tramvaj","Trolejbus"],bs:["Autobus","Tramvaj","Trolejbus"],
+ mk:["Автобус","Трамвај","Тролејбус"],tr:["Otobüs","Tramvay","Troleybüs"],ku:["Otobûs","Tramwa","Troleybûs"],ar:["حافلة","ترام","حافلة كهربائية"],
+ fa:["اتوبوس","تراموا","اتوبوس برقی"],ta:["பேருந்து","டிராம்","மின்சாரப் பேருந்து"],ti:["ኣውቶቡስ","ትራም","ኤሌክትሪካዊ ኣውቶቡስ"],
+ uk:["Автобус","Трамвай","Тролейбус"],ru:["Автобус","Трамвай","Троллейбус"],pl:["Autobus","Tramwaj","Trolejbus"],ro:["Autobuz","Tramvai","Troleibuz"],zh:["公交车","有轨电车","无轨电车"]};
+for(const l in T_MODE){[T[l].modeBus,T[l].modeTram,T[l].modeTrolley]=T_MODE[l]}
 // shown in each language's own script, so people can find theirs without reading English
 // Menu order: English and the national languages first, then the largest immigrant language communities.
 // "beta" = not yet checked by a native speaker.
@@ -543,6 +602,7 @@ const REGION_LANG=n=>/^(Lausanne|Genève|Neuchâtel|Sion|Fribourg)/.test(n)?"fr"
 
 let DATA,lang="en",stop,here=null;
 let showAll=false; // map: false = zoomed on your stop and its twin
+let wcMode=false;  // "I use a wheelchair or walking aid": step-free warnings, crossings with lights first
 let me=null,watchId=null,locState=null; // me = {lat,lon,acc} from GPS or typed coordinates
 const $=id=>document.getElementById(id);
 const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]??"");
@@ -571,25 +631,33 @@ function renderAnswer(){
   if(!m){el.innerHTML=`<p class="muted">${L.empty}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
   if(!m.length){el.innerHTML=`<p>${fmt(L.noMatch,{s:esc(stop.name),d:esc(dest)})}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
   const best=m[0].p, same=m.filter(x=>x.p===best), name=m[0].name;
-  const rides=same.map(x=>`<li><span class="ln">${esc(x.r.line)}</span><span>${L.towards} <b>${esc(x.r.to)}</b> · ${L.next}: ${esc(x.r.next)}</span></li>`).join("");
+  const rides=same.map(x=>`<li><span class="ride-line">${modeTag(x.r.mode)}${lineBadge(x.r)}</span><span>${L.towards} <b>${esc(x.r.to)}</b> · ${L.next}: ${esc(x.r.next)}</span></li>`).join("");
   let walk;
   if(!here) walk=`<div class="step"><span class="dot"></span><span>${L.pickHere}</span></div>`;
   else if(here.id===best.id) walk=`<div class="step same"><span class="dot"></span><span><b>${L.same}</b></span></div>`;
   else{
     const z=nearestCrossing(here,best);
-    walk=`<div class="step"><span class="dot"></span><span>${fmt(L.cross,{a:here.label,b:best.label,m:Math.round(dist(here,best)),c:z!=null?fmt(L.crossZebra,{z}):L.crossNone})}</span></div>`;
+    let c=z?fmt(L.crossZebra,{z:z.d}):L.crossNone;
+    if(z&&wcMode){ // wheelchair: the crossing with lights we picked, and what we know about its kerbs
+      c=(z.sig?fmt(L.crossSignals,{z:z.d}):fmt(L.crossZebra,{z:z.d}))+" "+(["lowered","flush"].includes(z.kerb)?L.kerbOk:L.kerbUnknown);
+    }
+    walk=`<div class="step"><span class="dot"></span><span>${fmt(L.cross,{a:here.label,b:best.label,m:Math.round(dist(here,best)),c})}</span></div>`;
   }
   const other=[...new Set(m.filter(x=>x.p!==best).map(x=>x.p.label))];
   // a twin across the street going the other way is the classic mix-up: warn, and give a check that needs no German
   const tw=twinsOf(best)[0];
   const careful=tw?`<div class="careful"><b>${fmt(L.twinWarn,{q:esc(tw.label),m:Math.round(dist(tw,best)),o:esc(tw.routes[0].to)})}</b><span>${fmt(L.signCheck,{l:esc(same[0].r.line),d:esc(same[0].r.to),o:esc(tw.routes[0].to)})}</span></div>`:"";
   const side=sideLabel(best);
-  el.innerHTML=`<div class="big"><div class="pole" aria-hidden="true">${esc(best.label)}</div><div><h2>${fmt(L.waitAt,{p:esc(best.label)})}</h2>${side?`<p class="side">${esc(side)}</p>`:""}<p>${fmt(L.waitSub,{n:m[0].n,d:esc(name)})} · ${fmt(L.travels,{dir:dirWord(same[0].r.bearing)})}</p></div>${speakBtn("ansListen","answer",L.listen)}</div><span class="amsg" id="ansMsg" aria-live="polite"></span>
-  <ul class="rides">${rides}</ul>${careful}${walk}${other.length?`<p class="muted" style="margin:0;font-size:13px">+ ${other.map(o=>fmt(L.poleN,{p:o})).join(", ")}</p>`:""}`;
+  // step-free: with the switch on, say plainly when this stop is limited, not step-free, or unknown
+  const wc=(best.acc||{}).wc;
+  const wcwarn=!wcMode||wc==="yes"?"":wc==="limited"?`<div class="wcwarn">${esc(L.wcLimited)}</div>`:wc==="no"?`<div class="wcwarn no">${esc(L.wcNo)}</div>`:`<div class="wcwarn unk">${esc(L.wcUnknown)}</div>`;
+  el.innerHTML=`<div class="big"><div class="pole" aria-hidden="true">${esc(best.label)}</div><div><h2>${fmt(L.waitAt,{p:esc(best.label)})}</h2>${side?`<p class="side">${esc(side)}</p>`:""}<p>${fmt(L.waitSub,{n:m[0].n,d:esc(name)})} · ${fmt(L.travels,{dir:dirWord(departBearing(best,same[0].r))})}</p></div>${speakBtn("ansListen","answer",L.listen)}</div><span class="amsg" id="ansMsg" aria-live="polite"></span>
+  ${accChips(best)}${wcwarn}<ul class="rides">${rides}</ul>${careful}${walk}${other.length?`<p class="muted" style="margin:0;font-size:13px">+ ${other.map(o=>fmt(L.poleN,{p:o})).join(", ")}</p>`:""}`;
   // what "Listen" says: the card, top to bottom, in the viewer's language
   const q=s=>(el.querySelector(s)?.textContent||"").trim();
   answerSpeech=forSpeech([q("h2"),q(".side"),q(".big h2 ~ p:last-of-type"),
-    ...same.map(x=>`${fmt(L.lineSay,{l:x.r.line})}, ${L.towards} ${x.r.to}. ${L.next}: ${x.r.next}`),
+    [...el.querySelectorAll(":scope > .chips .chip")].map(c=>c.textContent.trim()).join(", "),q(".wcwarn"),
+    ...same.map(x=>`${modeWord(x.r.mode)} ${x.r.line}, ${L.towards} ${x.r.to}. ${L.next}: ${x.r.next}`),
     q(".careful b"),q(".careful span"),q(".step")].filter(Boolean).map(s=>s.replace(/[.。።]$/,"")).join(". ")+".");
   drawMap(best);renderPlats(best);renderPhrase(name);
   return best;
@@ -710,10 +778,44 @@ function speakText(kind,text,tag){
 
 // ---- twin stops and street side -----------------------------------------
 const angDiff=(a,b)=>Math.abs(((a-b+540)%360)-180);
+// Which way a line LEAVES this pole. The data's bearing is a straight line to the next stop, which can be
+// hundreds of metres away round a corner (Bern Zytglogge E: trams go north up Theaterplatz, then turn west),
+// so that arrow cut through buildings. Instead: follow the street the pole stands on (nearest drivable street
+// within 12 m), in whichever of its two directions is closer to the next stop. No street nearby: straight line.
+function departBearing(p,r){
+  p._dep=p._dep||{};const key=r.line+">"+r.to+">"+r.next;
+  if(key in p._dep)return p._dep[key];
+  let best=null;
+  for(const w of stop.streets){
+    if(!ROADS.has(w.k)||w.k==="service")continue;
+    for(let i=1;i<w.p.length;i++){
+      const [ax,ay]=w.p[i-1],[bx,by]=w.p[i],dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;
+      if(L2<1)continue;
+      const u=Math.max(0,Math.min(1,((p.x-ax)*dx+(p.y-ay)*dy)/L2));
+      const d=Math.hypot(p.x-(ax+u*dx),p.y-(ay+u*dy));
+      const qx=ax+u*dx,qy=ay+u*dy;
+      if(d<12&&(!best||d<best.d))best={d,brg:(Math.atan2(dx,-dy)*180/Math.PI+360)%360,side:(Math.atan2(p.x-qx,-(p.y-qy))*180/Math.PI+360)%360};
+    }
+  }
+  let out=r.bearing;
+  if(best){
+    const a=best.brg,b=(best.brg+180)%360;
+    const towardNext=angDiff(a,r.bearing)<=angDiff(b,r.bearing)?a:b;
+    // Switzerland drives on the right: the bus leaves in the direction that has its stop on the RIGHT.
+    // Same answer for every line at this pole, even when the next stop is round a corner.
+    const keepsRight=angDiff(best.side,(a+90)%360)<90?a:b;
+    // Only trust the street when it roughly agrees with where the next stop is; on big open squares
+    // (Basel Aeschenplatz) the nearest street can be the wrong one, so keep the straight line there.
+    if(best.d>=1.5){if(angDiff(keepsRight,r.bearing)<=100)out=keepsRight}   // kerbside stop
+    else if(angDiff(towardNext,r.bearing)<=100)out=towardNext;               // on the centre line (tram island)
+  }
+  return p._dep[key]=Math.round(out);
+}
+
 // same-named poles close to the target whose buses all leave the opposite way
 function twinsOf(target){
-  const tb=target.routes.map(r=>r.bearing);
-  return stop.platforms.filter(p=>p!==target&&dist(p,target)<40&&p.routes.every(r=>tb.every(b=>angDiff(b,r.bearing)>100)))
+  const tb=target.routes.map(r=>departBearing(target,r));
+  return stop.platforms.filter(p=>p!==target&&dist(p,target)<40&&p.routes.every(r=>tb.every(b=>angDiff(b,departBearing(p,r))>100)))
     .sort((a,b)=>dist(a,target)-dist(b,target));
 }
 // which side of the nearest street a pole stands on, from the OSM centreline
@@ -743,12 +845,49 @@ function sideLabel(p){
   return `${s.st}, ${t().sides[s.s]}`;
 }
 
+// "You are here": a blue location pin with a person in it, standing on top of your stop's marker.
+// Drawn in the marker's own units (marker radius ~8.5), tip touching the marker's top edge.
+const PIN_SHAPES=`<path d="M0,-8.6 C-3,-12 -7,-15.5 -7,-20 A7,7 0 1 1 7,-20 C7,-15.5 3,-12 0,-8.6Z" fill="var(--here)" stroke="var(--surface)" stroke-width="1.3"/><circle cx="0" cy="-22.4" r="1.9" fill="var(--surface)"/><path d="M-3.4,-16.2a3.4,3.4 0 0 1 6.8,0Z" fill="var(--surface)"/>`;
+const HERE_PIN=`<g pointer-events="none">${PIN_SHAPES}</g>`;
+// "Your stop": a green flag with a tick, planted on the stop's marker — a different shape from the pin.
+const FLAG_SHAPES=`<path d="M0,-8.6V-28" stroke="var(--go)" stroke-width="2" stroke-linecap="round"/><path d="M1,-28H14L10.8,-23.3L14,-18.6H1Z" fill="var(--go)" stroke="var(--surface)" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.9,-23.4l2.3,2.3l4.2-4.4" fill="none" stroke="var(--surface)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>`;
+// when you're already standing at your stop, flag and pin stand side by side
+const markerIcons=(isT,isH)=>(isT?`<g pointer-events="none"${isH?' transform="translate(4,0)"':""}>${FLAG_SHAPES}</g>`:"")
+  +(isH?`<g pointer-events="none"${isT?' transform="translate(-8,0)"':""}>${PIN_SHAPES}</g>`:"");
+
+// ---- bus / tram / trolleybus -------------------------------------------------
+const ICON_BUS=s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 11h16" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="14.5" r="1.3" fill="currentColor"/><circle cx="16" cy="14.5" r="1.3" fill="currentColor"/><path d="M7 18v2.5M17 18v2.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+const ICON_TRAM=s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.5h6M12 2.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="5.5" width="14" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12h14" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="15.3" r="1.2" fill="currentColor"/><circle cx="15" cy="15.3" r="1.2" fill="currentColor"/><path d="M8 18.5 6 21.5M16 18.5l2 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const isTram=m=>m==="tram";
+function modeWord(m){const L=t();return m==="tram"?L.modeTram:m==="trolleybus"?L.modeTrolley:L.modeBus}
+function modeIcon(m,s){return `<span class="mode ${isTram(m)?"tram":"bus"}" title="${esc(modeWord(m))}">${isTram(m)?ICON_TRAM(s):ICON_BUS(s)}</span>`}
+function modeTag(m){return `<span class="mode ${isTram(m)?"tram":"bus"}">${isTram(m)?ICON_TRAM(15):ICON_BUS(15)}<span>${esc(modeWord(m))}</span></span>`}
+function lineBadge(r){return `<span class="ln${isTram(r.mode)?" tram":""}">${esc(r.line)}</span>`}
+const poleIsTram=p=>p.routes.length>0&&p.routes.every(r=>isTram(r.mode));
+
+// badges for one pole: step-free status, then tactile paving, bench, shelter when OSM says yes
+const ICON_WC=`<svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="3.6" r="2.1" fill="currentColor"/><path d="M10 7.2v6h6.2l2.6 5.6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.4 10.6a6 6 0 1 0 8.2 7.7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`;
+function accChips(p){
+  const a=p.acc||{},L=t(),out=[];
+  if(a.wc==="yes")out.push(`<li class="chip ok">${ICON_WC}${esc(L.accStepFree)}</li>`);
+  else if(a.wc==="limited")out.push(`<li class="chip lim">${ICON_WC}${esc(L.accLimited)}</li>`);
+  else if(a.wc==="no")out.push(`<li class="chip no">${ICON_WC}${esc(L.accNo)}</li>`);
+  if(a.tact==="yes")out.push(`<li class="chip">${esc(L.accTactile)}</li>`);
+  if(a.bench==="yes")out.push(`<li class="chip">${esc(L.accBench)}</li>`);
+  if(a.shelter==="yes")out.push(`<li class="chip">${esc(L.accShelter)}</li>`);
+  return out.length?`<ul class="chips">${out.join("")}</ul>`:"";
+}
+// crossing to use between two poles: nearest to the midpoint; in wheelchair mode, one with traffic
+// lights wins if it is within 120 m. Returns {d: metres from where you stand, sig, kerb} or null.
 function nearestCrossing(a,b){
-  if(!stop.crossings.length) return null;
   const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
-  let best=null,bd=1e9;
-  for(const [x,y] of stop.crossings){const d=Math.hypot(x-mid.x,y-mid.y); if(d<bd){bd=d;best={x,y}}}
-  return bd<80?Math.round(dist(a,best)):null;
+  const list=(stop.xings&&stop.xings.length)?stop.xings:(stop.crossings||[]).map(([x,y])=>({x,y,sig:false}));
+  if(!list.length) return null;
+  const by=arr=>arr.map(c=>({c,dm:Math.hypot(c.x-mid.x,c.y-mid.y)})).sort((p,q)=>p.dm-q.dm)[0];
+  let pick=by(list);
+  if(wcMode){const lit=list.filter(c=>c.sig);const l=lit.length&&by(lit);if(l&&l.dm<120)pick=l}
+  if(!pick||pick.dm>=(wcMode&&pick.c.sig?120:80)) return null;
+  return {d:Math.round(dist(a,pick.c)),sig:!!pick.c.sig,kerb:pick.c.kerb};
 }
 
 // ---- destination dropdown ------------------------------------------------
@@ -758,7 +897,7 @@ function openList(q){
   shown=n?DESTS.filter(d=>norm(d.name).includes(n)).sort((a,b)=>(norm(b.name).startsWith(n)-norm(a.name).startsWith(n))||a.name.localeCompare(b.name)):DESTS;
   active=-1;
   const L=t();
-  $("destList").innerHTML=shown.length?shown.map((d,i)=>`<li role="option" id="opt${i}" data-i="${i}" aria-selected="false"><span>${esc(d.name)}</span><span class="hint">${esc(fmt(L.poleN,{p:d.label}))} · ${esc(d.line)}</span></li>`).join("")
+  $("destList").innerHTML=shown.length?shown.map((d,i)=>`<li role="option" id="opt${i}" data-i="${i}" aria-selected="false"><span>${esc(d.name)}</span><span class="hint">${esc(fmt(L.poleN,{p:d.label}))} · ${modeIcon(d.mode,12)}${esc(d.line)}</span></li>`).join("")
     :`<li class="none">${esc(fmt(L.noMatch,{s:stop.name,d:q}))}</li>`;
   $("destList").hidden=false;$("dest").setAttribute("aria-expanded","true");$("destList").scrollTop=0;
 }
@@ -837,7 +976,11 @@ function drawMap(target){
   for(const w of stop.streets.filter(w=>w.k==="footway")) s+=`<path d="${d(w)}" fill="none" stroke="var(--path)" stroke-width="1" stroke-dasharray="2 2"/>`;
   for(const w of roads) s+=`<path d="${d(w)}" fill="none" stroke="var(--asphalt-edge)" stroke-width="${W[w.k]+1.6}" stroke-linecap="round" stroke-linejoin="round"/>`;
   for(const w of roads) s+=`<path d="${d(w)}" fill="none" stroke="var(--asphalt)" stroke-width="${W[w.k]}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  for(const [x,y] of stop.crossings) s+=`<g transform="translate(${x},${y})"><rect x="-2" y="-2" width="4" height="4" fill="none" stroke="var(--surface)" stroke-width="0.8" stroke-dasharray="0.8 0.7"/></g>`;
+  // crossings; in wheelchair mode the ones with traffic lights are drawn solid blue
+  const xs2=(stop.xings&&stop.xings.length)?stop.xings:(stop.crossings||[]).map(([x,y])=>({x,y}));
+  for(const c of xs2) s+=wcMode&&c.sig
+    ?`<g transform="translate(${c.x},${c.y})"><rect x="-2.4" y="-2.4" width="4.8" height="4.8" rx="1" fill="var(--here)" stroke="var(--surface)" stroke-width="0.7"/></g>`
+    :`<g transform="translate(${c.x},${c.y})"><rect x="-2" y="-2" width="4" height="4" fill="none" stroke="var(--surface)" stroke-width="0.8" stroke-dasharray="0.8 0.7"/></g>`;
   // street names: one label per name, on its longest visible segment
   const seen=new Set();
   for(const w of [...roads].sort((a,b)=>W[b.k]-W[a.k])){
@@ -850,7 +993,7 @@ function drawMap(target){
   }
   // departure arrows
   for(const p of stop.platforms){
-    const bs=[...new Set(p.routes.map(r=>Math.round(r.bearing/20)*20))];
+    const bs=[...new Set(p.routes.map(r=>Math.round(departBearing(p,r)/20)*20))];
     const col=target&&p.id===target.id?"var(--go)":"var(--fg)";
     for(const b of bs){const r=b*Math.PI/180,dx=Math.sin(r),dy=-Math.cos(r);
       const x1=p.x+dx*10*k,y1=p.y+dy*10*k,x2=p.x+dx*24*k,y2=p.y+dy*24*k;
@@ -863,9 +1006,11 @@ function drawMap(target){
     const isT=target&&p.id===target.id,isH=here&&p.id===here.id;
     const ring=isT?"var(--go)":isH?"var(--here)":"var(--stop)";
     s+=`<g class="mk" tabindex="0" role="button" aria-label="${esc(fmt(L.poleN,{p:p.label}))}" data-id="${p.id}" transform="translate(${p.x},${p.y}) scale(${k})">
-      ${isT?`<circle class="ring" r="9" fill="var(--go)"/>`:""}${isH&&!isT?`<circle r="13" fill="var(--here)" opacity=".25"/>`:""}
-      <circle r="${isT||isH?8.5:7}" fill="var(--pole)" stroke="${ring}" stroke-width="${isT||isH?2.6:1.6}"/>
-      <text text-anchor="middle" dominant-baseline="central" style="font-size:${isT||isH?9:8}px">${esc(p.label)}</text></g>`;
+      ${isT?`<circle class="ring" r="9" fill="var(--go)"/>`:""}
+      ${(()=>{const r=isT||isH?8.5:7,sw=isT||isH?2.6:1.6; // tram-only poles are rounded squares, bus poles circles
+        return poleIsTram(p)?`<rect x="${-r}" y="${-r}" width="${2*r}" height="${2*r}" rx="${r*.38}" fill="var(--pole)" stroke="${ring}" stroke-width="${sw}"/>`
+          :`<circle r="${r}" fill="var(--pole)" stroke="${ring}" stroke-width="${sw}"/>`})()}
+      <text text-anchor="middle" dominant-baseline="central" style="font-size:${isT||isH?9:8}px">${esc(p.label)}</text>${markerIcons(isT,isH)}</g>`;
   }
   // north + scale
   const sb=h>100?50:20;
@@ -880,8 +1025,8 @@ function drawMap(target){
 function renderPlats(target){
   const L=t();
   $("plats").innerHTML=stop.platforms.map(p=>`<div class="plat${target&&p.id===target.id?" on":""}${here&&p.id===here.id?" me":""}">
-    <h3><span class="pl">${esc(p.label)}</span><span>${fmt(L.poleN,{p:esc(p.label)})}${sideLabel(p)?`<small class="sd">${esc(sideLabel(p))}</small>`:""}</span></h3>
-    <ul>${p.routes.map(r=>`<li><span class="ln">${esc(r.line)}</span> ${L.towards} <b>${esc(r.to)}</b><br><span class="muted">${L.next}: ${esc(r.next)} · ${dirWord(r.bearing)}</span></li>`).join("")}</ul></div>`).join("");
+    <h3><span class="pl">${esc(p.label)}</span><span>${fmt(L.poleN,{p:esc(p.label)})}${sideLabel(p)?`<small class="sd">${esc(sideLabel(p))}</small>`:""}</span></h3>${accChips(p)}
+    <ul>${p.routes.map(r=>`<li>${modeIcon(r.mode,12)} ${lineBadge(r)} ${L.towards} <b>${esc(r.to)}</b><br><span class="muted">${L.next}: ${esc(r.next)} · ${dirWord(departBearing(p,r))}</span></li>`).join("")}</ul></div>`).join("");
 }
 
 function renderPhrase(dest){
@@ -909,7 +1054,7 @@ function setStop(i,keepDest,hereP){
   // every reachable stop, with the pole + line that gets there in the fewest stops
   const byName={};
   for(const p of stop.platforms) for(const r of p.routes) r.via.forEach((v,i)=>{
-    if(!byName[v]||i+1<byName[v].n) byName[v]={name:v,label:p.label,line:r.line,n:i+1}});
+    if(!byName[v]||i+1<byName[v].n) byName[v]={name:v,label:p.label,line:r.line,mode:r.mode,n:i+1}});
   DESTS=Object.values(byName).sort((a,b)=>a.name.localeCompare(b.name));
   closeList();
   if(!keepDest){ // example destination: the end of the first line
@@ -952,6 +1097,9 @@ async function boot(){
     else if(phraseSpeech)speakText("phrase",phraseSpeech.text,phraseSpeech.tag);
   });
   $("zoomBtn").addEventListener("click",()=>{showAll=!showAll;renderAnswer()});
+  // wheelchair / walking-aid switch, remembered on this device
+  wcMode=store.get("ws-wc")==="1";$("wcToggle").checked=wcMode;
+  $("wcToggle").addEventListener("change",e=>{wcMode=e.target.checked;store.set("ws-wc",wcMode?"1":"0");renderAnswer()});
   // "Which stops are included?": the prototype's stop list; tapping one opens it
   $("infoBtn").addEventListener("click",()=>{
     const L=t(),dlg=$("infoDlg");
