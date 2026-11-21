@@ -178,6 +178,25 @@ svg.map{display:block;width:100%;height:auto;max-height:55vh;background:var(--bl
 h4{font:700 14px var(--display);margin:6px 0 0}
 footer{font-size:12px;color:var(--muted);line-height:1.6}
 footer a{color:inherit}
+/* AR view: deliberately dark over the camera image in both themes, so labels read on any street */
+.ar{position:fixed;inset:0;z-index:100;background:#000;color:#fff;overflow:hidden}
+.ar video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ar-labels{position:absolute;inset:0;pointer-events:none}
+.ar-lab{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px;font:700 14px/1.2 var(--body);white-space:nowrap;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.ar-lab .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(20,24,22,.78);border:2px solid var(--pole);color:#fff}
+.ar-lab .let{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--pole);color:#1b1f1d;font:800 15px var(--display)}
+.ar-lab.go .tag{border-color:#3fcf83;background:rgba(15,138,74,.92);font-size:16px}
+.ar-lab.cross .tag{border-color:#7aa7ff;background:rgba(31,95,209,.9)}
+.ar-lab .stem{width:2px;height:26px;background:rgba(255,255,255,.85)}
+.ar-close{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:2;display:inline-flex;align-items:center;gap:6px;font:600 15px var(--body);padding:10px 14px;border-radius:999px;border:0;background:rgba(20,24,22,.8);color:#fff;cursor:pointer}
+.ar-close span:first-child{font-size:22px;line-height:1}
+.ar-arrow{position:absolute;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));width:96px;height:96px;margin-left:-48px;transition:transform .12s linear;filter:drop-shadow(0 3px 8px rgba(0,0,0,.55))}
+.ar-arrow svg{width:100%;height:100%}
+.ar-panel{position:absolute;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(transparent,rgba(0,0,0,.85) 30%);display:flex;flex-direction:column;gap:4px;text-align:center}
+.ar-panel b{font:800 22px/1.2 var(--display)}
+.ar-panel span{font-size:15px}
+.ar-panel small{font-size:13px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.ar-arrow{transition:none}}
 @keyframes pulse{0%{r:9;opacity:.6}100%{r:20;opacity:0}}
 .ring{animation:pulse 1.6s ease-out infinite}
 @media (prefers-reduced-motion:reduce){.ring{animation:none;opacity:.35;r:14}}
@@ -202,6 +221,7 @@ footer a{color:inherit}
 
   <div class="locate">
     <button id="locBtn" type="button" class="btn"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2"/></svg><span data-t="locBtn"></span></button>
+    <button id="arBtn" type="button" class="btn" hidden><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4" fill="none" stroke="currentColor" stroke-width="2"/></svg><span data-t="arBtn"></span></button>
     <span id="locMsg" aria-live="polite"></span>
   </div>
   <details class="coord" id="coordBox">
@@ -221,6 +241,7 @@ footer a{color:inherit}
       <span><i style="background:var(--pole)"></i><span data-t="lgOther"></span></span>
       <span><i style="background:var(--pole);box-shadow:inset 0 0 0 1.5px var(--fg)"></i><span data-t="modeBus"></span></span>
       <span><i class="sq" style="background:var(--pole);box-shadow:inset 0 0 0 1.5px var(--fg)"></i><span data-t="modeTram"></span></span>
+      <span class="lg-pin"><svg width="22" height="8" viewBox="0 0 22 8" aria-hidden="true"><path d="M3,4H19" stroke="var(--here)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.01 5.5"/></svg><span data-t="lgRoute"></span></span>
       <span data-t="lgArrow"></span>
     </div>
   </section>
@@ -232,6 +253,15 @@ footer a{color:inherit}
   <section class="phrase" id="phrase"></section>
 
   <footer id="foot"></footer>
+</div>
+
+<!-- AR view: live camera with an arrow to your stop and floating stop labels -->
+<div class="ar" id="ar" hidden role="dialog" aria-modal="true" aria-labelledby="arTarget">
+  <video id="arVideo" playsinline muted autoplay></video>
+  <div class="ar-labels" id="arLabels" aria-hidden="true"></div>
+  <button type="button" class="ar-close" id="arClose"><span aria-hidden="true">×</span> <span id="arCloseTxt"></span></button>
+  <div class="ar-arrow" id="arArrow" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50 6 L84 74 L50 58 L16 74 Z" fill="var(--go)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></svg></div>
+  <div class="ar-panel"><b id="arTarget"></b><span id="arMsg" aria-live="polite"></span><small id="arCheck"></small></div>
 </div>
 
 <!-- "Which stops are included?" -->
@@ -588,6 +618,58 @@ const T_MODE={en:["Bus","Tram","Trolleybus"],de:["Bus","Tram","Trolleybus"],fr:[
  fa:["اتوبوس","تراموا","اتوبوس برقی"],ta:["பேருந்து","டிராம்","மின்சாரப் பேருந்து"],ti:["ኣውቶቡስ","ትራም","ኤሌክትሪካዊ ኣውቶቡስ"],
  uk:["Автобус","Трамвай","Тролейбус"],ru:["Автобус","Трамвай","Троллейбус"],pl:["Autobus","Tramwaj","Trolejbus"],ro:["Autobuz","Tramvai","Troleibuz"],zh:["公交车","有轨电车","无轨电车"]};
 for(const l in T_MODE){[T[l].modeBus,T[l].modeTram,T[l].modeTrolley]=T_MODE[l]}
+// map key: the dotted walking route
+const T_ROUTE={en:"Walking route",de:"Fussweg",fr:"Itinéraire à pied",it:"Percorso a piedi",es:"Ruta a pie",pt:"Caminho a pé",sq:"Rruga në këmbë",
+ bs:"Pješačka ruta",mk:"Пешачка рута",tr:"Yürüme rotası",ku:"Rêya peyatî",ar:"مسار المشي",fa:"مسیر پیاده",ta:"நடை வழி",ti:"መንገዲ ብእግሪ",
+ uk:"Пішохідний маршрут",ru:"Пешеходный маршрут",pl:"Trasa piesza",ro:"Traseu pe jos",zh:"步行路线"};
+for(const l in T_ROUTE)T[l].lgRoute=T_ROUTE[l];
+// no pedestrian crossing within 50 m: crossing anywhere is allowed, carefully
+const T_CAREFUL={en:"There is no pedestrian crossing nearby: cross carefully where you can see traffic both ways.",
+ de:"Kein Fussgängerstreifen in der Nähe: Überquere die Strasse vorsichtig dort, wo du den Verkehr in beide Richtungen siehst.",
+ fr:"Pas de passage piéton à proximité : traversez prudemment là où vous voyez la circulation dans les deux sens.",
+ it:"Nessun attraversamento pedonale vicino: attraversa con attenzione dove vedi il traffico in entrambe le direzioni.",
+ es:"No hay paso de peatones cerca: cruza con cuidado donde veas el tráfico en ambos sentidos.",
+ pt:"Não há passadeira perto: atravesse com cuidado onde consiga ver o trânsito nos dois sentidos.",
+ sq:"Nuk ka vendkalim këmbësorësh afër: kalo me kujdes aty ku e sheh trafikun nga të dy anët.",
+ bs:"U blizini nema pješačkog prelaza: pređi oprezno tamo gdje vidiš saobraćaj u oba smjera.",
+ mk:"Во близина нема пешачки премин: преминете внимателно таму каде што го гледате сообраќајот од двете страни.",
+ tr:"Yakında yaya geçidi yok: trafiği iki yönden de görebildiğin yerden dikkatlice karşıya geç.",
+ ku:"Li nêzîk derbasgeha peyayan tune ye: li cihê ku tu trafîkê ji her du aliyan dibînî, bi baldarî derbas bibe.",
+ ar:"لا يوجد ممر مشاة قريب: اعبر بحذر من مكان ترى فيه حركة المرور في الاتجاهين.",
+ fa:"گذرگاه عابر پیاده‌ای در نزدیکی نیست: جایی با احتیاط عبور کنید که ترافیک هر دو طرف را ببینید.",
+ ta:"அருகில் பாதசாரிகள் கடவை இல்லை: இரு பக்கப் போக்குவரத்தையும் பார்க்கக்கூடிய இடத்தில் கவனமாகக் கடக்கவும்.",
+ ti:"ኣብ ቀረባ መሳገሪ እግረኛ የለን: ትራፊክ ካብ ክልቲኡ ወገን ኣብ ትርእዩሉ ቦታ ብጥንቃቐ ስገሩ።",
+ uk:"Поблизу немає пішохідного переходу: переходьте обережно там, де бачите рух в обидва боки.",
+ ru:"Поблизости нет пешеходного перехода: переходите осторожно там, где видно движение в обе стороны.",
+ pl:"W pobliżu nie ma przejścia dla pieszych: przechodź ostrożnie tam, gdzie widzisz ruch w obu kierunkach.",
+ ro:"Nu există trecere de pietoni în apropiere: traversează cu grijă acolo unde vezi traficul din ambele sensuri.",
+ zh:"附近没有人行横道：请在能看清两个方向车辆的地方小心通过。"};
+for(const l in T_CAREFUL)T[l].crossCareful=T_CAREFUL[l];
+// AR view: button, panel line, reminder, no-compass, no-camera, crossing label
+const AR_KEYS=["arBtn","arTarget","arCheck","arNoCompass","arNoCamera","arCross"];
+const T_AR={
+ en:["AR view","Your stop {p}: about {m} m","AR is approximate. Always check the letter and the sign at the stop.","This device has no compass, so the arrow can't turn with you. Use the map instead.","Camera is not available. Allow camera access in your browser, or use the map.","Crossing"],
+ de:["AR-Ansicht","Deine Haltekante {p}: etwa {m} m","AR ist nur ungefähr. Prüfe immer den Buchstaben und das Schild an der Haltestelle.","Dieses Gerät hat keinen Kompass, deshalb dreht sich der Pfeil nicht mit. Nutze stattdessen die Karte.","Die Kamera ist nicht verfügbar. Erlaube den Kamerazugriff im Browser oder nutze die Karte.","Übergang"],
+ fr:["Vue AR","Votre quai {p} : environ {m} m","La vue AR est approximative. Vérifiez toujours la lettre et le panneau à l’arrêt.","Cet appareil n’a pas de boussole : la flèche ne peut pas tourner avec vous. Utilisez plutôt la carte.","La caméra n’est pas disponible. Autorisez l’accès à la caméra dans le navigateur ou utilisez la carte.","Passage"],
+ it:["Vista AR","La tua fermata {p}: circa {m} m","La vista AR è approssimativa. Controlla sempre la lettera e il cartello alla fermata.","Questo dispositivo non ha una bussola, quindi la freccia non può girare con te. Usa la mappa.","La fotocamera non è disponibile. Consenti l’accesso nel browser o usa la mappa.","Attraversamento"],
+ es:["Vista AR","Tu parada {p}: unos {m} m","La vista AR es aproximada. Comprueba siempre la letra y el cartel de la parada.","Este dispositivo no tiene brújula, así que la flecha no puede girar contigo. Usa el mapa.","La cámara no está disponible. Permite el acceso a la cámara en el navegador o usa el mapa.","Paso de peatones"],
+ pt:["Vista RA","A sua paragem {p}: cerca de {m} m","A vista RA é aproximada. Confirme sempre a letra e a placa na paragem.","Este dispositivo não tem bússola, por isso a seta não roda consigo. Use o mapa.","A câmara não está disponível. Permita o acesso no navegador ou use o mapa.","Passadeira"],
+ sq:["Pamja AR","Stacioni yt {p}: rreth {m} m","Pamja AR është e përafërt. Kontrollo gjithmonë shkronjën dhe tabelën në stacion.","Kjo pajisje nuk ka busull, ndaj shigjeta nuk mund të rrotullohet me ty. Përdor hartën.","Kamera nuk është e disponueshme. Lejo qasjen në kamerë te shfletuesi ose përdor hartën.","Vendkalim"],
+ bs:["AR prikaz","Tvoja stanica {p}: oko {m} m","AR je samo približan. Uvijek provjeri slovo i tablu na stanici.","Ovaj uređaj nema kompas pa se strelica ne može okretati s tobom. Koristi mapu.","Kamera nije dostupna. Dozvoli pristup kameri u pregledniku ili koristi mapu.","Prelaz"],
+ mk:["AR приказ","Вашата постојка {p}: околу {m} м","AR е само приближен. Секогаш проверете ја буквата и таблата на постојката.","Овој уред нема компас, па стрелката не може да се врти со вас. Користете ја картата.","Камерата не е достапна. Дозволете пристап до камерата во прелистувачот или користете ја картата.","Премин"],
+ tr:["AR görünümü","Durağın {p}: yaklaşık {m} m","AR görünümü yaklaşıktır. Duraktaki harfi ve tabelayı mutlaka kontrol et.","Bu cihazda pusula yok, bu yüzden ok seninle dönemez. Bunun yerine haritayı kullan.","Kamera kullanılamıyor. Tarayıcıda kamera erişimine izin ver ya da haritayı kullan.","Geçit"],
+ ku:["Dîtina AR","Rawestgeha te {p}: nêzî {m} m","AR tenê nêzîkî ye. Her tim tîp û tabelaya li rawestgehê kontrol bike.","Li ser vê amûrê pûsle tune ye, ji ber vê tîr bi te re nazivire. Li şûna wê nexşeyê bi kar bîne.","Kamera tune ye. Di gerokê de destûra kamerayê bide an nexşeyê bi kar bîne.","Derbasgeh"],
+ ar:["عرض الواقع المعزز","موقفك {p}: حوالي {m} م","عرض الواقع المعزز تقريبي. تحقق دائمًا من الحرف واللافتة عند الموقف.","لا يحتوي هذا الجهاز على بوصلة، لذا لا يمكن للسهم أن يدور معك. استخدم الخريطة بدلًا من ذلك.","الكاميرا غير متاحة. اسمح بالوصول إلى الكاميرا في المتصفح أو استخدم الخريطة.","ممر مشاة"],
+ fa:["نمای واقعیت افزوده","ایستگاه شما {p}: حدود {m} متر","نمای واقعیت افزوده تقریبی است. همیشه حرف و تابلوی ایستگاه را بررسی کنید.","این دستگاه قطب‌نما ندارد، پس فلش با شما نمی‌چرخد. به‌جای آن از نقشه استفاده کنید.","دوربین در دسترس نیست. در مرورگر اجازهٔ دسترسی به دوربین را بدهید یا از نقشه استفاده کنید.","گذرگاه"],
+ ta:["AR காட்சி","உங்கள் நிறுத்தம் {p}: சுமார் {m} மீ","AR காட்சி தோராயமானது. நிறுத்தத்தில் உள்ள எழுத்தையும் பலகையையும் எப்போதும் சரிபார்க்கவும்.","இந்தச் சாதனத்தில் திசைகாட்டி இல்லை, எனவே அம்பு உங்களுடன் திரும்பாது. வரைபடத்தைப் பயன்படுத்துங்கள்.","கேமரா கிடைக்கவில்லை. உலாவியில் கேமரா அனுமதியைக் கொடுங்கள் அல்லது வரைபடத்தைப் பயன்படுத்துங்கள்.","கடவை"],
+ ti:["ርእይቶ AR","መዕረፊኹም {p}: ኣስታት {m} ሜ","ርእይቶ AR ግምታዊ እዩ። ኩሉ ግዜ ኣብ መዕረፊ ዘሎ ፊደልን ሰሌዳን ኣረጋግጹ።","እዚ መሳርሒ ኮምፓስ የብሉን፡ ስለዚ እቲ ፍላጻ ምሳኹም ክዘውር ኣይክእልን። ኣብ ክንዲኡ ካርታ ተጠቐሙ።","ካሜራ ኣይርከብን። ኣብ መርበብ ንካሜራ ፍቐዱ ወይ ካርታ ተጠቐሙ።","መሳገሪ"],
+ uk:["AR-режим","Ваша зупинка {p}: приблизно {m} м","AR-режим приблизний. Завжди перевіряйте літеру й табличку на зупинці.","На цьому пристрої немає компаса, тож стрілка не повертатиметься разом з вами. Скористайтеся мапою.","Камера недоступна. Дозвольте доступ до камери в браузері або скористайтеся мапою.","Перехід"],
+ ru:["AR-режим","Ваша остановка {p}: примерно {m} м","AR-режим приблизительный. Всегда проверяйте букву и табличку на остановке.","На этом устройстве нет компаса, поэтому стрелка не будет поворачиваться вместе с вами. Используйте карту.","Камера недоступна. Разрешите доступ к камере в браузере или используйте карту.","Переход"],
+ pl:["Widok AR","Twój przystanek {p}: około {m} m","Widok AR jest przybliżony. Zawsze sprawdź literę i tabliczkę na przystanku.","To urządzenie nie ma kompasu, więc strzałka nie obróci się razem z tobą. Użyj mapy.","Kamera jest niedostępna. Zezwól na dostęp do kamery w przeglądarce albo użyj mapy.","Przejście"],
+ ro:["Vizualizare AR","Stația ta {p}: aproximativ {m} m","Vizualizarea AR este aproximativă. Verifică mereu litera și indicatorul din stație.","Acest dispozitiv nu are busolă, așa că săgeata nu se poate roti cu tine. Folosește harta.","Camera nu este disponibilă. Permite accesul la cameră în browser sau folosește harta.","Trecere"],
+ zh:["AR 视图","你的站台 {p}：约 {m} 米","AR 视图仅供参考。请务必核对站台上的字母和站牌。","此设备没有指南针，箭头无法随你转动。请改用地图。","无法使用相机。请在浏览器中允许访问相机，或使用地图。","人行横道"]
+};
+for(const l in T_AR)AR_KEYS.forEach((k,i)=>{T[l][k]=T_AR[l][i]});
 // shown in each language's own script, so people can find theirs without reading English
 // Menu order: English and the national languages first, then the largest immigrant language communities.
 // "beta" = not yet checked by a native speaker.
@@ -626,22 +708,33 @@ function matches(dest){
 
 function renderAnswer(){
   const el=$("answer"),dest=$("dest").value.trim(),L=t();
+  curTarget=null;   // set again below only when there is an answer
   const m=matches(dest);
   el.classList.toggle("ok",!!(m&&m.length));
   if(!m){el.innerHTML=`<p class="muted">${L.empty}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
   if(!m.length){el.innerHTML=`<p>${fmt(L.noMatch,{s:esc(stop.name),d:esc(dest)})}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
   const best=m[0].p, same=m.filter(x=>x.p===best), name=m[0].name;
+  curTarget=best;
   const rides=same.map(x=>`<li><span class="ride-line">${modeTag(x.r.mode)}${lineBadge(x.r)}</span><span>${L.towards} <b>${esc(x.r.to)}</b> · ${L.next}: ${esc(x.r.next)}</span></li>`).join("");
-  let walk;
+  let walk;route=null;
   if(!here) walk=`<div class="step"><span class="dot"></span><span>${L.pickHere}</span></div>`;
   else if(here.id===best.id) walk=`<div class="step same"><span class="dot"></span><span><b>${L.same}</b></span></div>`;
   else{
-    const z=nearestCrossing(here,best);
-    let c=z?fmt(L.crossZebra,{z:z.d}):L.crossNone;
-    if(z&&wcMode){ // wheelchair: the crossing with lights we picked, and what we know about its kerbs
-      c=(z.sig?fmt(L.crossSignals,{z:z.d}):fmt(L.crossZebra,{z:z.d}))+" "+(["lowered","flush"].includes(z.kerb)?L.kerbOk:L.kerbUnknown);
+    // walking route: real distance, and the crossing the route actually uses
+    const P=routeStart();route=P&&walkRoute(P,{x:best.x,y:best.y});
+    let c,m;
+    if(route){
+      m=Math.round(route.len);
+      const v=route.via,zd=Math.round(route.toVia);
+      c=!v?(route.careful?L.crossCareful:""):(wcMode&&v.sig?fmt(L.crossSignals,{z:zd}):fmt(L.crossZebra,{z:zd}))
+        +(v&&wcMode?" "+(["lowered","flush"].includes(v.kerb)?L.kerbOk:L.kerbUnknown):"");
+    }else{ // no street data to route on: straight-line distance and the nearest crossing, as before
+      m=Math.round(dist(here,best));
+      const z=nearestCrossing(here,best);
+      c=z?fmt(L.crossZebra,{z:z.d}):L.crossNone;
+      if(z&&wcMode)c=(z.sig?fmt(L.crossSignals,{z:z.d}):fmt(L.crossZebra,{z:z.d}))+" "+(["lowered","flush"].includes(z.kerb)?L.kerbOk:L.kerbUnknown);
     }
-    walk=`<div class="step"><span class="dot"></span><span>${fmt(L.cross,{a:here.label,b:best.label,m:Math.round(dist(here,best)),c})}</span></div>`;
+    walk=`<div class="step"><span class="dot"></span><span>${fmt(L.cross,{a:here.label,b:best.label,m,c}).trim()}</span></div>`;
   }
   const other=[...new Set(m.filter(x=>x.p!==best).map(x=>x.p.label))];
   // a twin across the street going the other way is the classic mix-up: warn, and give a check that needs no German
@@ -879,6 +972,187 @@ function accChips(p){
 }
 // crossing to use between two poles: nearest to the midpoint; in wheelchair mode, one with traffic
 // lights wins if it is within 120 m. Returns {d: metres from where you stand, sig, kerb} or null.
+// ---- walking route ("pathfinder") --------------------------------------------
+// A small walking network from the streets and footpaths in stops.json (shared vertices join up).
+// If the straight line to your stop crosses a road, the route must go through a pedestrian
+// crossing: we try the crossings near the two stops and keep the shortest total walk.
+// Streets are mapped as centre lines, so the route shows which streets to follow and where to
+// cross, not which pavement. Everything runs on the phone.
+const ROUTE_NO=new Set(["trunk"]);   // no walking along motorway-like roads
+const DRIVE=new Set(["trunk","primary","secondary","tertiary","residential","unclassified","living_street"]);
+let route=null;                      // last computed route, drawn by drawMap
+let curTarget=null;                  // the pole the answer currently sends you to (for the AR view)
+
+// ---- AR view ---------------------------------------------------------------------
+// Camera + compass + GPS, no WebXR, so it works in Safari on iPhone and Chrome on Android.
+// The camera picture never leaves the screen. GPS (10–20 m in old towns) and compass error mean it
+// can point you to the right area, not tell two poles 13 m apart: the panel always says to check the sign.
+const AR_FOV=60;                     // horizontal field of view of a phone camera in portrait, degrees
+let arOn=false,arStream=null,arHeading=null,arCompassTimer=null,arLast=0;
+const arProblem={cam:false,compass:false};   // both can be true: show both messages
+function arShowProblems(){const L=t(),m=[];if(arProblem.cam)m.push(L.arNoCamera);if(arProblem.compass)m.push(L.arNoCompass);$("arMsg").textContent=m.join(" ")}
+const sDiff=(a,b)=>((a-b+540)%360)-180;              // signed angle a-b in -180..180
+const brgXY=(P,Q)=>(Math.atan2(Q.x-P.x,-(Q.y-P.y))*180/Math.PI+360)%360;
+function arPos(){
+  if(me){const [x,y]=proj(me.lat,me.lon);return{x,y}}
+  return here?{x:here.x,y:here.y}:null;
+}
+function onOrient(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading==="number")h=e.webkitCompassHeading;       // iPhone: true compass heading
+  else if(e.absolute&&typeof e.alpha==="number")h=(360-e.alpha)%360;          // Android: absolute orientation
+  if(h==null||isNaN(h))return;
+  const so=(screen.orientation&&screen.orientation.angle)||window.orientation||0;
+  h=(h+so+360)%360;
+  arHeading=arHeading==null?h:(arHeading+sDiff(h,arHeading)*0.25+360)%360;  // smooth out compass jitter
+  if(arCompassTimer){clearTimeout(arCompassTimer);arCompassTimer=null}
+  if(arProblem.compass){arProblem.compass=false;arShowProblems()}   // a compass turned up after all
+}
+async function openAR(){
+  const L=t();
+  // iPhone needs motion permission asked straight from the tap, before anything is awaited
+  const oriP=(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==="function")
+    ?DeviceOrientationEvent.requestPermission().catch(()=>"denied"):Promise.resolve("granted");
+  const camP=(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)
+    ?navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false}).catch(()=>null):Promise.resolve(null);
+  arOn=true;arHeading=null;arProblem.cam=false;arProblem.compass=false;$("ar").hidden=false;document.body.style.overflow="hidden";
+  $("arCloseTxt").textContent=L.close;$("arCheck").textContent=L.arCheck;$("arMsg").textContent=L.locWait;$("arTarget").textContent="";
+  if(!me&&watchId==null)locate();   // live position while you walk
+  const [ori,stream]=await Promise.all([oriP,camP]);
+  if(!arOn){if(stream)stream.getTracks().forEach(tr=>tr.stop());return}
+  if(stream){arStream=stream;const v=$("arVideo");v.srcObject=stream;v.play().catch(()=>{})}
+  else{arProblem.cam=true;arShowProblems()}
+  window.addEventListener("deviceorientationabsolute",onOrient);
+  window.addEventListener("deviceorientation",onOrient);
+  arCompassTimer=setTimeout(()=>{if(arOn&&arHeading==null){arProblem.compass=true;arShowProblems()}},3000);
+  if(ori==="denied"&&arHeading==null){arProblem.compass=true;arShowProblems()}
+  requestAnimationFrame(arFrame);
+  $("arClose").focus();
+}
+function closeAR(){
+  arOn=false;$("ar").hidden=true;document.body.style.overflow="";
+  if(arStream){arStream.getTracks().forEach(tr=>tr.stop());arStream=null}
+  $("arVideo").srcObject=null;
+  window.removeEventListener("deviceorientationabsolute",onOrient);
+  window.removeEventListener("deviceorientation",onOrient);
+  if(arCompassTimer){clearTimeout(arCompassTimer);arCompassTimer=null}
+  $("arBtn").focus();
+}
+function arFrame(ts){
+  if(!arOn)return;
+  requestAnimationFrame(arFrame);
+  if(ts-arLast<80)return;arLast=ts;   // ~12 updates a second is plenty
+  const L=t(),P=arPos(),tg=curTarget;
+  if(!P){$("arMsg").textContent=L.locWait;return}
+  // panel: your stop and how far
+  if(tg){const m=Math.round(route&&here&&here.id!==tg.id?route.len:dist(P,tg));
+    $("arTarget").textContent=fmt(L.arTarget,{p:tg.label,m});
+    arShowProblems();}
+  // big arrow: turns with you, always points at your stop
+  const arrow=$("arArrow");
+  if(tg&&arHeading!=null){arrow.hidden=false;arrow.style.transform=`rotate(${sDiff(brgXY(P,tg),arHeading)}deg)`}
+  else arrow.hidden=true;
+  // floating labels for poles (and the route's crossing) inside the camera's view
+  if(arHeading==null){$("arLabels").innerHTML="";return}
+  const items=stop.platforms.map(p=>({p,kind:tg&&p.id===tg.id?"go":"pole"}));
+  if(route&&route.via)items.push({p:route.via,kind:"cross"});
+  let html="";
+  for(const it of items){
+    const d=dist(P,it.p),rel=sDiff(brgXY(P,it.p),arHeading);
+    if(Math.abs(rel)>AR_FOV/2||d>200||d<4)continue;   // d<4: the stop you are standing at
+    const left=50+rel/AR_FOV*100,top=Math.max(18,Math.min(58,58-d*0.35));   // nearer = lower on screen
+    const txt=it.kind==="cross"?`${esc(L.arCross)} · ${Math.round(d)} m`
+      :`<span class="let">${esc(it.p.label)}</span>${it.kind==="go"?"✓ ":""}${Math.round(d)} m`;
+    html+=`<div class="ar-lab ${it.kind==="go"?"go":it.kind==="cross"?"cross":""}" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%"><span class="tag">${txt}</span><span class="stem"></span></div>`;
+  }
+  $("arLabels").innerHTML=html;
+}
+function walkGraph(){
+  if(stop._g)return stop._g;
+  const nodes=new Map(),segs=[];
+  const node=(x,y)=>{const k=Math.round(x*2)+","+Math.round(y*2);let n=nodes.get(k);if(!n){n={x,y,e:[]};nodes.set(k,n)}return n};
+  for(const w of stop.streets){
+    if(ROUTE_NO.has(w.k))continue;
+    for(let i=1;i<w.p.length;i++){
+      const a=node(...w.p[i-1]),b=node(...w.p[i]),d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<0.05)continue;
+      a.e.push([b,d]);b.e.push([a,d]);segs.push([a,b,w.k]);
+    }
+  }
+  return stop._g={segs};
+}
+function snapTo(g,P){
+  let best=null;
+  for(const [a,b] of g.segs){
+    const dx=b.x-a.x,dy=b.y-a.y,L2=dx*dx+dy*dy,u=Math.max(0,Math.min(1,((P.x-a.x)*dx+(P.y-a.y)*dy)/L2));
+    const q={x:a.x+u*dx,y:a.y+u*dy},d=Math.hypot(P.x-q.x,P.y-q.y);
+    if(!best||d<best.d)best={a,b,q,d};
+  }
+  return best;
+}
+// shortest walk P -> Q over the network (Dijkstra; the network is a few hundred points)
+function shortest(g,P,Q){
+  const sp=snapTo(g,P),sq=snapTo(g,Q);if(!sp||!sq)return null;
+  const S={x:sp.q.x,y:sp.q.y,e:[[sp.a,dist(sp.q,sp.a)],[sp.b,dist(sp.q,sp.b)]]};
+  const tLink=new Map([[sq.a,dist(sq.a,sq.q)],[sq.b,dist(sq.b,sq.q)]]);
+  let bestT=Infinity,bestVia=null;
+  if((sp.a===sq.a&&sp.b===sq.b)||(sp.a===sq.b&&sp.b===sq.a)){bestT=dist(sp.q,sq.q);bestVia=S} // same street segment
+  const D=new Map([[S,0]]),prev=new Map(),done=new Set(),pq=[[0,S]];
+  while(pq.length){
+    let bi=0;for(let i=1;i<pq.length;i++)if(pq[i][0]<pq[bi][0])bi=i;
+    const [d,n]=pq.splice(bi,1)[0];
+    if(done.has(n))continue;done.add(n);
+    if(d>=bestT)break;
+    if(tLink.has(n)&&d+tLink.get(n)<bestT){bestT=d+tLink.get(n);bestVia=n}
+    for(const [m,w] of n.e){const nd=d+w;if(nd<(D.has(m)?D.get(m):Infinity)){D.set(m,nd);prev.set(m,n);pq.push([nd,m])}}
+  }
+  if(!bestVia)return null;
+  const mid=[];for(let n=bestVia;n&&n!==S;n=prev.get(n))mid.push({x:n.x,y:n.y});
+  return {len:bestT+sp.d+sq.d,pts:[P,{x:sp.q.x,y:sp.q.y},...mid.reverse(),{x:sq.q.x,y:sq.q.y},Q]};
+}
+function segsCross(p1,p2,p3,p4){
+  const d=(p2.x-p1.x)*(p4.y-p3.y)-(p2.y-p1.y)*(p4.x-p3.x);if(Math.abs(d)<1e-9)return false;
+  const t=((p3.x-p1.x)*(p4.y-p3.y)-(p3.y-p1.y)*(p4.x-p3.x))/d,u=((p3.x-p1.x)*(p2.y-p1.y)-(p3.y-p1.y)*(p2.x-p1.x))/d;
+  return t>0&&t<1&&u>0&&u<1;
+}
+// P, Q: {x,y}. Returns {len, pts, via (crossing or null), toVia (metres to it)} or null.
+function walkRoute(P,Q){
+  const key=[P.x,P.y,Q.x,Q.y,wcMode].map(v=>typeof v==="number"?v.toFixed(1):v).join("|");
+  stop._rc=stop._rc||{};if(key in stop._rc)return stop._rc[key];
+  const g=walkGraph(),straight=dist(P,Q);
+  const needsCross=g.segs.some(([a,b,k])=>DRIVE.has(k)&&segsCross(P,Q,a,b));
+  let out=null;
+  if(!needsCross){
+    out=straight<25?{len:straight,pts:[P,Q],via:null,toVia:0}:shortest(g,P,Q);
+    // no road in the way but the mapped paths have a gap (Zürich Bucheggplatz A->C: 36 m vs 232 m): walk straight
+    if(!out||(straight<60&&out.len>straight*2.5))out={len:straight,pts:[P,Q]};
+    out.via=out.via||null;
+  }else{
+    // Swiss rule: pedestrians must use a crossing that is within 50 m; with none that close you may
+    // cross carefully anywhere. Wheelchair: a crossing with lights / lowered kerbs is worth up to 120 m.
+    const mid={x:(P.x+Q.x)/2,y:(P.y+Q.y)/2};
+    const list=(stop.xings&&stop.xings.length)?stop.xings:(stop.crossings||[]).map(([x,y])=>({x,y,sig:false}));
+    const ok=c=>c.sig||["lowered","flush"].includes(c.kerb);
+    const cands=list.map(c=>({c,dm:Math.hypot(c.x-mid.x,c.y-mid.y)}))
+      .filter(o=>o.dm<=50||(wcMode&&ok(o.c)&&o.dm<=120)).sort((a,b)=>a.dm-b.dm).slice(0,8);
+    for(const {c} of cands){
+      const r1=shortest(g,P,c),r2=r1&&shortest(g,c,Q);if(!r2)continue;
+      const good=c.sig||["lowered","flush"].includes(c.kerb);
+      const score=r1.len+r2.len+(wcMode&&!good?60:0);   // wheelchair: a crossing with lights / lowered kerbs is worth a detour
+      if(!out||score<out.score)out={score,len:r1.len+r2.len,pts:[...r1.pts,...r2.pts.slice(1)],via:c,toVia:r1.len};
+    }
+    if(!out){ // no crossing close enough: straight across, and say so
+      out=straight<40?{len:straight,pts:[P,Q]}:shortest(g,P,Q);
+      if(out){out.via=null;out.careful=true}
+    }
+  }
+  return stop._rc[key]=out;
+}
+function routeStart(){ // live GPS position if it is near the stop you are at, else that stop
+  if(me&&here){const [mx,my]=proj(me.lat,me.lon);if(Math.hypot(mx-here.x,my-here.y)<150)return{x:mx,y:my}}
+  return here?{x:here.x,y:here.y}:null;
+}
+
 function nearestCrossing(a,b){
   const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
   const list=(stop.xings&&stop.xings.length)?stop.xings:(stop.crossings||[]).map(([x,y])=>({x,y,sig:false}));
@@ -963,7 +1237,8 @@ function drawMap(target){
   // zoom to the poles: half-width h metres around their centre, never tighter than 55 m
   // with an answer, frame just your stop, its twin and where you stand; otherwise every pole
   let pts=stop.platforms;
-  if(target&&!showAll){pts=[target,...twinsOf(target)];if(here&&here!==target&&dist(here,target)<120)pts.push(here)}
+  if(target&&!showAll){pts=[target,...twinsOf(target)];if(here&&here!==target&&dist(here,target)<120)pts.push(here);
+    if(route){if(route.via)pts.push(route.via);pts.push(route.pts[0])}}   // keep the whole walking route in view
   const focused=pts.length<stop.platforms.length;
   const zb=$("zoomBtn");zb.hidden=!target||(!focused&&!showAll);zb.textContent=showAll?L.zoomMine:L.zoomAll;
   const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
@@ -998,6 +1273,13 @@ function drawMap(target){
     for(const b of bs){const r=b*Math.PI/180,dx=Math.sin(r),dy=-Math.cos(r);
       const x1=p.x+dx*10*k,y1=p.y+dy*10*k,x2=p.x+dx*24*k,y2=p.y+dy*24*k;
       s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${1.6*k}" stroke-linecap="round" marker-end="url(#ah${col.includes("go")?"g":"f"})"/>`}
+  }
+  // walking route: a dotted blue line under the markers, the crossing it uses circled
+  if(route&&target){
+    const rd="M"+route.pts.map(q=>`${q.x.toFixed(1)},${q.y.toFixed(1)}`).join("L");
+    s+=`<g pointer-events="none"><path d="${rd}" fill="none" stroke="var(--surface)" stroke-width="${5.4*k}" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>`
+      +`<path d="${rd}" fill="none" stroke="var(--here)" stroke-width="${3.4*k}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${0.01} ${6.5*k}"/>`
+      +(route.via?`<circle cx="${route.via.x}" cy="${route.via.y}" r="${6*k}" fill="none" stroke="var(--here)" stroke-width="${1.6*k}"/>`:"")+`</g>`;
   }
   if(me){const [mx,my]=proj(me.lat,me.lon);
     if(Math.abs(mx-cx)<h*1.2&&Math.abs(my-cy)<h*1.2)
@@ -1081,6 +1363,11 @@ async function boot(){
   $("stop").innerHTML=DATA.stops.map((s,i)=>`<option value="${i}">${esc(s.name)} · ${s.platforms.length}</option>`).join("");
   $("stop").addEventListener("change",e=>{stopWatch();me=null;locState=null;setStop(+e.target.value)});
   $("locBtn").addEventListener("click",locate);
+  // AR view: offered where the browser has a camera API (HTTPS pages on phones)
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)$("arBtn").hidden=false;
+  $("arBtn").addEventListener("click",openAR);
+  $("arClose").addEventListener("click",closeAR);
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&arOn)closeAR()});
   // speech: resolve both engines up front so a tap can speak straight away
   if("speechSynthesis" in window){loadVoices();try{speechSynthesis.addEventListener("voiceschanged",loadVoices)}catch(e){}}
   if(window.claude?.use) window.claude.use("tts").then(async tt=>{
