@@ -76,6 +76,8 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px}
 .phrase .speak{margin-inline-start:0;background:var(--bg);color:var(--fg);border-color:var(--bg)}
 .phrase .amsg{color:var(--bg);opacity:.75}
+.amsg a{color:var(--here);font-weight:600;text-underline-offset:2px;white-space:nowrap}
+.phrase .amsg a{color:inherit}
 .side{margin:2px 0 0;font-weight:600;color:var(--fg)}
 .careful{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:8px;background:var(--warn-soft);border:1px solid var(--warn)}
 .careful b{font-weight:600}
@@ -418,6 +420,30 @@ const T_20={
   listen:"ስምዑ",stopAudio:"ጠጠው",playPhrase:"ብዓብዪ ድምጺ ኣስምዕ",noVoice:"እዚ መሳርሒ ነዚ ቋንቋ ድምጺ የብሉን። ነቲ ኣብ ላዕሊ ዘሎ ጽሑፍ ኣንብቡ።",audioOff:"ብድምጺ ምንባብ ነዚ ገጽ ተዓጽዩ ኣሎ።",metres:"ሜትሮ",lineSay:"መስመር {l}",voiceUsed:"ድምጺ"}
 };
 Object.assign(T,T_20);
+// Help when a device has no voice for the language
+const T_VOICEHELP={
+ en:{installHint:"You can add one in your {os} settings, then try again.",installHintGeneric:"You can add a voice for this language in your device's speech settings, then try again.",howTo:"Show me how",noVoiceAnywhere:"Most phones and computers don't have a voice for this language yet. Read the text above, or show it to someone."},
+ de:{installHint:"Du kannst eine in den {os}-Einstellungen hinzufügen und es dann erneut versuchen.",installHintGeneric:"Du kannst in den Sprachausgabe-Einstellungen deines Geräts eine Stimme für diese Sprache hinzufügen und es dann erneut versuchen.",howTo:"So geht’s",noVoiceAnywhere:"Die meisten Handys und Computer haben noch keine Stimme für diese Sprache. Lies den Text oben oder zeig ihn jemandem."},
+ fr:{installHint:"Vous pouvez en ajouter une dans les réglages {os}, puis réessayer.",installHintGeneric:"Vous pouvez ajouter une voix pour cette langue dans les réglages de synthèse vocale de votre appareil, puis réessayer.",howTo:"Comment faire",noVoiceAnywhere:"La plupart des téléphones et ordinateurs n’ont pas encore de voix pour cette langue. Lisez le texte ci-dessus ou montrez-le à quelqu’un."},
+ it:{installHint:"Puoi aggiungerne una nelle impostazioni di {os} e poi riprovare.",installHintGeneric:"Puoi aggiungere una voce per questa lingua nelle impostazioni di sintesi vocale del dispositivo e poi riprovare.",howTo:"Come fare",noVoiceAnywhere:"La maggior parte di telefoni e computer non ha ancora una voce per questa lingua. Leggi il testo sopra o mostralo a qualcuno."},
+ es:{installHint:"Puedes añadir una en los ajustes de {os} y volver a intentarlo.",installHintGeneric:"Puedes añadir una voz para este idioma en los ajustes de voz de tu dispositivo y volver a intentarlo.",howTo:"Cómo hacerlo",noVoiceAnywhere:"La mayoría de teléfonos y ordenadores aún no tienen voz para este idioma. Lee el texto de arriba o muéstraselo a alguien."},
+ pt:{installHint:"Pode adicionar uma nas definições do {os} e tentar novamente.",installHintGeneric:"Pode adicionar uma voz para esta língua nas definições de voz do seu dispositivo e tentar novamente.",howTo:"Como fazer",noVoiceAnywhere:"A maioria dos telemóveis e computadores ainda não tem voz para esta língua. Leia o texto acima ou mostre-o a alguém."},
+ sq:{installHint:"Mund të shtosh një te cilësimet e {os} dhe pastaj provo sërish.",installHintGeneric:"Mund të shtosh një zë për këtë gjuhë te cilësimet e të folurit të pajisjes dhe pastaj provo sërish.",howTo:"Më trego si",noVoiceAnywhere:"Shumica e telefonave dhe kompjuterëve nuk kanë ende zë për këtë gjuhë. Lexo tekstin më sipër ose tregoja dikujt."},
+ bs:{installHint:"Možeš ga dodati u postavkama za {os}, pa pokušaj ponovo.",installHintGeneric:"Glas za ovaj jezik možeš dodati u postavkama govora na uređaju, pa pokušaj ponovo.",howTo:"Pokaži kako",noVoiceAnywhere:"Većina telefona i računara još nema glas za ovaj jezik. Pročitaj tekst iznad ili ga pokaži nekome."},
+ mk:{installHint:"Можете да додадете во поставките на {os}, па обидете се повторно.",installHintGeneric:"Можете да додадете глас за овој јазик во поставките за говор на уредот, па обидете се повторно.",howTo:"Покажи ми како",noVoiceAnywhere:"Повеќето телефони и компјутери сè уште немаат глас за овој јазик. Прочитајте го текстот погоре или покажете го некому."},
+ tr:{installHint:"{os} ayarlarından bir ses ekleyip tekrar deneyebilirsin.",installHintGeneric:"Cihazının konuşma ayarlarından bu dil için bir ses ekleyip tekrar deneyebilirsin.",howTo:"Nasıl yapılır",noVoiceAnywhere:"Çoğu telefon ve bilgisayarda bu dil için henüz ses yok. Yukarıdaki metni oku ya da birine göster."},
+ ku:{installHint:"Tu dikarî yekê di mîhengên {os} de zêde bikî, paşê dîsa biceribîne.",installHintGeneric:"Tu dikarî di mîhengên axaftinê yên amûra xwe de dengekî ji bo vî zimanî zêde bikî, paşê dîsa biceribîne.",howTo:"Nîşanî min bide çawa",noVoiceAnywhere:"Piraniya telefon û komputeran hîn ji bo vî zimanî deng tune ne. Nivîsa jorîn bixwîne an nîşanî kesekî bide."},
+ ar:{installHint:"يمكنك إضافة صوت من إعدادات {os}، ثم المحاولة مرة أخرى.",installHintGeneric:"يمكنك إضافة صوت لهذه اللغة من إعدادات النطق في جهازك، ثم المحاولة مرة أخرى.",howTo:"أرني كيف",noVoiceAnywhere:"معظم الهواتف وأجهزة الكمبيوتر لا تحتوي بعد على صوت لهذه اللغة. اقرأ النص أعلاه أو اعرضه على شخص ما."},
+ fa:{installHint:"می‌توانید از تنظیمات {os} یک صدا اضافه کنید و دوباره امتحان کنید.",installHintGeneric:"می‌توانید از تنظیمات گفتار دستگاه خود صدایی برای این زبان اضافه کنید و دوباره امتحان کنید.",howTo:"به من نشان بده",noVoiceAnywhere:"بیشتر گوشی‌ها و رایانه‌ها هنوز صدایی برای این زبان ندارند. متن بالا را بخوانید یا آن را به کسی نشان دهید."},
+ ta:{installHint:"{os} அமைப்புகளில் ஒரு குரலைச் சேர்த்து, மீண்டும் முயலலாம்.",installHintGeneric:"உங்கள் சாதனத்தின் பேச்சு அமைப்புகளில் இந்த மொழிக்கான குரலைச் சேர்த்து, மீண்டும் முயலலாம்.",howTo:"எப்படி என்று காட்டு",noVoiceAnywhere:"பெரும்பாலான தொலைபேசிகளிலும் கணினிகளிலும் இந்த மொழிக்கு இன்னும் குரல் இல்லை. மேலே உள்ள உரையைப் படியுங்கள் அல்லது ஒருவரிடம் காட்டுங்கள்."},
+ ti:{installHint:"ኣብ ቅጥዒታት {os} ሓደ ድምጺ ክትውስኹ ትኽእሉ ኢኹም፡ ድሕሪኡ እንደገና ፈትኑ።",installHintGeneric:"ኣብ ቅጥዒታት ዘረባ መሳርሒኹም ነዚ ቋንቋ ድምጺ ክትውስኹ ትኽእሉ ኢኹም፡ ድሕሪኡ እንደገና ፈትኑ።",howTo:"ከመይ ከም ዝግበር ኣርእየኒ",noVoiceAnywhere:"መብዛሕትኦም ተሌፎናትን ኮምፒተራትን ነዚ ቋንቋ ገና ድምጺ የብሎምን። ነቲ ኣብ ላዕሊ ዘሎ ጽሑፍ ኣንብቡ ወይ ንሓደ ሰብ ኣርእዩ።"},
+ uk:{installHint:"Ви можете додати голос у налаштуваннях {os}, а потім спробувати знову.",installHintGeneric:"Ви можете додати голос для цієї мови в налаштуваннях мовлення пристрою, а потім спробувати знову.",howTo:"Показати як",noVoiceAnywhere:"Більшість телефонів і комп’ютерів ще не мають голосу для цієї мови. Прочитайте текст вище або покажіть його комусь."},
+ ru:{installHint:"Можно добавить голос в настройках {os}, а затем попробовать снова.",installHintGeneric:"Можно добавить голос для этого языка в настройках речи на устройстве, а затем попробовать снова.",howTo:"Показать как",noVoiceAnywhere:"На большинстве телефонов и компьютеров пока нет голоса для этого языка. Прочитайте текст выше или покажите его кому-нибудь."},
+ pl:{installHint:"Możesz dodać głos w ustawieniach {os}, a potem spróbować ponownie.",installHintGeneric:"Możesz dodać głos dla tego języka w ustawieniach mowy urządzenia, a potem spróbować ponownie.",howTo:"Pokaż jak",noVoiceAnywhere:"Większość telefonów i komputerów nie ma jeszcze głosu dla tego języka. Przeczytaj tekst powyżej albo pokaż go komuś."},
+ ro:{installHint:"Poți adăuga o voce în setările {os}, apoi încearcă din nou.",installHintGeneric:"Poți adăuga o voce pentru această limbă în setările de vorbire ale dispozitivului, apoi încearcă din nou.",howTo:"Arată-mi cum",noVoiceAnywhere:"Majoritatea telefoanelor și computerelor nu au încă o voce pentru această limbă. Citește textul de mai sus sau arată-l cuiva."},
+ zh:{installHint:"你可以在 {os} 设置中添加语音，然后再试一次。",installHintGeneric:"你可以在设备的语音设置中为该语言添加语音，然后再试一次。",howTo:"查看方法",noVoiceAnywhere:"大多数手机和电脑还没有该语言的语音。请阅读上方文字，或把它给别人看。"}
+};
+for(const l in T_VOICEHELP) Object.assign(T[l],T_VOICEHELP[l]);
 // shown in each language's own script, so people can find theirs without reading English
 // Menu order: English and the national languages first, then the largest immigrant language communities.
 // "beta" = not yet checked by a native speaker.
@@ -522,6 +548,34 @@ function setSpeaking(k){
   }
 }
 function audioMsg(kind,msg){const el=$(kind==="answer"?"ansMsg":"phraseMsg");if(el)el.textContent=msg}
+
+// ---- "no voice" help: say where to add one on THIS device, link the vendor's own guide ----
+// Languages almost no phone or computer has a voice for: don't send people into settings that can't help.
+const RARE_VOICE=new Set(["ku","ti"]);
+function deviceOS(){
+  const ua=navigator.userAgent||"";
+  if(/Android/i.test(ua))return"android";
+  if(/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1))return"ios";
+  if(/Windows/.test(ua))return"windows";
+  if(/Macintosh|Mac OS X/.test(ua))return"mac";
+  return null;
+}
+const OS_NAME={android:"Android",ios:"iPhone / iPad",windows:"Windows",mac:"Mac"};
+// Google's page takes the language as ?hl=; Apple's and Microsoft's localise from the browser language.
+function osHelpUrl(os){return{
+  android:`https://support.google.com/accessibility/android/answer/6006983?hl=${lang==="zh"?"zh-CN":lang}`,
+  ios:"https://support.apple.com/guide/iphone/iph96b214f0/ios",
+  windows:"https://support.microsoft.com/topic/4486e345-7730-53da-fcfe-55cc64300f01",
+  mac:"https://support.apple.com/guide/mac-help/mchlp2290/mac"}[os]}
+function noVoiceHelp(kind,speechTag){
+  const el=$(kind==="answer"?"ansMsg":"phraseMsg");if(!el)return;
+  const L=t(),base=speechTag.split("-")[0];
+  if(RARE_VOICE.has(base)){el.textContent=L.noVoiceAnywhere;return}
+  const os=deviceOS();
+  el.innerHTML=esc(L.noVoice)+" "+(os
+    ?`${esc(fmt(L.installHint,{os:OS_NAME[os]}))} <a href="${osHelpUrl(os)}" target="_blank" rel="noopener">${esc(L.howTo)}</a>`
+    :esc(L.installHintGeneric));
+}
 function stopSpeech(){
   if(TTS&&speaking)TTS.t.stop().catch(()=>{});
   try{speechSynthesis.cancel()}catch(e){}
@@ -566,7 +620,7 @@ function speakText(kind,text,tag){
   // 3. Claude's voice that can't list its languages: still name the language, never let it guess
   if(TTS&&!TTS.langs){viaClaude(tag);audioMsg(kind,`${L.voiceUsed}: Claude (${tag})`);return}
   // 4. nothing speaks this language here: say so rather than read it in the wrong voice
-  audioMsg(kind,L.noVoice);
+  noVoiceHelp(kind,tag);
 }
 
 // ---- twin stops and street side -----------------------------------------

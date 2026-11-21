@@ -62,7 +62,7 @@ python merge_data.py                                             # merges every 
 - **Data is a snapshot**, taken on the date shown in the page footer, and only as accurate as OpenStreetMap. Verify the stops you demo on site.
 - **Translations need native review.** They were written without native-speaker checks. Have someone fluent in each language review them, especially the crossing instructions.
 - **Not yet included:** live departure times and journeys with a change of line.
-- **Read-aloud voices:** Listen only uses a voice of the selected language and shows which one it used. Many devices have no voice for Albanian, Bosnian, Macedonian, Kurdish, Tamil or Tigrinya, and the page then says so rather than reading in another language.
+- **Read-aloud voices:** Listen only uses a voice of the selected language and shows which one it used. Many devices have no voice for Albanian, Bosnian, Macedonian, Kurdish, Tamil or Tigrinya, and the page then says so rather than reading in another language. On Android, iPhone, Windows and Mac it also says where to add a voice and links to the vendor's own guide (Google's opens in the reader's language). For Kurdish and Tigrinya, which almost no device has a voice for, it says that plainly instead.
 - **Offline install:** the page works without a connection once loaded. Opening it for the first time offline needs a service worker, which has not been added yet.
 
 ## Data and licences
