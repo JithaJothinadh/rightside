@@ -2,6 +2,18 @@
 
 Dates are CalVer `YYYY.MM.DD.hhmm` in local time, each with the short commit hash it records.
 
+## [2026.11.21.1739] - 28f0f3e
+
+- `AGENTS.md` corrected: `via[0]` is the next stop, platforms keep lat/lon for GPS distance
+  as well as x/y for drawing, and `check_data.py` does not compare labels with OSM
+  `local_ref`. The demo pole on first load is documented as intended.
+
+## [2026.11.21.1739] - 0e4b8e4
+
+- Restored the demo pole on first load by request. The map again shows "you are here", the
+  walking route and the crossing advice, so the first screen explains what is confusing
+  about a stop with several poles. A tap, GPS or a scanned sign replaces the demo pole.
+
 ## [2026.11.21.1737] - 8d848b3
 
 - `stops.json` now carries step-free, tactile, bench, shelter and crossing details for all
