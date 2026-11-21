@@ -112,7 +112,7 @@ def build(query):
     plats = [p for p in plats.values() if p["routes"]]
     if len(plats) < 2:
         return None
-    # merge platforms < 6 m apart (duplicate mapping of the same pole)
+    # merge_data.py gives every pole its final label; here only the fallback letter
     plats.sort(key=lambda p: (p["pole"] or "~", p["lon"]))
     for i, p in enumerate(plats):
         p["x"], p["y"] = [round(v, 1) for v in xy(p["lat"], p["lon"], lat0, lon0)]
