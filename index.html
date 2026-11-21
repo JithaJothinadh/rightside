@@ -339,6 +339,8 @@ const T_AUDIO={
  zh:{listen:"朗读",stopAudio:"停止",playPhrase:"大声播放",noVoice:"此设备没有该语言的语音。请阅读上方文字。",audioOff:"此页面已关闭朗读。",metres:"米",lineSay:"{l} 路"}
 };
 for(const l in T_AUDIO) Object.assign(T[l],T_AUDIO[l]);
+const VOICE_WORD={en:"Voice",de:"Stimme",fr:"Voix",it:"Voce",es:"Voz",pt:"Voz",sq:"Zëri",bs:"Glas",tr:"Ses",uk:"Голос",ru:"Голос",ar:"الصوت",fa:"صدا",zh:"语音"};
+for(const l in VOICE_WORD) T[l].voiceUsed=VOICE_WORD[l];
 // shown in each language's own script, so people can find theirs without reading English
 const LANG_NAMES={en:"English",de:"Deutsch",fr:"Français",it:"Italiano",es:"Español",pt:"Português",sq:"Shqip",bs:"Bosanski / Hrvatski / Srpski",tr:"Türkçe",uk:"Українська",ru:"Русский",ar:"العربية",fa:"فارسی / دری",zh:"中文"};
 const RTL=new Set(["ar","fa"]);
@@ -414,12 +416,22 @@ const SPEAK_ICON=`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="t
 const STOP_ICON=`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>`;
 
 function loadVoices(){try{VOICES=speechSynthesis.getVoices()||[]}catch(e){VOICES=[]}}
+// Only ever a voice OF this language: exact region first (de-CH), then the same language
+// preferring on-device voices (they don't cut out like Chrome's online ones). Never a stranger's voice.
 function pickVoice(tag){
-  if(!VOICES.length)loadVoices();
+  loadVoices(); // fresh list every time: Chrome ignores voice objects from a stale list and falls back to English
   const want=tag.toLowerCase(),base=want.split("-")[0],alts=[base,...(SPEECH_ALT[base]||[])];
-  const vl=v=>String(v.lang||"").toLowerCase().replace("_","-");
-  return VOICES.find(v=>vl(v)===want)||alts.map(a=>VOICES.find(v=>vl(v).split("-")[0]===a)).find(Boolean)||null;
+  const vl=v=>String(v.lang||"").toLowerCase().replace(/_/g,"-");
+  const exact=VOICES.filter(v=>vl(v)===want);
+  if(exact.length)return exact.find(v=>v.localService)||exact[0];
+  for(const a of alts){
+    const same=VOICES.filter(v=>vl(v).split("-")[0]===a);
+    if(same.length)return same.find(v=>v.localService)||same[0];
+  }
+  return null;
 }
+// one utterance per sentence: long single utterances get cut off in Chrome
+function sentences(text){return text.split(/(?<=[.!?。؟])\s+/).map(s=>s.trim()).filter(Boolean)}
 function speakBtn(id,kind,label){
   const on=speaking===kind,L=t();
   return `<button type="button" class="speak" id="${id}" data-kind="${kind}" aria-pressed="${on}">${on?STOP_ICON:SPEAK_ICON}<span>${esc(on?L.stopAudio:label)}</span></button>`;
@@ -454,17 +466,27 @@ function speakText(kind,text,tag){
       if(e&&(e.code==="not_granted"||e.code==="unavailable")){ttsOff=true;audioMsg(kind,L.audioOff)}
       if(speaking===kind)setSpeaking(null)});
   };
-  if(TTS&&(!TTS.langs||TTS.langs.some(l=>alts.includes(l)))){
-    const hit=TTS.langs?alts.find(a=>TTS.langs.includes(a)):base;
-    viaClaude(hit===base?tag:hit);return;
+  // 1. Claude's voice when it has said it speaks this language
+  if(TTS&&TTS.langs&&TTS.langs.some(l=>alts.includes(l))){
+    const hit=alts.find(a=>TTS.langs.includes(a));
+    viaClaude(hit===base?tag:hit);audioMsg(kind,`${L.voiceUsed}: Claude (${hit===base?tag:hit})`);return;
   }
-  const v=pickVoice(tag);
-  if(v&&"speechSynthesis" in window){
-    const u=new SpeechSynthesisUtterance(text);u.voice=v;u.lang=v.lang;u.rate=0.9;
-    u.onend=u.onerror=()=>{if(speaking===kind)setSpeaking(null)};
-    setSpeaking(kind);speechSynthesis.speak(u);return;
+  // 2. a device voice of this language
+  const v="speechSynthesis" in window?pickVoice(tag):null;
+  if(v){
+    const parts=sentences(text);
+    setSpeaking(kind);audioMsg(kind,`${L.voiceUsed}: ${v.name} (${v.lang})`);
+    parts.forEach((s,i)=>{
+      const u=new SpeechSynthesisUtterance(s);u.voice=v;u.lang=v.lang;u.rate=0.9;
+      if(i===parts.length-1)u.onend=()=>{if(speaking===kind)setSpeaking(null)};
+      u.onerror=()=>{if(speaking===kind)setSpeaking(null)};
+      speechSynthesis.speak(u);
+    });
+    return;
   }
-  if(TTS){viaClaude(null);return} // no phone voice either: let Claude's voice guess the language
+  // 3. Claude's voice that can't list its languages: still name the language, never let it guess
+  if(TTS&&!TTS.langs){viaClaude(tag);audioMsg(kind,`${L.voiceUsed}: Claude (${tag})`);return}
+  // 4. nothing speaks this language here: say so rather than read it in the wrong voice
   audioMsg(kind,L.noVoice);
 }
 
