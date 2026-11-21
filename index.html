@@ -1460,9 +1460,10 @@ function setStop(i,keepDest,hereP){
     const v=stop.platforms[stop.platforms.length-1].routes[0].via; $("dest").value=v[Math.min(3,v.length-1)];
   }
   // demo "you are here": the pole farthest from the answer, so the map shows the crossing help
-  // at a stop with several poles; a tap, GPS or a scanned sign replaces it
+  // at a stop with several poles; a tap, GPS or a scanned sign replaces it.
+  // applyPosition passes an explicit null when you are too far from every stop: no demo then.
   const best=(matches($("dest").value)||[])[0];
-  if(hereP) here=hereP;
+  if(hereP!==undefined) here=hereP;
   else if(best) here=stop.platforms.slice().sort((a,b)=>dist(b,best.p)-dist(a,best.p))[0];
   applyLang();
 }
