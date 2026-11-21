@@ -3,30 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rightside FAQ</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="5" y="5" width="90" height="90" rx="21" fill="%23fff" stroke="%2314171a" stroke-width="7"/%3E%3Crect x="25.5" y="21" width="8.5" height="60" rx="4.25" fill="%23dad6cd"/%3E%3Ccircle cx="29.75" cy="41" r="8.2" fill="%23c8312a"/%3E%3Cpath d="M47.5 22V80" stroke="%2314171a" stroke-width="3.6" stroke-dasharray="6.4 5.6"/%3E%3Cpath d="M66 80V27" stroke="%23127a4f" stroke-width="8.5" stroke-linecap="round"/%3E%3Cpath d="M53 40 66 25.5 79 40" fill="none" stroke="%23127a4f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/%3E%3Ccircle cx="66" cy="62" r="8.6" fill="%231f5fd1"/%3E%3C/svg%3E">
+<meta name="description" content="Right Side: know where to stand. Public transport made easier for everyone.">
+<title>Right Side FAQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@600&family=IBM+Plex+Sans:wght@700&family=Inter:wght@400;500;600&display=swap">
 <style>
 /* Same tokens as the app; one reading column of questions that open in place. */
 :root{
   --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
-  --here:#1f5fd1; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d;
+  --here:#1f5fd1; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d; --brand:#127a4f;
   --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; color-scheme:dark}
+  --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; --brand:#3fcf83; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; --brand:#3fcf83; color-scheme:dark}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body)}
 .wrap{max-width:720px;margin:0 auto;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:28px}
 .brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}
-.brand .h{flex:none;width:44px;height:44px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 24px var(--display);box-shadow:inset 0 0 0 4px var(--stop)}
-.brand b{font:800 26px/1 var(--display);letter-spacing:-.01em}
+.brand .logo{flex:none;width:48px;height:48px;display:block}
+.brand span{display:flex;flex-direction:column;gap:3px}
+.brand i{font:600 13px/1.2 "IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-style:normal;color:var(--brand)}
+.brand b{font:700 26px/1 "IBM Plex Sans","Archivo",Arial,sans-serif;letter-spacing:-.01em}
 .back{font:600 14px var(--body);color:var(--here)}
 h1{font:800 32px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
+.slogan{font:700 20px/1.3 "IBM Plex Sans","Archivo",Arial,sans-serif;margin:0 0 18px}
 .lead{color:var(--muted);margin:0 0 24px;max-width:60ch}
 details{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
 summary{cursor:pointer;list-style:none;padding:16px 48px 16px 18px;font:700 17px/1.35 var(--display);position:relative}
@@ -46,12 +51,13 @@ footer a{color:inherit}
 <body>
 <div class="wrap">
   <div class="top">
-    <a class="brand" href="./"><span class="h" aria-hidden="true">H</span><b>Rightside</b></a>
-    <a class="back" href="./">← Back to Rightside</a>
+    <a class="brand" href="./"><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><rect x="5" y="5" width="90" height="90" rx="21" fill="#fff" stroke="#14171a" stroke-width="7"/><rect x="25.5" y="21" width="8.5" height="60" rx="4.25" fill="#dad6cd"/><circle cx="29.75" cy="41" r="8.2" fill="#c8312a"/><path d="M47.5 22V80" stroke="#14171a" stroke-width="3.6" stroke-dasharray="6.4 5.6"/><path d="M66 80V27" stroke="#127a4f" stroke-width="8.5" stroke-linecap="round"/><path d="M53 40 66 25.5 79 40" fill="none" stroke="#127a4f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66" cy="62" r="8.6" fill="#1f5fd1"/></svg><span><b>Right Side</b><i>Know where to stand.</i></span></a>
+    <a class="back" href="./">← Back to Right Side</a>
   </div>
 
+  <p class="slogan">Public transport made easier for everyone.</p>
   <h1>Frequently asked questions</h1>
-  <p class="lead">Rightside helps you find which side of the road to wait on for your bus or tram in Switzerland, especially if you are new here and don't speak German, French or Italian.</p>
+  <p class="lead">Right Side helps you find which side of the road to wait on for your bus or tram in Switzerland, especially if you are new here and don't speak German, French or Italian.</p>
 
   <details open>
     <summary>Why do two bus stops have the same name?</summary>
@@ -64,11 +70,11 @@ footer a{color:inherit}
   <details>
     <summary>How do I know I'm at the right pole?</summary>
     <div class="a">
-      <p>Rightside gives you three checks:</p>
+      <p>Right Side gives you three checks:</p>
       <ul>
-        <li><b>The letter.</b> Wait at the pole Rightside shows, for example <span class="pole">D</span>.</li>
+        <li><b>The letter.</b> Wait at the pole Right Side shows, for example <span class="pole">D</span>.</li>
         <li><b>The sign.</b> Every pole has a sign listing its lines and where they go. It must show your line and your destination, for example "12 → Zentrum Paul Klee". If it shows a different destination, cross to the other side. This check works even if you can't read German.</li>
-        <li><b>The street side.</b> Where it helps, Rightside also tells you which side of which street, for example "Kramgasse, south side".</li>
+        <li><b>The street side.</b> Where it helps, Right Side also tells you which side of which street, for example "Kramgasse, south side".</li>
       </ul>
     </div>
   </details>
@@ -76,14 +82,14 @@ footer a{color:inherit}
   <details>
     <summary>What do the letters A, B, C mean?</summary>
     <div class="a">
-      <p>Where OpenStreetMap records the letter printed on the real stop sign, Rightside uses that letter. Where it doesn't, Rightside numbers the poles A, B, C itself, and then the letter may not match the sign. That's why the sign check, line and destination, is the one to trust.</p>
+      <p>Where OpenStreetMap records the letter printed on the real stop sign, Right Side uses that letter. Where it doesn't, Right Side numbers the poles A, B, C itself, and then the letter may not match the sign. That's why the sign check, line and destination, is the one to trust.</p>
     </div>
   </details>
 
   <details>
     <summary>Which stops are included?</summary>
     <div class="a">
-      <p>Rightside is a prototype. It covers only these 8 stops, chosen because several poles there share the same name:</p>
+      <p>Right Side is a prototype. It covers only these 8 stops, chosen because several poles there share the same name:</p>
       <ul>
         <li>Basel, Aeschenplatz</li>
         <li>Bern, Zytglogge</li>
@@ -103,21 +109,21 @@ footer a{color:inherit}
     <div class="a">
       <p>Tap <b>AR view</b> and hold your phone up. The camera shows the street, a green arrow points towards your stop, and labels float over the stops as you turn, with their distance. Your phone asks once for permission to use the camera and, on iPhone, motion.</p>
       <p>It uses your phone's GPS and compass, which in old towns can be 10–20 m and a few degrees off. So AR helps you find the right area and face the right way, but two stops facing each other across a street can look the same. Always check the letter and the sign at the stop.</p>
-      <p><b>Scan sign</b> solves that: point the camera at the stop sign and tap the button. Your phone reads the sign's text (stop name, line numbers, destinations) and works out exactly which stop you are at, then shows you the way to yours. The reading happens on your phone; the photo is not sent anywhere. The first scan downloads the text-recognition software (a few MB). If the sign can't be read clearly, Rightside asks you to move closer and try again instead of guessing.</p>
+      <p><b>Scan sign</b> solves that: point the camera at the stop sign and tap the button. Your phone reads the sign's text (stop name, line numbers, destinations) and works out exactly which stop you are at, then shows you the way to yours. The reading happens on your phone; the photo is not sent anywhere. The first scan downloads the text-recognition software (a few MB). If the sign can't be read clearly, Right Side asks you to move closer and try again instead of guessing.</p>
     </div>
   </details>
 
   <details>
     <summary>Does it show live departure times?</summary>
     <div class="a">
-      <p>No. Rightside tells you <i>where</i> to wait, not <i>when</i> the bus comes. For times, use the SBB app or the timetable on the stop sign. Rightside also only covers direct journeys, not trips where you change lines.</p>
+      <p>No. Right Side tells you <i>where</i> to wait, not <i>when</i> the bus comes. For times, use the SBB app or the timetable on the stop sign. Right Side also only covers direct journeys, not trips where you change lines.</p>
     </div>
   </details>
 
   <details>
     <summary>Is my location shared or stored?</summary>
     <div class="a">
-      <p>No. When you tap "Use my location", your phone works out the nearest stop inside the page itself. Your position is not sent to Rightside or anyone else, and nothing is stored. The only thing the page remembers, on your own device, is the language you picked.</p>
+      <p>No. When you tap "Use my location", your phone works out the nearest stop inside the page itself. Your position is not sent to Right Side or anyone else, and nothing is stored. The only thing the page remembers, on your own device, is the language you picked.</p>
       <p>The <b>AR view</b> uses your camera only to show the street on your screen. The picture is not recorded, saved or sent anywhere.</p>
     </div>
   </details>
@@ -125,7 +131,7 @@ footer a{color:inherit}
   <details>
     <summary>Why doesn't "Listen" speak my language?</summary>
     <div class="a">
-      <p>Listen uses the voices installed on your phone or computer. If your device has no voice for your language, Rightside tells you and links to how to add one. Many devices have no voice for Albanian, Bosnian, Macedonian, Persian or Tamil, and almost none have Kurdish or Tigrinya yet. In those cases, read the text, or use "Show this to someone nearby".</p>
+      <p>Listen uses the voices installed on your phone or computer. If your device has no voice for your language, Right Side tells you and links to how to add one. Many devices have no voice for Albanian, Bosnian, Macedonian, Persian or Tamil, and almost none have Kurdish or Tigrinya yet. In those cases, read the text, or use "Show this to someone nearby".</p>
     </div>
   </details>
 
@@ -157,7 +163,7 @@ footer a{color:inherit}
     </div>
   </details>
 
-  <footer>Rightside is a prototype. <a href="./">Back to Rightside</a></footer>
+  <footer>Right Side is a prototype. <a href="./">Back to Right Side</a></footer>
 </div>
 </body>
 </html>

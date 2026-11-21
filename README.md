@@ -1,19 +1,19 @@
-# Rightside
+# Right Side
 
-Rightside helps newcomers to Switzerland (immigrants, refugees, international students and tourists) find **which side of the road to wait on** for their bus or tram.
+Right Side helps newcomers to Switzerland (immigrants, refugees, international students and tourists) find **which side of the road to wait on** for their bus or tram.
 
-Many Swiss stops have two or more poles with the same name, often facing each other across a street, with buses leaving in opposite directions. A navigation app tells you the stop name. Rightside tells you which pole.
+Many Swiss stops have two or more poles with the same name, often facing each other across a street, with buses leaving in opposite directions. A navigation app tells you the stop name. Right Side tells you which pole.
 
 **Try it:** https://rightside-ch.vercel.app (opens on Bern, Zytglogge. "Use my location" uses real GPS here.)
 Mirror on GitHub Pages: https://jithajothinadh.github.io/rightside/. Both redeploy automatically on every push to `main`.
 
 ## What it does
 
-- **Pick a stop and a destination.** Rightside answers "Wait at stop D", with the line, the direction and the next stop.
+- **Pick a stop and a destination.** Right Side answers "Wait at stop D", with the line, the direction and the next stop.
 - **Look-alike warning.** If a same-named pole a few metres away goes the other way, the page warns you. It also gives a check you can do on the spot without reading German: *"The sign must show line 12 towards Zentrum Paul Klee. If it shows Holligen, cross to the other side."*
 - **Street side.** "Kramgasse, south side", worked out from the OpenStreetMap street geometry. It is shown only where it actually tells the two poles apart.
 - **Street plan.** A drawn map of the stop with every pole, the direction each bus leaves, and pedestrian crossings. It zooms in on your pole and its look-alike.
-- **Walking help.** Tap where you are standing, or use GPS. Rightside says "stay here" or "cross to stop D, 13 m, use the zebra crossing".
+- **Walking help.** Tap where you are standing, or use GPS. Right Side says "stay here" or "cross to stop D, 13 m, use the zebra crossing".
 - **Live location.** It finds your closest stop and pole from GPS, or from pasted coordinates or a map link when GPS is unavailable.
 - **20 languages.** These cover the languages most spoken by immigrants, refugees and students in Switzerland: English, German, French, Italian, Portuguese, Albanian, Spanish, Bosnian/Croatian/Serbian, Macedonian, Turkish, Kurdish (Kurmanji), Arabic, Persian/Dari, Tamil, Tigrinya, Ukrainian, Russian, Polish, Romanian and Chinese. The page picks one from the phone's language. Arabic and Persian display right to left. Kurdish, Tamil and Tigrinya are marked *beta* in the menu until a native speaker has reviewed them.
 - **Read aloud.** "Listen" reads the answer in your language. "Play it aloud for them" speaks a question in the local language (German, French or Italian) to a passer-by.

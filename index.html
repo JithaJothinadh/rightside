@@ -1,35 +1,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rightside</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="5" y="5" width="90" height="90" rx="21" fill="%23fff" stroke="%2314171a" stroke-width="7"/%3E%3Crect x="25.5" y="21" width="8.5" height="60" rx="4.25" fill="%23dad6cd"/%3E%3Ccircle cx="29.75" cy="41" r="8.2" fill="%23c8312a"/%3E%3Cpath d="M47.5 22V80" stroke="%2314171a" stroke-width="3.6" stroke-dasharray="6.4 5.6"/%3E%3Cpath d="M66 80V27" stroke="%23127a4f" stroke-width="8.5" stroke-linecap="round"/%3E%3Cpath d="M53 40 66 25.5 79 40" fill="none" stroke="%23127a4f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/%3E%3Ccircle cx="66" cy="62" r="8.6" fill="%231f5fd1"/%3E%3C/svg%3E">
+<meta name="description" content="Right Side: know where to stand. Public transport made easier for everyone.">
+<title>Right Side</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@600&family=IBM+Plex+Sans:wght@700&family=Inter:wght@400;500;600&display=swap">
 <style>
 /* Layout: header; then a two-column stage on wide screens (inputs + answer on the left, the street plan
    on the right, sticky so it stays on screen); on phones the same blocks stack, map right after the answer. */
 :root{
   --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
   --asphalt:#c9cdc9; --asphalt-edge:#aeb3af; --path:#9aa29d; --block:#e6e8e4;
-  --go:#0f8a4a; --go-soft:#d8f0e2; --here:#1f5fd1; --here-soft:#dde7fa; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#b45309; --warn-soft:#fdf0dc;
+  --go:#0f8a4a; --go-soft:#d8f0e2; --here:#1f5fd1; --here-soft:#dde7fa; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#b45309; --warn-soft:#fdf0dc; --brand:#127a4f;
   --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans SC","PingFang SC","Microsoft YaHei","Nirmala UI","Noto Sans Tamil","Tamil Sangam MN","Noto Sans Ethiopic","Nyala","Ebrima","Kefa",Tahoma,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431;
   --asphalt:#3a403d; --asphalt-edge:#4b524e; --path:#59615c; --block:#191c1b;
-  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; color-scheme:dark}}
+  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; --brand:#3fcf83; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431;
   --asphalt:#3a403d; --asphalt-edge:#4b524e; --path:#59615c; --block:#191c1b;
-  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; color-scheme:dark}
+  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; --brand:#3fcf83; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0}
 .wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:14px}
-.brand .h{flex:none;width:64px;height:64px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 34px var(--display);box-shadow:inset 0 0 0 6px var(--stop)}
-h1{font:800 48px/1 var(--display);margin:0;letter-spacing:-.02em}
-.tag{color:var(--muted);margin:6px 0 0;font-size:14px}
-@media (max-width:480px){.brand .h{width:52px;height:52px;font-size:28px;box-shadow:inset 0 0 0 5px var(--stop)} h1{font-size:38px}}
+/* Right Side logo: icon tile + wordmark (IBM Plex Sans bold) + green monospaced tagline (IBM Plex Mono) */
+.brand{display:flex;align-items:center;gap:16px}
+.brand .logo{flex:none;width:68px;height:68px;display:block}
+h1{font:700 48px/1 "IBM Plex Sans","Archivo","Helvetica Neue",Arial,sans-serif;margin:0;letter-spacing:-.02em}
+.tag{color:var(--brand);margin:6px 0 0;font:600 17px/1.2 "IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.01em}
+@media (max-width:480px){.brand{gap:12px}.brand .logo{width:54px;height:54px} h1{font-size:38px} .tag{font-size:15px}}
 .topnav{display:flex;align-items:center;gap:14px}
 .topnav a{font:600 14px var(--body);color:var(--fg);text-decoration:none;padding:8px 4px;border-bottom:2px solid transparent}
 .topnav a:hover{border-bottom-color:var(--pole)}
@@ -209,7 +212,11 @@ footer a{color:inherit}
 
 <div class="wrap">
   <header>
-    <div class="brand"><div class="h" aria-hidden="true">H</div><div><h1>Rightside</h1><p class="tag" data-t="tagline"></p></div></div>
+    <div class="brand">
+      <!-- logo: kerb with the other stop (red), centre line, and your direction (green arrow) with you on it (blue) -->
+      <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><rect x="5" y="5" width="90" height="90" rx="21" fill="#fff" stroke="#14171a" stroke-width="7"/><rect x="25.5" y="21" width="8.5" height="60" rx="4.25" fill="#dad6cd"/><circle cx="29.75" cy="41" r="8.2" fill="#c8312a"/><path d="M47.5 22V80" stroke="#14171a" stroke-width="3.6" stroke-dasharray="6.4 5.6"/><path d="M66 80V27" stroke="#127a4f" stroke-width="8.5" stroke-linecap="round"/><path d="M53 40 66 25.5 79 40" fill="none" stroke="#127a4f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="66" cy="62" r="8.6" fill="#1f5fd1"/></svg>
+      <div><h1>Right Side</h1><p class="tag" lang="en" dir="ltr">Know where to stand.</p></div>
+    </div>
     <nav class="topnav">
       <a href="faq.html" id="faqLink" data-t="faq"></a>
       <label class="langpick"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22M12 2C9 5 7.5 8.5 7.5 12S9 19 12 22" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="langSel" aria-label="Language / Sprache / Langue / Lingua / اللغة / Язык / 语言"></select></label>
@@ -284,7 +291,7 @@ footer a{color:inherit}
 
 <script>
 const T={
- en:{tagline:"Find the right side of the road for your bus or tram",stopLabel:"Stop",destLabel:"Where are you going?",destPh:"Type a stop, e.g. Seebach",
+ en:{tagline:"Know where to stand",stopLabel:"Stop",destLabel:"Where are you going?",destPh:"Type a stop, e.g. Seebach",
   waitAt:"Wait at stop {p}",waitSub:"{n} stop(s) to {d}",take:"Take",towards:"towards",next:"next stop",travels:"It leaves heading {dir}.",
   pickHere:"Tap the marker you are standing at now on the map below to get walking help.",same:"You are already at the right stop. Stay here.",
   cross:"Go from stop {a} to stop {b}, about {m} m. {c}",crossZebra:"Use the pedestrian crossing (zebra stripes) — the nearest is about {z} m from you.",crossNone:"Cross only at a pedestrian crossing or traffic light.",
@@ -293,7 +300,7 @@ const T={
   allPoles:"Every stop called “{s}”",poleN:"Stop {p}",sayLab:"Show this to someone nearby",sayTr:"Means: “Excuse me, I want to go to {d}. Is this the right stop?”",
   dirs:["north","north-east","east","south-east","south","south-west","west","north-west"],
   foot:"Prototype. Stop positions and routes come from OpenStreetMap (© OpenStreetMap contributors, ODbL) and stop names from opentransportdata.swiss, snapshot of {date}. Markers are labelled by the letter on the stop sign where OSM records one, otherwise A, B, C. Check the sign and the timetable on site."},
- de:{tagline:"Finde die richtige Strassenseite für deinen Bus oder dein Tram",stopLabel:"Haltestelle",destLabel:"Wohin willst du?",destPh:"Haltestelle eingeben, z. B. Seebach",
+ de:{tagline:"Wisse, wo du stehen musst",stopLabel:"Haltestelle",destLabel:"Wohin willst du?",destPh:"Haltestelle eingeben, z. B. Seebach",
   waitAt:"Warte an Haltekante {p}",waitSub:"{n} Halt(e) bis {d}",take:"Nimm",towards:"Richtung",next:"nächster Halt",travels:"Abfahrt Richtung {dir}.",
   pickHere:"Tippe auf der Karte unten auf die Markierung, an der du gerade stehst.",same:"Du stehst schon richtig. Bleib hier.",
   cross:"Geh von Kante {a} zu Kante {b}, etwa {m} m. {c}",crossZebra:"Nutze den Fussgängerstreifen – der nächste ist etwa {z} m entfernt.",crossNone:"Überquere die Strasse nur am Fussgängerstreifen oder an der Ampel.",
@@ -302,7 +309,7 @@ const T={
   allPoles:"Alle Haltekanten «{s}»",poleN:"Kante {p}",sayLab:"Zeig das jemandem in der Nähe",sayTr:"Bedeutet: «Entschuldigung, ich möchte nach {d}. Bin ich hier richtig?»",
   dirs:["Norden","Nordosten","Osten","Südosten","Süden","Südwesten","Westen","Nordwesten"],
   foot:"Prototyp. Haltekanten und Linien aus OpenStreetMap (© OpenStreetMap-Mitwirkende, ODbL), Namen von opentransportdata.swiss, Stand {date}. Kanten tragen den Buchstaben vom Haltestellenschild, sofern in OSM erfasst, sonst A, B, C. Bitte Schild und Fahrplan vor Ort prüfen."},
- fr:{tagline:"Trouvez le bon côté de la rue pour votre bus ou tram",stopLabel:"Arrêt",destLabel:"Où allez-vous ?",destPh:"Tapez un arrêt, p. ex. Seebach",
+ fr:{tagline:"Sachez où vous placer",stopLabel:"Arrêt",destLabel:"Où allez-vous ?",destPh:"Tapez un arrêt, p. ex. Seebach",
   waitAt:"Attendez au quai {p}",waitSub:"{n} arrêt(s) jusqu’à {d}",take:"Prenez",towards:"direction",next:"prochain arrêt",travels:"Départ vers le {dir}.",
   pickHere:"Touchez sur la carte le repère où vous vous trouvez pour être guidé.",same:"Vous êtes déjà au bon arrêt. Restez ici.",
   cross:"Allez du quai {a} au quai {b}, environ {m} m. {c}",crossZebra:"Traversez au passage piéton – le plus proche est à environ {z} m.",crossNone:"Traversez uniquement au passage piéton ou au feu.",
@@ -311,7 +318,7 @@ const T={
   allPoles:"Tous les quais « {s} »",poleN:"Quai {p}",sayLab:"Montrez ceci à quelqu’un",sayTr:"Signifie : « Excusez-moi, je veux aller à {d}. Est-ce le bon arrêt ? »",
   dirs:["nord","nord-est","est","sud-est","sud","sud-ouest","ouest","nord-ouest"],
   foot:"Prototype. Quais et lignes issus d’OpenStreetMap (© contributeurs OpenStreetMap, ODbL), noms d’opentransportdata.swiss, état du {date}. Les quais portent la lettre du panneau si OSM la connaît, sinon A, B, C. Vérifiez le panneau et l’horaire sur place."},
- it:{tagline:"Trova il lato giusto della strada per il tuo bus o tram",stopLabel:"Fermata",destLabel:"Dove vuoi andare?",destPh:"Scrivi una fermata, es. Seebach",
+ it:{tagline:"Sappi dove aspettare",stopLabel:"Fermata",destLabel:"Dove vuoi andare?",destPh:"Scrivi una fermata, es. Seebach",
   waitAt:"Aspetta alla fermata {p}",waitSub:"{n} fermata/e fino a {d}",take:"Prendi",towards:"direzione",next:"prossima fermata",travels:"Parte verso {dir}.",
   pickHere:"Tocca sulla mappa il segnaposto dove ti trovi ora per avere indicazioni.",same:"Sei già alla fermata giusta. Resta qui.",
   cross:"Vai dalla fermata {a} alla fermata {b}, circa {m} m. {c}",crossZebra:"Attraversa sulle strisce pedonali – le più vicine sono a circa {z} m.",crossNone:"Attraversa solo sulle strisce o al semaforo.",
@@ -320,7 +327,7 @@ const T={
   allPoles:"Tutte le fermate «{s}»",poleN:"Fermata {p}",sayLab:"Mostralo a qualcuno vicino",sayTr:"Significa: «Mi scusi, voglio andare a {d}. È la fermata giusta?»",
   dirs:["nord","nord-est","est","sud-est","sud","sud-ovest","ovest","nord-ovest"],
   foot:"Prototipo. Fermate e linee da OpenStreetMap (© collaboratori di OpenStreetMap, ODbL), nomi da opentransportdata.swiss, aggiornato al {date}. Le fermate hanno la lettera del cartello se OSM la registra, altrimenti A, B, C. Controlla cartello e orario sul posto."},
- es:{tagline:"Encuentra el lado correcto de la calle para tu bus o tranvía",stopLabel:"Parada",destLabel:"¿A dónde vas?",destPh:"Escribe una parada, p. ej. Seebach",
+ es:{tagline:"Sabe dónde esperar",stopLabel:"Parada",destLabel:"¿A dónde vas?",destPh:"Escribe una parada, p. ej. Seebach",
   waitAt:"Espera en la parada {p}",waitSub:"{n} parada(s) hasta {d}",take:"Toma",towards:"dirección",next:"próxima parada",travels:"Sale hacia el {dir}.",
   pickHere:"Toca en el mapa el marcador donde estás ahora para recibir indicaciones.",same:"Ya estás en la parada correcta. Quédate aquí.",
   cross:"Ve de la parada {a} a la parada {b}, unos {m} m. {c}",crossZebra:"Cruza por el paso de peatones; el más cercano está a unos {z} m.",crossNone:"Cruza solo por un paso de peatones o semáforo.",
@@ -329,7 +336,7 @@ const T={
   allPoles:"Todas las paradas «{s}»",poleN:"Parada {p}",sayLab:"Muéstraselo a alguien cerca",sayTr:"Significa: «Disculpe, quiero ir a {d}. ¿Es esta la parada correcta?»",
   dirs:["norte","noreste","este","sureste","sur","suroeste","oeste","noroeste"],
   foot:"Prototipo. Paradas y líneas de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), nombres de opentransportdata.swiss, datos del {date}. Las paradas llevan la letra del poste si OSM la tiene; si no, A, B, C. Comprueba el poste y el horario en el lugar."},
- uk:{tagline:"Знайдіть правильний бік вулиці для свого автобуса чи трамвая",stopLabel:"Зупинка",destLabel:"Куди ви їдете?",destPh:"Введіть зупинку, напр. Seebach",
+ uk:{tagline:"Знайте, де стати",stopLabel:"Зупинка",destLabel:"Куди ви їдете?",destPh:"Введіть зупинку, напр. Seebach",
   waitAt:"Чекайте на зупинці {p}",waitSub:"{n} зуп. до {d}",take:"Сідайте на",towards:"напрямок",next:"наступна зупинка",travels:"Напрямок відправлення: {dir}.",
   pickHere:"Торкніться на мапі нижче позначки, де ви зараз стоїте.",same:"Ви вже на правильній зупинці. Залишайтеся тут.",
   cross:"Перейдіть від зупинки {a} до зупинки {b}, приблизно {m} м. {c}",crossZebra:"Переходьте по пішохідному переходу — найближчий приблизно за {z} м.",crossNone:"Переходьте лише по переходу або на світлофорі.",
@@ -350,7 +357,7 @@ const T_LOC={
 for(const l in T_LOC) Object.assign(T[l],T_LOC[l]);
 // Languages of the largest newcomer, refugee and student groups in Switzerland
 const T_MORE={
- pt:{tagline:"Encontre o lado certo da rua para o seu autocarro ou elétrico",stopLabel:"Paragem",destLabel:"Para onde vai?",destPh:"Escreva uma paragem, p. ex. Seebach",
+ pt:{tagline:"Saiba onde esperar",stopLabel:"Paragem",destLabel:"Para onde vai?",destPh:"Escreva uma paragem, p. ex. Seebach",
   waitAt:"Espere na paragem {p}",waitSub:"{n} paragem(ns) até {d}",towards:"direção",next:"próxima paragem",travels:"Sentido de partida: {dir}.",
   pickHere:"Toque no mapa abaixo no marcador onde está agora para receber indicações.",same:"Já está na paragem certa. Fique aqui.",
   cross:"Vá da paragem {a} para a paragem {b}, cerca de {m} m. {c}",crossZebra:"Use a passadeira — a mais próxima fica a cerca de {z} m.",crossNone:"Atravesse apenas numa passadeira ou num semáforo.",
@@ -360,7 +367,7 @@ const T_MORE={
   dirs:["norte","nordeste","leste","sudeste","sul","sudoeste","oeste","noroeste"],
   foot:"Protótipo. Paragens e linhas do OpenStreetMap (© contribuidores do OpenStreetMap, ODbL), nomes de opentransportdata.swiss, dados de {date}. As paragens têm a letra da placa quando o OSM a regista; caso contrário A, B, C. Confirme a placa e o horário no local.",
   locBtn:"Usar a minha localização",locWait:"A procurar a sua localização…",locNear:"Está a cerca de {d} m de {s}. A paragem mais próxima é {p}.",locRough:" A localização só tem precisão de cerca de {a} m: confirme a letra na placa.",locFar:"A paragem mais próxima neste protótipo é {s}, a {km} km.",locDenied:"A localização está bloqueada aqui. Permita-a no navegador ou introduza coordenadas abaixo.",locNA:"A localização não está disponível aqui. Introduza coordenadas ou um link de mapa abaixo.",locPaste:"Introduza coordenadas ou um link de mapa",locGo:"Encontrar paragem",locBad:"Não foi possível ler. Exemplo: 46.8065, 7.1620"},
- sq:{tagline:"Gjej anën e duhur të rrugës për autobusin ose tramvajin tënd",stopLabel:"Stacioni",destLabel:"Ku po shkon?",destPh:"Shkruaj një stacion, p.sh. Seebach",
+ sq:{tagline:"Dije ku të presësh",stopLabel:"Stacioni",destLabel:"Ku po shkon?",destPh:"Shkruaj një stacion, p.sh. Seebach",
   waitAt:"Prit te stacioni {p}",waitSub:"{n} stacion(e) deri në {d}",towards:"drejt",next:"stacioni i radhës",travels:"Drejtimi i nisjes: {dir}.",
   pickHere:"Prek në hartën më poshtë shenjën ku ndodhesh tani për të marrë udhëzime.",same:"Je tashmë te stacioni i duhur. Qëndro këtu.",
   cross:"Shko nga stacioni {a} te stacioni {b}, rreth {m} m. {c}",crossZebra:"Kalo te vendkalimi i këmbësorëve (vijat e bardha) — më i afërti është rreth {z} m larg.",crossNone:"Kalo rrugën vetëm te vendkalimi i këmbësorëve ose te semafori.",
@@ -370,7 +377,7 @@ const T_MORE={
   dirs:["veri","verilindje","lindje","juglindje","jug","jugperëndim","perëndim","veriperëndim"],
   foot:"Prototip. Stacionet dhe linjat nga OpenStreetMap (© kontribuuesit e OpenStreetMap, ODbL), emrat nga opentransportdata.swiss, të dhëna të {date}. Stacionet kanë shkronjën e tabelës kur OSM e ka; përndryshe A, B, C. Kontrollo tabelën dhe orarin në vend.",
   locBtn:"Përdor vendndodhjen time",locWait:"Po kërkohet vendndodhja jote…",locNear:"Je rreth {d} m nga {s}. Stacioni më i afërt është {p}.",locRough:" Vendndodhja është e saktë vetëm rreth {a} m, ndaj kontrollo shkronjën në tabelën e stacionit.",locFar:"Stacioni më i afërt në këtë prototip është {s}, {km} km larg.",locDenied:"Vendndodhja është e bllokuar këtu. Lejoje në shfletues ose shkruaj koordinatat më poshtë.",locNA:"Vendndodhja nuk është e disponueshme këtu. Shkruaj koordinatat ose një lidhje harte më poshtë.",locPaste:"Shkruaj koordinatat ose ngjit një lidhje harte",locGo:"Gjej stacionin",locBad:"Nuk u lexua. Shembull: 46.8065, 7.1620"},
- bs:{tagline:"Pronađi pravu stranu ulice za svoj autobus ili tramvaj",stopLabel:"Stanica",destLabel:"Kuda ideš?",destPh:"Upiši stanicu, npr. Seebach",
+ bs:{tagline:"Znaj gdje da stojiš",stopLabel:"Stanica",destLabel:"Kuda ideš?",destPh:"Upiši stanicu, npr. Seebach",
   waitAt:"Čekaj na stanici {p}",waitSub:"{n} stanica do {d}",towards:"smjer",next:"sljedeća stanica",travels:"Smjer polaska: {dir}.",
   pickHere:"Na mapi ispod dodirni oznaku na kojoj sada stojiš da dobiješ uputstva.",same:"Već si na pravoj stanici. Ostani ovdje.",
   cross:"Idi od stanice {a} do stanice {b}, oko {m} m. {c}",crossZebra:"Koristi pješački prelaz (zebru) — najbliži je oko {z} m od tebe.",crossNone:"Prelazi ulicu samo na pješačkom prelazu ili na semaforu.",
@@ -380,7 +387,7 @@ const T_MORE={
   dirs:["sjever","sjeveroistok","istok","jugoistok","jug","jugozapad","zapad","sjeverozapad"],
   foot:"Prototip. Stanice i linije iz OpenStreetMapa (© saradnici OpenStreetMapa, ODbL), nazivi s opentransportdata.swiss, podaci od {date}. Stanice nose slovo s table ako ga OSM ima, inače A, B, C. Provjeri tablu i red vožnje na licu mjesta.",
   locBtn:"Koristi moju lokaciju",locWait:"Tražim tvoju lokaciju…",locNear:"Nalaziš se oko {d} m od {s}. Najbliža stanica je {p}.",locRough:" Lokacija je tačna samo na oko {a} m, zato provjeri slovo na tabli stanice.",locFar:"Najbliža stanica u ovom prototipu je {s}, {km} km odavde.",locDenied:"Lokacija je ovdje blokirana. Dozvoli je u pregledniku ili upiši koordinate ispod.",locNA:"Lokacija ovdje nije dostupna. Upiši koordinate ili link mape ispod.",locPaste:"Upiši koordinate ili zalijepi link mape",locGo:"Nađi stanicu",locBad:"Nije moguće pročitati. Primjer: 46.8065, 7.1620"},
- tr:{tagline:"Otobüsün veya tramvayın için yolun doğru tarafını bul",stopLabel:"Durak",destLabel:"Nereye gidiyorsun?",destPh:"Bir durak yaz, ör. Seebach",
+ tr:{tagline:"Nerede durman gerektiğini bil",stopLabel:"Durak",destLabel:"Nereye gidiyorsun?",destPh:"Bir durak yaz, ör. Seebach",
   waitAt:"{p} durağında bekle",waitSub:"{d} durağına {n} durak",towards:"hedef:",next:"sonraki durak",travels:"Kalkış yönü: {dir}.",
   pickHere:"Yol tarifi için aşağıdaki haritada şu an durduğun işarete dokun.",same:"Zaten doğru duraktasın. Burada kal.",
   cross:"{a} durağından {b} durağına git, yaklaşık {m} m. {c}",crossZebra:"Yaya geçidini (zebra çizgileri) kullan — en yakını yaklaşık {z} m uzakta.",crossNone:"Yolu yalnızca yaya geçidinden veya trafik ışığından geç.",
@@ -390,7 +397,7 @@ const T_MORE={
   dirs:["kuzey","kuzeydoğu","doğu","güneydoğu","güney","güneybatı","batı","kuzeybatı"],
   foot:"Prototip. Duraklar ve hatlar OpenStreetMap'ten (© OpenStreetMap katkıda bulunanları, ODbL), adlar opentransportdata.swiss'ten, {date} tarihli veriler. Duraklar, OSM'de kayıtlıysa tabeladaki harfi taşır; yoksa A, B, C. Tabelayı ve tarifeyi yerinde kontrol et.",
   locBtn:"Konumumu kullan",locWait:"Konumun bulunuyor…",locNear:"{s} durağına yaklaşık {d} m uzaklıktasın. En yakın durak {p}.",locRough:" Konum yalnızca yaklaşık {a} m doğrulukta; durak tabelasındaki harfi kontrol et.",locFar:"Bu prototipteki en yakın durak {s}, {km} km uzakta.",locDenied:"Konum burada engellendi. Tarayıcıda izin ver veya aşağıya koordinat gir.",locNA:"Konum burada kullanılamıyor. Aşağıya koordinat veya harita bağlantısı gir.",locPaste:"Koordinat gir veya harita bağlantısı yapıştır",locGo:"Durağı bul",locBad:"Okunamadı. Örnek: 46.8065, 7.1620"},
- ar:{tagline:"اعثر على الجانب الصحيح من الشارع لحافلتك أو الترام",stopLabel:"المحطة",destLabel:"إلى أين تذهب؟",destPh:"اكتب اسم محطة، مثل Seebach",
+ ar:{tagline:"اعرف أين تقف",stopLabel:"المحطة",destLabel:"إلى أين تذهب؟",destPh:"اكتب اسم محطة، مثل Seebach",
   waitAt:"انتظر عند الموقف {p}",waitSub:"{n} محطة حتى {d}",towards:"باتجاه",next:"المحطة التالية",travels:"اتجاه الانطلاق: {dir}.",
   pickHere:"المس على الخريطة أدناه العلامة التي تقف عندها الآن لتحصل على إرشادات.",same:"أنت في الموقف الصحيح. ابقَ هنا.",
   cross:"اذهب من الموقف {a} إلى الموقف {b}، حوالي {m} م. {c}",crossZebra:"استخدم ممر المشاة (الخطوط البيضاء) — أقربها على بعد حوالي {z} م منك.",crossNone:"اعبر الشارع فقط من ممر المشاة أو عند الإشارة الضوئية.",
@@ -400,7 +407,7 @@ const T_MORE={
   dirs:["الشمال","الشمال الشرقي","الشرق","الجنوب الشرقي","الجنوب","الجنوب الغربي","الغرب","الشمال الغربي"],
   foot:"نموذج أولي. المواقف والخطوط من OpenStreetMap (© المساهمون في OpenStreetMap، ODbL)، والأسماء من opentransportdata.swiss، بيانات بتاريخ {date}. تحمل المواقف الحرف المكتوب على لافتة المحطة إن وُجد في OSM، وإلا A وB وC. تحقق من اللافتة والجدول الزمني في المكان.",
   locBtn:"استخدم موقعي",locWait:"جارٍ تحديد موقعك…",locNear:"أنت على بعد حوالي {d} م من {s}. أقرب موقف هو {p}.",locRough:" دقة الموقع حوالي {a} م فقط، لذا تحقق من الحرف على لافتة المحطة.",locFar:"أقرب محطة في هذا النموذج هي {s}، على بعد {km} كم.",locDenied:"تحديد الموقع محظور هنا. اسمح به في المتصفح أو أدخل الإحداثيات أدناه.",locNA:"تحديد الموقع غير متاح هنا. أدخل الإحداثيات أو رابط خريطة أدناه.",locPaste:"أدخل الإحداثيات أو الصق رابط خريطة",locGo:"ابحث عن المحطة",locBad:"تعذّرت القراءة. مثال: 46.8065, 7.1620"},
- fa:{tagline:"سمت درست خیابان را برای اتوبوس یا تراموای خود پیدا کنید",stopLabel:"ایستگاه",destLabel:"کجا می‌روید؟",destPh:"نام یک ایستگاه را بنویسید، مثلاً Seebach",
+ fa:{tagline:"بدانید کجا بایستید",stopLabel:"ایستگاه",destLabel:"کجا می‌روید؟",destPh:"نام یک ایستگاه را بنویسید، مثلاً Seebach",
   waitAt:"در ایستگاه {p} منتظر بمانید",waitSub:"{n} ایستگاه تا {d}",towards:"به سمت",next:"ایستگاه بعدی",travels:"جهت حرکت: {dir}.",
   pickHere:"روی نقشهٔ پایین، علامتی را که الان کنارش ایستاده‌اید لمس کنید تا راهنمایی بگیرید.",same:"شما در ایستگاه درست هستید. همین‌جا بمانید.",
   cross:"از ایستگاه {a} به ایستگاه {b} بروید، حدود {m} متر. {c}",crossZebra:"از خط عابر پیاده عبور کنید — نزدیک‌ترین آن حدود {z} متر با شما فاصله دارد.",crossNone:"فقط از خط عابر پیاده یا سر چراغ راهنما از خیابان عبور کنید.",
@@ -410,7 +417,7 @@ const T_MORE={
   dirs:["شمال","شمال شرقی","شرق","جنوب شرقی","جنوب","جنوب غربی","غرب","شمال غربی"],
   foot:"نمونهٔ اولیه. ایستگاه‌ها و خطوط از OpenStreetMap (© مشارکت‌کنندگان OpenStreetMap، ODbL)، نام‌ها از opentransportdata.swiss، داده‌های {date}. ایستگاه‌ها اگر در OSM ثبت شده باشد حرف روی تابلو را دارند، وگرنه A، B، C. تابلو و جدول زمانی را در محل بررسی کنید.",
   locBtn:"استفاده از موقعیت من",locWait:"در حال یافتن موقعیت شما…",locNear:"شما حدود {d} متر از {s} فاصله دارید. نزدیک‌ترین ایستگاه {p} است.",locRough:" دقت موقعیت فقط حدود {a} متر است، پس حرف روی تابلوی ایستگاه را بررسی کنید.",locFar:"نزدیک‌ترین ایستگاه در این نمونه {s} است، در فاصلهٔ {km} کیلومتری.",locDenied:"موقعیت مکانی اینجا مسدود است. در مرورگر اجازه دهید یا مختصات را پایین وارد کنید.",locNA:"موقعیت مکانی اینجا در دسترس نیست. مختصات یا پیوند نقشه را پایین وارد کنید.",locPaste:"مختصات را وارد کنید یا پیوند نقشه را بچسبانید",locGo:"یافتن ایستگاه",locBad:"خوانده نشد. مثال: 46.8065, 7.1620"},
- ru:{tagline:"Найдите нужную сторону улицы для своего автобуса или трамвая",stopLabel:"Остановка",destLabel:"Куда вы едете?",destPh:"Введите остановку, напр. Seebach",
+ ru:{tagline:"Знайте, где встать",stopLabel:"Остановка",destLabel:"Куда вы едете?",destPh:"Введите остановку, напр. Seebach",
   waitAt:"Ждите на остановке {p}",waitSub:"{n} ост. до {d}",towards:"направление",next:"следующая остановка",travels:"Направление отправления: {dir}.",
   pickHere:"Нажмите на карте ниже на значок, где вы сейчас стоите, чтобы получить подсказку.",same:"Вы уже на правильной остановке. Оставайтесь здесь.",
   cross:"Перейдите от остановки {a} к остановке {b}, около {m} м. {c}",crossZebra:"Используйте пешеходный переход (зебру) — ближайший примерно в {z} м от вас.",crossNone:"Переходите улицу только по пешеходному переходу или на светофоре.",
@@ -420,7 +427,7 @@ const T_MORE={
   dirs:["север","северо-восток","восток","юго-восток","юг","юго-запад","запад","северо-запад"],
   foot:"Прототип. Остановки и маршруты из OpenStreetMap (© участники OpenStreetMap, ODbL), названия с opentransportdata.swiss, данные на {date}. Остановки обозначены буквой с таблички, если она есть в OSM, иначе A, B, C. Проверяйте табличку и расписание на месте.",
   locBtn:"Моё местоположение",locWait:"Определяем ваше местоположение…",locNear:"Вы примерно в {d} м от {s}. Ближайшая остановка — {p}.",locRough:" Точность всего около {a} м, поэтому проверьте букву на табличке остановки.",locFar:"Ближайшая остановка в этом прототипе — {s}, в {km} км.",locDenied:"Геолокация здесь заблокирована. Разрешите её в браузере или введите координаты ниже.",locNA:"Геолокация здесь недоступна. Введите координаты или ссылку на карту ниже.",locPaste:"Введите координаты или вставьте ссылку на карту",locGo:"Найти остановку",locBad:"Не удалось распознать. Пример: 46.8065, 7.1620"},
- zh:{tagline:"为你的公交车或电车找到马路正确的一侧",stopLabel:"车站",destLabel:"你要去哪里？",destPh:"输入站名，例如 Seebach",
+ zh:{tagline:"知道该站在哪里",stopLabel:"车站",destLabel:"你要去哪里？",destPh:"输入站名，例如 Seebach",
   waitAt:"在站台 {p} 等车",waitSub:"到 {d} 共 {n} 站",towards:"开往",next:"下一站",travels:"出发方向：{dir}。",
   pickHere:"在下方地图上点击你现在所在的标记，即可获得步行指引。",same:"你已经在正确的站台了，请留在这里。",
   cross:"从站台 {a} 走到站台 {b}，约 {m} 米。{c}",crossZebra:"请走人行横道（斑马线）——最近的一条离你约 {z} 米。",crossNone:"只在人行横道或红绿灯处过马路。",
@@ -473,7 +480,7 @@ for(const l in VOICE_WORD) T[l].voiceUsed=VOICE_WORD[l];
 // Six more, to cover the 20 languages most spoken by immigrants and refugees in Switzerland.
 // ta, ti and ku are marked beta in the menu until a native speaker has reviewed them.
 const T_20={
- pl:{tagline:"Znajdź właściwą stronę ulicy dla swojego autobusu lub tramwaju",stopLabel:"Przystanek",destLabel:"Dokąd jedziesz?",destPh:"Wpisz przystanek, np. Seebach",
+ pl:{tagline:"Wiedz, gdzie stanąć",stopLabel:"Przystanek",destLabel:"Dokąd jedziesz?",destPh:"Wpisz przystanek, np. Seebach",
   waitAt:"Czekaj na przystanku {p}",waitSub:"Przystanki do {d}: {n}",towards:"kierunek",next:"następny przystanek",travels:"Kierunek odjazdu: {dir}.",
   pickHere:"Dotknij na mapie poniżej znacznika, przy którym teraz stoisz, aby dostać wskazówki.",same:"Jesteś już na właściwym przystanku. Zostań tutaj.",
   cross:"Przejdź z przystanku {a} na przystanek {b}, około {m} m. {c}",crossZebra:"Skorzystaj z przejścia dla pieszych (zebry) — najbliższe jest około {z} m od ciebie.",crossNone:"Przechodź przez ulicę tylko na przejściu dla pieszych lub na światłach.",
@@ -485,7 +492,7 @@ const T_20={
   locBtn:"Użyj mojej lokalizacji",locWait:"Szukam twojej lokalizacji…",locNear:"Jesteś około {d} m od {s}. Najbliższy przystanek to {p}.",locRough:" Lokalizacja jest dokładna tylko do około {a} m, więc sprawdź literę na tabliczce przystanku.",locFar:"Najbliższy przystanek w tym prototypie to {s}, {km} km stąd.",locDenied:"Lokalizacja jest tu zablokowana. Zezwól na nią w przeglądarce albo wpisz współrzędne poniżej.",locNA:"Lokalizacja jest tu niedostępna. Wpisz współrzędne lub link do mapy poniżej.",locPaste:"Wpisz współrzędne lub wklej link do mapy",locGo:"Znajdź przystanek",locBad:"Nie udało się odczytać. Przykład: 46.8065, 7.1620",
   twinWarn:"Uwaga: przystanek {q} jest tylko {m} m dalej i jedzie w przeciwną stronę (kierunek {o}).",signCheck:"Sprawdź tabliczkę na przystanku: musi być linia {l}, kierunek {d}. Jeśli jest {o}, przejdź na drugą stronę.",sides:["strona północna","strona wschodnia","strona południowa","strona zachodnia"],zoomAll:"Pokaż wszystkie przystanki",zoomMine:"Przybliż mój przystanek",
   listen:"Odsłuchaj",stopAudio:"Zatrzymaj",playPhrase:"Odtwórz na głos",noVoice:"To urządzenie nie ma głosu dla tego języka. Przeczytaj tekst powyżej.",audioOff:"Czytanie na głos jest wyłączone dla tej strony.",metres:"metrów",lineSay:"Linia {l}",voiceUsed:"Głos"},
- ro:{tagline:"Găsește partea corectă a străzii pentru autobuzul sau tramvaiul tău",stopLabel:"Stația",destLabel:"Unde mergi?",destPh:"Scrie o stație, de ex. Seebach",
+ ro:{tagline:"Află unde să stai",stopLabel:"Stația",destLabel:"Unde mergi?",destPh:"Scrie o stație, de ex. Seebach",
   waitAt:"Așteaptă la stația {p}",waitSub:"{n} stații până la {d}",towards:"direcția",next:"stația următoare",travels:"Direcția de plecare: {dir}.",
   pickHere:"Atinge pe harta de mai jos marcajul unde stai acum, ca să primești indicații.",same:"Ești deja la stația corectă. Rămâi aici.",
   cross:"Mergi de la stația {a} la stația {b}, cam {m} m. {c}",crossZebra:"Folosește trecerea de pietoni (zebra) — cea mai apropiată e la cam {z} m de tine.",crossNone:"Traversează strada doar pe trecerea de pietoni sau la semafor.",
@@ -497,7 +504,7 @@ const T_20={
   locBtn:"Folosește locația mea",locWait:"Se caută locația ta…",locNear:"Ești la aproximativ {d} m de {s}. Cea mai apropiată stație este {p}.",locRough:" Locația e precisă doar la aproximativ {a} m, așa că verifică litera de pe indicatorul stației.",locFar:"Cea mai apropiată stație din acest prototip este {s}, la {km} km.",locDenied:"Locația este blocată aici. Permite-o în browser sau introdu coordonatele mai jos.",locNA:"Locația nu este disponibilă aici. Introdu coordonatele sau un link de hartă mai jos.",locPaste:"Introdu coordonatele sau lipește un link de hartă",locGo:"Găsește stația",locBad:"Nu s-a putut citi. Exemplu: 46.8065, 7.1620",
   twinWarn:"Atenție: stația {q} e la doar {m} m și merge în sens opus (spre {o}).",signCheck:"Verifică indicatorul stației: trebuie să scrie linia {l} direcția {d}. Dacă scrie {o}, treci pe partea cealaltă.",sides:["partea de nord","partea de est","partea de sud","partea de vest"],zoomAll:"Arată toate stațiile",zoomMine:"Mărește stația mea",
   listen:"Ascultă",stopAudio:"Oprește",playPhrase:"Redă cu voce tare",noVoice:"Acest dispozitiv nu are o voce pentru această limbă. Citește textul de mai sus.",audioOff:"Citirea cu voce tare este dezactivată pentru această pagină.",metres:"metri",lineSay:"Linia {l}",voiceUsed:"Voce"},
- mk:{tagline:"Најдете ја вистинската страна на улицата за вашиот автобус или трамвај",stopLabel:"Постојка",destLabel:"Каде одите?",destPh:"Внесете постојка, на пр. Seebach",
+ mk:{tagline:"Знајте каде да стоите",stopLabel:"Постојка",destLabel:"Каде одите?",destPh:"Внесете постојка, на пр. Seebach",
   waitAt:"Чекајте на постојката {p}",waitSub:"{n} постојки до {d}",towards:"насока",next:"следна постојка",travels:"Насока на поаѓање: {dir}.",
   pickHere:"Допрете ја на картата подолу ознаката каде што стоите сега за да добиете упатства.",same:"Веќе сте на вистинската постојка. Останете тука.",
   cross:"Одете од постојката {a} до постојката {b}, околу {m} м. {c}",crossZebra:"Користете пешачки премин (зебра) — најблискиот е околу {z} м од вас.",crossNone:"Преминувајте ја улицата само на пешачки премин или на семафор.",
@@ -509,7 +516,7 @@ const T_20={
   locBtn:"Користи ја мојата локација",locWait:"Ја бараме вашата локација…",locNear:"Вие сте околу {d} м од {s}. Најблиската постојка е {p}.",locRough:" Локацијата е точна само до околу {a} м, затоа проверете ја буквата на таблата.",locFar:"Најблиската постојка во овој прототип е {s}, на {km} км.",locDenied:"Локацијата е блокирана тука. Дозволете ја во прелистувачот или внесете координати подолу.",locNA:"Локацијата не е достапна тука. Внесете координати или линк од карта подолу.",locPaste:"Внесете координати или залепете линк од карта",locGo:"Најди постојка",locBad:"Не може да се прочита. Пример: 46.8065, 7.1620",
   twinWarn:"Внимание: постојката {q} е само {m} м подалеку и оди во спротивна насока (кон {o}).",signCheck:"Проверете ја таблата на постојката: мора да пишува линија {l} насока {d}. Ако пишува {o}, преминете на другата страна.",sides:["северна страна","источна страна","јужна страна","западна страна"],zoomAll:"Прикажи ги сите постојки",zoomMine:"Зумирај на мојата постојка",
   listen:"Слушај",stopAudio:"Стоп",playPhrase:"Пушти гласно",noVoice:"Овој уред нема глас за овој јазик. Прочитајте го текстот погоре.",audioOff:"Читањето на глас е исклучено за оваа страница.",metres:"метри",lineSay:"Линија {l}",voiceUsed:"Глас"},
- ku:{tagline:"Ji bo otobûs an tramwaya xwe aliyê rast ê kolanê bibîne",stopLabel:"Rawestgeh",destLabel:"Tu diçî ku derê?",destPh:"Navê rawestgehekê binivîse, mînak Seebach",
+ ku:{tagline:"Bizane li ku derê bisekinî",stopLabel:"Rawestgeh",destLabel:"Tu diçî ku derê?",destPh:"Navê rawestgehekê binivîse, mînak Seebach",
   waitAt:"Li rawestgeha {p} li bendê bimîne",waitSub:"Heta {d}: {n} rawestgeh",towards:"ber bi",next:"rawestgeha din",travels:"Aliyê derketinê: {dir}.",
   pickHere:"Li ser nexşeya jêrîn, nîşana ku tu niha li ber sekinî bitikîne da ku rêberî bistînî.",same:"Tu jixwe li rawestgeha rast î. Li vir bimîne.",
   cross:"Ji rawestgeha {a} here rawestgeha {b}, nêzî {m} m. {c}",crossZebra:"Ji derbasgeha peyayan (zebra) derbas bibe — ya herî nêzîk nêzî {z} m dûrî te ye.",crossNone:"Tenê li derbasgeha peyayan an li ber ronahiya trafîkê ji kolanê derbas bibe.",
@@ -521,7 +528,7 @@ const T_20={
   locBtn:"Cihê min bi kar bîne",locWait:"Cihê te tê dîtin…",locNear:"Tu nêzî {d} m dûrî {s} î. Rawestgeha herî nêzîk {p} e.",locRough:" Cih tenê heta nêzî {a} m rast e, ji ber vê tîpa ser tabela rawestgehê kontrol bike.",locFar:"Rawestgeha herî nêzîk di vê prototîpê de {s} e, {km} km dûr.",locDenied:"Cih li vir hatiye astengkirin. Di gerokê de destûr bide an jî koordînatan li jêr binivîse.",locNA:"Cih li vir tune ye. Koordînat an girêdana nexşeyê li jêr binivîse.",locPaste:"Koordînatan binivîse an girêdana nexşeyê bizeliqîne",locGo:"Rawestgehê bibîne",locBad:"Nehat xwendin. Mînak: 46.8065, 7.1620",
   twinWarn:"Hişyar be: rawestgeha {q} tenê {m} m dûr e û ber bi aliyê din ve diçe (ber bi {o}).",signCheck:"Tabela rawestgehê kontrol bike: divê xeta {l} ber bi {d} nîşan bide. Heke {o} nîşan bide, derbasî aliyê din bibe.",sides:["aliyê bakur","aliyê rojhilat","aliyê başûr","aliyê rojava"],zoomAll:"Hemû rawestgehan nîşan bide",zoomMine:"Rawestgeha min mezin bike",
   listen:"Guhdarî bike",stopAudio:"Rawestîne",playPhrase:"Bi dengê bilind lê bide",noVoice:"Li ser vê amûrê ji bo vî zimanî deng tune ye. Nivîsa jorîn bixwîne.",audioOff:"Xwendina bi deng ji bo vê rûpelê girtî ye.",metres:"metre",lineSay:"Xeta {l}",voiceUsed:"Deng"},
- ta:{tagline:"உங்கள் பேருந்து அல்லது டிராமுக்கு சாலையின் சரியான பக்கத்தைக் கண்டறியுங்கள்",stopLabel:"நிறுத்தம்",destLabel:"நீங்கள் எங்கே போகிறீர்கள்?",destPh:"நிறுத்தத்தின் பெயரை எழுதுங்கள், எ.கா. Seebach",
+ ta:{tagline:"எங்கே நிற்க வேண்டும் என்று அறியுங்கள்",stopLabel:"நிறுத்தம்",destLabel:"நீங்கள் எங்கே போகிறீர்கள்?",destPh:"நிறுத்தத்தின் பெயரை எழுதுங்கள், எ.கா. Seebach",
   waitAt:"நிறுத்தம் {p}-இல் காத்திருங்கள்",waitSub:"{d} வரை {n} நிறுத்தங்கள்",towards:"செல்லும் இடம்:",next:"அடுத்த நிறுத்தம்",travels:"புறப்படும் திசை: {dir}.",
   pickHere:"வழிகாட்டல் பெற, கீழே உள்ள வரைபடத்தில் நீங்கள் இப்போது நிற்கும் குறியைத் தொடுங்கள்.",same:"நீங்கள் ஏற்கனவே சரியான நிறுத்தத்தில் இருக்கிறீர்கள். இங்கேயே இருங்கள்.",
   cross:"நிறுத்தம் {a}-இலிருந்து நிறுத்தம் {b}-க்குச் செல்லுங்கள், சுமார் {m} மீ. {c}",crossZebra:"பாதசாரிகள் கடவையைப் (வரிக்குதிரைக் கோடுகள்) பயன்படுத்துங்கள் — அருகிலுள்ளது உங்களிடமிருந்து சுமார் {z} மீ தொலைவில் உள்ளது.",crossNone:"பாதசாரிகள் கடவையில் அல்லது போக்குவரத்து விளக்கில் மட்டுமே சாலையைக் கடக்கவும்.",
@@ -533,7 +540,7 @@ const T_20={
   locBtn:"என் இருப்பிடத்தைப் பயன்படுத்து",locWait:"உங்கள் இருப்பிடம் தேடப்படுகிறது…",locNear:"நீங்கள் {s}-இலிருந்து சுமார் {d} மீ தொலைவில் இருக்கிறீர்கள். அருகிலுள்ள நிறுத்தம் {p}.",locRough:" இருப்பிடம் சுமார் {a} மீ வரை மட்டுமே துல்லியமானது, எனவே நிறுத்தப் பலகையிலுள்ள எழுத்தைச் சரிபார்க்கவும்.",locFar:"இந்த முன்மாதிரியில் அருகிலுள்ள நிறுத்தம் {s}, {km} கி.மீ. தொலைவில்.",locDenied:"இங்கே இருப்பிடம் தடுக்கப்பட்டுள்ளது. உலாவியில் அனுமதியுங்கள் அல்லது கீழே ஆயத்தொலைவுகளை உள்ளிடுங்கள்.",locNA:"இங்கே இருப்பிடம் கிடைக்கவில்லை. கீழே ஆயத்தொலைவுகளையோ வரைபட இணைப்பையோ உள்ளிடுங்கள்.",locPaste:"ஆயத்தொலைவுகளை உள்ளிடுங்கள் அல்லது வரைபட இணைப்பை ஒட்டுங்கள்",locGo:"நிறுத்தத்தைக் கண்டறி",locBad:"படிக்க முடியவில்லை. எடுத்துக்காட்டு: 46.8065, 7.1620",
   twinWarn:"கவனம்: நிறுத்தம் {q} வெறும் {m} மீ தொலைவில் உள்ளது, அது எதிர்த் திசையில் செல்கிறது ({o} நோக்கி).",signCheck:"நிறுத்தப் பலகையைச் சரிபார்க்கவும்: அதில் வழித்தடம் {l}, {d} நோக்கி என்று இருக்க வேண்டும். {o} என்று இருந்தால், மறுபக்கத்துக்குக் கடந்து செல்லுங்கள்.",sides:["வடக்குப் பக்கம்","கிழக்குப் பக்கம்","தெற்குப் பக்கம்","மேற்குப் பக்கம்"],zoomAll:"அனைத்து நிறுத்தங்களையும் காட்டு",zoomMine:"என் நிறுத்தத்தைப் பெரிதாக்கு",
   listen:"கேளுங்கள்",stopAudio:"நிறுத்து",playPhrase:"உரக்க ஒலிக்கச் செய்",noVoice:"இந்தச் சாதனத்தில் இந்த மொழிக்குக் குரல் இல்லை. மேலே உள்ள உரையைப் படியுங்கள்.",audioOff:"இந்தப் பக்கத்துக்கு உரக்கப் படித்தல் முடக்கப்பட்டுள்ளது.",metres:"மீட்டர்",lineSay:"வழித்தடம் {l}",voiceUsed:"குரல்"},
- ti:{tagline:"ንኣውቶቡስኩም ወይ ትራምኩም ቅኑዕ ወገን ጽርግያ ርኸቡ",stopLabel:"መዕረፊ",destLabel:"ናበይ ትኸዱ?",destPh:"ስም መዕረፊ ጽሓፉ፡ ንኣብነት Seebach",
+ ti:{tagline:"ኣበይ ደው ከም ትብሉ ፍለጡ",stopLabel:"መዕረፊ",destLabel:"ናበይ ትኸዱ?",destPh:"ስም መዕረፊ ጽሓፉ፡ ንኣብነት Seebach",
   waitAt:"ኣብ መዕረፊ {p} ተጸበዩ",waitSub:"ክሳብ {d}: {n} መዕረፍታት",towards:"ናብ",next:"ዝቕጽል መዕረፊ",travels:"ኣንፈት ምብጋስ: {dir}።",
   pickHere:"መምርሒ ንምርካብ፡ ኣብቲ ታሕቲ ዘሎ ካርታ ሕጂ ደው ኢልኩምሉ ዘለኹም ምልክት ጠውቑ።",same:"ኣብቲ ቅኑዕ መዕረፊ ኢኹም ዘለኹም። ኣብዚ ጽንሑ።",
   cross:"ካብ መዕረፊ {a} ናብ መዕረፊ {b} ኪዱ፡ ኣስታት {m} ሜ። {c}",crossZebra:"መሳገሪ እግረኛ (ዜብራ) ተጠቐሙ — እቲ ዝቐረበ ኣስታት {z} ሜ ካባኹም ይርሕቕ።",crossNone:"ጽርግያ ኣብ መሳገሪ እግረኛ ወይ ኣብ መብራህቲ ትራፊክ ጥራይ ስገሩ።",
@@ -573,26 +580,26 @@ const T_VOICEHELP={
 for(const l in T_VOICEHELP) Object.assign(T[l],T_VOICEHELP[l]);
 // "Which stops are included?" window + FAQ link
 const T_INFO={
- en:{infoTitle:"Which stops are included?",infoBody:"Rightside is a prototype. It only covers these {n} stops, chosen because several poles there share the same name:",infoMore:"Other stops are not included yet.",close:"Close",faq:"FAQ"},
- de:{infoTitle:"Welche Haltestellen sind dabei?",infoBody:"Rightside ist ein Prototyp. Er umfasst nur diese {n} Haltestellen, an denen mehrere Haltekanten denselben Namen tragen:",infoMore:"Andere Haltestellen sind noch nicht enthalten.",close:"Schliessen",faq:"FAQ"},
- fr:{infoTitle:"Quels arrêts sont inclus ?",infoBody:"Rightside est un prototype. Il ne couvre que ces {n} arrêts, choisis parce que plusieurs quais y portent le même nom :",infoMore:"Les autres arrêts ne sont pas encore inclus.",close:"Fermer",faq:"FAQ"},
- it:{infoTitle:"Quali fermate sono incluse?",infoBody:"Rightside è un prototipo. Copre solo queste {n} fermate, scelte perché lì più pali hanno lo stesso nome:",infoMore:"Le altre fermate non sono ancora incluse.",close:"Chiudi",faq:"FAQ"},
- es:{infoTitle:"¿Qué paradas están incluidas?",infoBody:"Rightside es un prototipo. Solo cubre estas {n} paradas, elegidas porque allí varios postes tienen el mismo nombre:",infoMore:"Las demás paradas aún no están incluidas.",close:"Cerrar",faq:"Preguntas"},
- pt:{infoTitle:"Que paragens estão incluídas?",infoBody:"O Rightside é um protótipo. Só abrange estas {n} paragens, escolhidas porque aí vários postes têm o mesmo nome:",infoMore:"As outras paragens ainda não estão incluídas.",close:"Fechar",faq:"Perguntas"},
- sq:{infoTitle:"Cilat stacione përfshihen?",infoBody:"Rightside është një prototip. Përfshin vetëm këto {n} stacione, të zgjedhura sepse aty disa shtylla kanë të njëjtin emër:",infoMore:"Stacionet e tjera ende nuk përfshihen.",close:"Mbyll",faq:"Pyetje"},
- bs:{infoTitle:"Koje stanice su uključene?",infoBody:"Rightside je prototip. Pokriva samo ovih {n} stanica, odabranih jer tamo više stubova ima isto ime:",infoMore:"Ostale stanice još nisu uključene.",close:"Zatvori",faq:"Pitanja"},
- mk:{infoTitle:"Кои постојки се вклучени?",infoBody:"Rightside е прототип. Ги опфаќа само овие {n} постојки, избрани затоа што таму повеќе столбови го носат истото име:",infoMore:"Другите постојки сè уште не се вклучени.",close:"Затвори",faq:"Прашања"},
- tr:{infoTitle:"Hangi duraklar dahil?",infoBody:"Rightside bir prototiptir. Yalnızca birden fazla direğin aynı adı taşıdığı şu {n} durağı kapsar:",infoMore:"Diğer duraklar henüz dahil değil.",close:"Kapat",faq:"SSS"},
- ku:{infoTitle:"Kîjan rawestgeh tê de ne?",infoBody:"Rightside prototîpek e. Tenê van {n} rawestgehan digire, ku li wan çend stûn heman navî hene:",infoMore:"Rawestgehên din hîn tê de nînin.",close:"Bigire",faq:"Pirs"},
- ar:{infoTitle:"ما المحطات المشمولة؟",infoBody:"Rightside نموذج أولي. يغطي فقط هذه المحطات الـ{n}، التي اختيرت لأن فيها عدة مواقف تحمل الاسم نفسه:",infoMore:"المحطات الأخرى غير مشمولة بعد.",close:"إغلاق",faq:"أسئلة"},
- fa:{infoTitle:"کدام ایستگاه‌ها پوشش داده می‌شوند؟",infoBody:"Rightside یک نمونهٔ اولیه است. فقط این {n} ایستگاه را پوشش می‌دهد که در آن‌ها چند سکو نام یکسانی دارند:",infoMore:"ایستگاه‌های دیگر هنوز اضافه نشده‌اند.",close:"بستن",faq:"پرسش‌ها"},
- ta:{infoTitle:"எந்த நிறுத்தங்கள் சேர்க்கப்பட்டுள்ளன?",infoBody:"Rightside ஒரு முன்மாதிரி. ஒரே பெயருள்ள பல நிறுத்தக் கம்பங்கள் உள்ள இந்த {n} நிறுத்தங்களை மட்டுமே இது உள்ளடக்குகிறது:",infoMore:"மற்ற நிறுத்தங்கள் இன்னும் சேர்க்கப்படவில்லை.",close:"மூடு",faq:"கேள்விகள்"},
- ti:{infoTitle:"ኣየኖት መዕረፍታት ይርከቡ?",infoBody:"Rightside ፕሮቶታይፕ እዩ። ብዙሓት ዓንድታት ሓደ ስም ዘለዎም ነዞም {n} መዕረፍታት ጥራይ ይሽፍን:",infoMore:"ካልኦት መዕረፍታት ገና ኣይተወሰኹን።",close:"ዕጸው",faq:"ሕቶታት"},
- uk:{infoTitle:"Які зупинки охоплено?",infoBody:"Rightside — це прототип. Він охоплює лише ці {n} зупинок, де кілька стовпчиків мають однакову назву:",infoMore:"Інші зупинки ще не додано.",close:"Закрити",faq:"Питання"},
- ru:{infoTitle:"Какие остановки охвачены?",infoBody:"Rightside — это прототип. Он охватывает только эти {n} остановок, где несколько столбиков носят одно название:",infoMore:"Другие остановки пока не добавлены.",close:"Закрыть",faq:"Вопросы"},
- pl:{infoTitle:"Które przystanki są uwzględnione?",infoBody:"Rightside to prototyp. Obejmuje tylko te przystanki ({n}), na których kilka słupków ma tę samą nazwę:",infoMore:"Inne przystanki nie są jeszcze uwzględnione.",close:"Zamknij",faq:"Pytania"},
- ro:{infoTitle:"Ce stații sunt incluse?",infoBody:"Rightside este un prototip. Acoperă doar aceste {n} stații, alese pentru că acolo mai mulți stâlpi au același nume:",infoMore:"Celelalte stații nu sunt încă incluse.",close:"Închide",faq:"Întrebări"},
- zh:{infoTitle:"包含哪些车站？",infoBody:"Rightside 是一个原型。它只包含这 {n} 个车站，这些车站都有多个同名站台：",infoMore:"其他车站暂未收录。",close:"关闭",faq:"常见问题"}
+ en:{infoTitle:"Which stops are included?",infoBody:"Right Side is a prototype. It only covers these {n} stops, chosen because several poles there share the same name:",infoMore:"Other stops are not included yet.",close:"Close",faq:"FAQ"},
+ de:{infoTitle:"Welche Haltestellen sind dabei?",infoBody:"Right Side ist ein Prototyp. Er umfasst nur diese {n} Haltestellen, an denen mehrere Haltekanten denselben Namen tragen:",infoMore:"Andere Haltestellen sind noch nicht enthalten.",close:"Schliessen",faq:"FAQ"},
+ fr:{infoTitle:"Quels arrêts sont inclus ?",infoBody:"Right Side est un prototype. Il ne couvre que ces {n} arrêts, choisis parce que plusieurs quais y portent le même nom :",infoMore:"Les autres arrêts ne sont pas encore inclus.",close:"Fermer",faq:"FAQ"},
+ it:{infoTitle:"Quali fermate sono incluse?",infoBody:"Right Side è un prototipo. Copre solo queste {n} fermate, scelte perché lì più pali hanno lo stesso nome:",infoMore:"Le altre fermate non sono ancora incluse.",close:"Chiudi",faq:"FAQ"},
+ es:{infoTitle:"¿Qué paradas están incluidas?",infoBody:"Right Side es un prototipo. Solo cubre estas {n} paradas, elegidas porque allí varios postes tienen el mismo nombre:",infoMore:"Las demás paradas aún no están incluidas.",close:"Cerrar",faq:"Preguntas"},
+ pt:{infoTitle:"Que paragens estão incluídas?",infoBody:"O Right Side é um protótipo. Só abrange estas {n} paragens, escolhidas porque aí vários postes têm o mesmo nome:",infoMore:"As outras paragens ainda não estão incluídas.",close:"Fechar",faq:"Perguntas"},
+ sq:{infoTitle:"Cilat stacione përfshihen?",infoBody:"Right Side është një prototip. Përfshin vetëm këto {n} stacione, të zgjedhura sepse aty disa shtylla kanë të njëjtin emër:",infoMore:"Stacionet e tjera ende nuk përfshihen.",close:"Mbyll",faq:"Pyetje"},
+ bs:{infoTitle:"Koje stanice su uključene?",infoBody:"Right Side je prototip. Pokriva samo ovih {n} stanica, odabranih jer tamo više stubova ima isto ime:",infoMore:"Ostale stanice još nisu uključene.",close:"Zatvori",faq:"Pitanja"},
+ mk:{infoTitle:"Кои постојки се вклучени?",infoBody:"Right Side е прототип. Ги опфаќа само овие {n} постојки, избрани затоа што таму повеќе столбови го носат истото име:",infoMore:"Другите постојки сè уште не се вклучени.",close:"Затвори",faq:"Прашања"},
+ tr:{infoTitle:"Hangi duraklar dahil?",infoBody:"Right Side bir prototiptir. Yalnızca birden fazla direğin aynı adı taşıdığı şu {n} durağı kapsar:",infoMore:"Diğer duraklar henüz dahil değil.",close:"Kapat",faq:"SSS"},
+ ku:{infoTitle:"Kîjan rawestgeh tê de ne?",infoBody:"Right Side prototîpek e. Tenê van {n} rawestgehan digire, ku li wan çend stûn heman navî hene:",infoMore:"Rawestgehên din hîn tê de nînin.",close:"Bigire",faq:"Pirs"},
+ ar:{infoTitle:"ما المحطات المشمولة؟",infoBody:"Right Side نموذج أولي. يغطي فقط هذه المحطات الـ{n}، التي اختيرت لأن فيها عدة مواقف تحمل الاسم نفسه:",infoMore:"المحطات الأخرى غير مشمولة بعد.",close:"إغلاق",faq:"أسئلة"},
+ fa:{infoTitle:"کدام ایستگاه‌ها پوشش داده می‌شوند؟",infoBody:"Right Side یک نمونهٔ اولیه است. فقط این {n} ایستگاه را پوشش می‌دهد که در آن‌ها چند سکو نام یکسانی دارند:",infoMore:"ایستگاه‌های دیگر هنوز اضافه نشده‌اند.",close:"بستن",faq:"پرسش‌ها"},
+ ta:{infoTitle:"எந்த நிறுத்தங்கள் சேர்க்கப்பட்டுள்ளன?",infoBody:"Right Side ஒரு முன்மாதிரி. ஒரே பெயருள்ள பல நிறுத்தக் கம்பங்கள் உள்ள இந்த {n} நிறுத்தங்களை மட்டுமே இது உள்ளடக்குகிறது:",infoMore:"மற்ற நிறுத்தங்கள் இன்னும் சேர்க்கப்படவில்லை.",close:"மூடு",faq:"கேள்விகள்"},
+ ti:{infoTitle:"ኣየኖት መዕረፍታት ይርከቡ?",infoBody:"Right Side ፕሮቶታይፕ እዩ። ብዙሓት ዓንድታት ሓደ ስም ዘለዎም ነዞም {n} መዕረፍታት ጥራይ ይሽፍን:",infoMore:"ካልኦት መዕረፍታት ገና ኣይተወሰኹን።",close:"ዕጸው",faq:"ሕቶታት"},
+ uk:{infoTitle:"Які зупинки охоплено?",infoBody:"Right Side — це прототип. Він охоплює лише ці {n} зупинок, де кілька стовпчиків мають однакову назву:",infoMore:"Інші зупинки ще не додано.",close:"Закрити",faq:"Питання"},
+ ru:{infoTitle:"Какие остановки охвачены?",infoBody:"Right Side — это прототип. Он охватывает только эти {n} остановок, где несколько столбиков носят одно название:",infoMore:"Другие остановки пока не добавлены.",close:"Закрыть",faq:"Вопросы"},
+ pl:{infoTitle:"Które przystanki są uwzględnione?",infoBody:"Right Side to prototyp. Obejmuje tylko te przystanki ({n}), na których kilka słupków ma tę samą nazwę:",infoMore:"Inne przystanki nie są jeszcze uwzględnione.",close:"Zamknij",faq:"Pytania"},
+ ro:{infoTitle:"Ce stații sunt incluse?",infoBody:"Right Side este un prototip. Acoperă doar aceste {n} stații, alese pentru că acolo mai mulți stâlpi au același nume:",infoMore:"Celelalte stații nu sunt încă incluse.",close:"Închide",faq:"Întrebări"},
+ zh:{infoTitle:"包含哪些车站？",infoBody:"Right Side 是一个原型。它只包含这 {n} 个车站，这些车站都有多个同名站台：",infoMore:"其他车站暂未收录。",close:"关闭",faq:"常见问题"}
 };
 for(const l in T_INFO) Object.assign(T[l],T_INFO[l]);
 // Step-free access: badges, the wheelchair switch, warnings and crossing advice
