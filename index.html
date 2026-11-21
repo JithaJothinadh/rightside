@@ -1459,10 +1459,8 @@ function setStop(i,keepDest,hereP){
   if(!keepDest){ // example destination: the end of the first line
     const v=stop.platforms[stop.platforms.length-1].routes[0].via; $("dest").value=v[Math.min(3,v.length-1)];
   }
-  // example "you are here": the pole farthest from the answer, to show the crossing help
-  const best=(matches($("dest").value)||[])[0];
+  // where you stand comes only from a tap, GPS or a scanned sign; never pretend to know it
   if(hereP) here=hereP;
-  else if(best) here=stop.platforms.slice().sort((a,b)=>dist(b,best.p)-dist(a,best.p))[0];
   applyLang();
 }
 
