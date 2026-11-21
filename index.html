@@ -38,12 +38,12 @@ h1{font:700 48px/1 "IBM Plex Sans","Archivo","Helvetica Neue",Arial,sans-serif;m
 .topnav a:hover{border-bottom-color:var(--pole)}
 .stage{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
 .panel{display:flex;flex-direction:column;gap:14px;min-width:0}
-/* phones: one column — the two dropdowns first, then the map (still on screen when the page opens),
-   then location and the answer */
+/* phones: one column - inputs, then location, then the answer, then the street plan.
+   The answer must be readable without scrolling; the map is supporting detail. */
 @media (max-width:719px){
   .stage{display:flex;flex-direction:column;gap:14px}
   .panel{display:contents}
-  .stage .ask{order:1} .stage .mapcard{order:2} .stage .locate{order:3} .stage .coord{order:4} .stage .answer{order:5}
+  .stage .ask{order:1} .stage .locate{order:2} .stage .coord{order:3} .stage .answer{order:4} .stage .mapcard{order:5}
   .stage svg.map{max-height:38vh}
   .mapcard .hint{padding:8px 12px}
   .legend{padding:8px 12px;gap:10px}
