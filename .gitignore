@@ -12,3 +12,6 @@ Thumbs.db
 
 .vercel
 .env*
+
+# parallel agent worktrees
+.worktrees/
