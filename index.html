@@ -1,0 +1,737 @@
+<meta charset="utf-8">
+<title>Rightside</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single working column — stop + destination on top, the answer card, then the street plan with pole markers. */
+:root{
+  --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
+  --asphalt:#c9cdc9; --asphalt-edge:#aeb3af; --path:#9aa29d; --block:#e6e8e4;
+  --go:#0f8a4a; --go-soft:#d8f0e2; --here:#1f5fd1; --here-soft:#dde7fa; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#b45309; --warn-soft:#fdf0dc;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Sans SC","PingFang SC","Microsoft YaHei",Tahoma,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431;
+  --asphalt:#3a403d; --asphalt-edge:#4b524e; --path:#59615c; --block:#191c1b;
+  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431;
+  --asphalt:#3a403d; --asphalt-edge:#4b524e; --path:#59615c; --block:#191c1b;
+  --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .h{width:34px;height:34px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 19px var(--display);box-shadow:inset 0 0 0 3px var(--stop)}
+h1{font:800 24px/1 var(--display);margin:0;letter-spacing:-.01em}
+.tag{color:var(--muted);margin:2px 0 0;font-size:13px}
+.langs{display:flex;gap:4px;flex-wrap:wrap}
+.langs button{font:600 12px var(--body);letter-spacing:.04em;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;padding:5px 8px;cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.ask{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.ask{grid-template-columns:1fr}}
+label{display:block;font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+select,input{width:100%;font:500 16px var(--body);padding:11px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--here);outline-offset:2px}
+.langpick{display:flex;align-items:center;gap:8px;margin:0;color:var(--fg)}
+.langpick select{width:auto;max-width:62vw;font:600 15px var(--body);padding:8px 10px}
+/* Arabic/Persian read right-to-left; the street plan and Latin stop names stay as drawn */
+[dir="rtl"] svg.map{direction:ltr}
+[dir="rtl"] .say[lang]{direction:ltr;text-align:left}
+.combo{position:relative}
+.combo input{padding-inline-end:40px}
+.clear{position:absolute;inset-inline-end:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;border-radius:6px}
+#destList{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-height:320px;overflow-y:auto}
+#destList li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer}
+#destList li[aria-selected="true"],#destList li:hover{background:var(--here-soft)}
+#destList li .hint{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+#destList li.none{cursor:default;color:var(--muted)}
+.locate{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 14px var(--body);padding:10px 14px;border-radius:8px;border:1px solid var(--here);background:var(--here-soft);color:var(--fg);cursor:pointer}
+.btn[aria-busy="true"]{opacity:.7;cursor:progress}
+.btn svg{color:var(--here)}
+#locMsg{font-size:14px;min-width:0;flex:1 1 260px}
+#locMsg.warn{color:var(--stop)}
+.coord summary{cursor:pointer;color:var(--muted);font-size:13px}
+.coord form{display:flex;gap:8px;margin-top:8px}
+.coord input{flex:1;min-width:0}
+.answer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.answer.ok{border-color:var(--go);box-shadow:0 0 0 3px var(--go-soft)}
+.big{display:flex;align-items:center;gap:14px}
+.pole{flex:none;width:52px;height:52px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 26px var(--display);box-shadow:inset 0 0 0 4px var(--go)}
+.big h2{font:800 22px/1.2 var(--display);margin:0;text-wrap:balance}
+.big p{margin:2px 0 0;color:var(--muted)}
+.rides{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.rides li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.ln{font:700 13px var(--display);min-width:38px;text-align:center;padding:2px 7px;border-radius:5px;background:var(--fg);color:var(--bg);font-variant-numeric:tabular-nums}
+.big>div{min-width:0}
+.speak{margin-inline-start:auto;align-self:flex-start;flex:none;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.speak svg{color:var(--here)}
+.speak[aria-pressed="true"]{background:var(--here);border-color:var(--here);color:var(--bg)}
+.speak[aria-pressed="true"] svg{color:var(--bg)}
+.amsg{font-size:13px;color:var(--muted)}
+.amsg:empty{display:none}
+.prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px}
+.phrase .speak{margin-inline-start:0;background:var(--bg);color:var(--fg);border-color:var(--bg)}
+.phrase .amsg{color:var(--bg);opacity:.75}
+.side{margin:2px 0 0;font-weight:600;color:var(--fg)}
+.careful{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:8px;background:var(--warn-soft);border:1px solid var(--warn)}
+.careful b{font-weight:600}
+.plat h3 .sd{display:block;font:500 12px var(--body);color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;font:600 13px var(--body);color:var(--here);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.step{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;background:var(--here-soft)}
+.step b{font-weight:600}
+.step .dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--here);margin-top:5px}
+.step.same{background:var(--go-soft)} .step.same .dot{background:var(--go)}
+.muted{color:var(--muted)}
+.mapcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mapcard .hint{padding:10px 14px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+svg.map{display:block;width:100%;height:auto;max-height:70vh;background:var(--block);touch-action:manipulation}
+.st-label{font:600 5.5px var(--body);fill:var(--muted);paint-order:stroke;stroke:var(--block);stroke-width:2px}
+.mk{cursor:pointer}
+.mk text{font:800 8px var(--display);fill:var(--pole-fg);pointer-events:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.plats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.plat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.plat.on{border-color:var(--go)} .plat.me{border-color:var(--here)}
+.plat h3{margin:0;font:700 14px var(--display);display:flex;align-items:center;gap:8px}
+.plat h3 .pl{width:24px;height:24px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 13px var(--display)}
+.plat ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.phrase{background:var(--fg);color:var(--bg);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.phrase .lab{font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.phrase .say{font:700 22px/1.3 var(--display);text-wrap:balance}
+.phrase .tr{opacity:.75;font-size:14px}
+h4{font:700 15px var(--display);margin:6px 0 0}
+footer{font-size:12px;color:var(--muted);line-height:1.6}
+footer a{color:inherit}
+@keyframes pulse{0%{r:9;opacity:.6}100%{r:20;opacity:0}}
+.ring{animation:pulse 1.6s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.ring{animation:none;opacity:.35;r:14}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="h" aria-hidden="true">H</div><div><h1>Rightside</h1><p class="tag" data-t="tagline"></p></div></div>
+    <label class="langpick"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22M12 2C9 5 7.5 8.5 7.5 12S9 19 12 22" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="langSel" aria-label="Language / Sprache / Langue / Lingua / اللغة / Язык / 语言"></select></label>
+  </header>
+
+  <div class="ask">
+    <div><label for="stop" data-t="stopLabel"></label><select id="stop"></select></div>
+    <div><label for="dest" data-t="destLabel"></label><div class="combo"><input id="dest" role="combobox" aria-expanded="false" aria-controls="destList" aria-autocomplete="list" autocomplete="off" spellcheck="false"><button type="button" id="destClear" class="clear" aria-label="Clear">×</button><ul id="destList" role="listbox" hidden></ul></div></div>
+  </div>
+
+  <div class="locate">
+    <button id="locBtn" type="button" class="btn"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2"/></svg><span data-t="locBtn"></span></button>
+    <span id="locMsg" aria-live="polite"></span>
+  </div>
+  <details class="coord" id="coordBox">
+    <summary data-t="locPaste"></summary>
+    <form id="coordForm"><input id="coord" aria-label="Coordinates" placeholder="46.8065, 7.1620"><button type="submit" class="btn" data-t="locGo"></button></form>
+  </details>
+
+  <section class="answer" id="answer" aria-live="polite"></section>
+
+  <section class="mapcard">
+    <div class="hint"><span data-t="tapHint"></span><button type="button" id="zoomBtn" class="linkbtn" hidden></button></div>
+    <svg class="map" id="map" viewBox="-150 -150 300 300" role="img"></svg>
+    <div class="legend">
+      <span><i style="background:var(--go)"></i><span data-t="lgGo"></span></span>
+      <span><i style="background:var(--here)"></i><span data-t="lgHere"></span></span>
+      <span><i style="background:var(--pole)"></i><span data-t="lgOther"></span></span>
+      <span data-t="lgArrow"></span>
+    </div>
+  </section>
+
+  <h4 data-t="allPoles"></h4>
+  <div class="plats" id="plats"></div>
+
+  <section class="phrase" id="phrase"></section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const T={
+ en:{tagline:"Find the right side of the road for your bus or tram",stopLabel:"Stop",destLabel:"Where are you going?",destPh:"Type a stop, e.g. Seebach",
+  waitAt:"Wait at stop {p}",waitSub:"{n} stop(s) to {d}",take:"Take",towards:"towards",next:"next stop",travels:"The bus leaves heading {dir}.",
+  pickHere:"Tap the marker you are standing at now on the map below to get walking help.",same:"You are already at the right stop. Stay here.",
+  cross:"Go from stop {a} to stop {b}, about {m} m. {c}",crossZebra:"Use the pedestrian crossing (zebra stripes) — the nearest is about {z} m from you.",crossNone:"Cross only at a pedestrian crossing or traffic light.",
+  noMatch:"No bus or tram from {s} goes to “{d}” directly. Try another spelling, or pick from the list.",empty:"Type where you want to go. We will show which stop to wait at.",
+  tapHint:"Tap a marker to say where you are standing.",lgGo:"Your stop",lgHere:"You are here",lgOther:"Other stops with this name",lgArrow:"Arrow = direction the bus leaves",
+  allPoles:"Every stop called “{s}”",poleN:"Stop {p}",sayLab:"Show this to someone nearby",sayTr:"Means: “Excuse me, I want to go to {d}. Is this the right stop?”",
+  dirs:["north","north-east","east","south-east","south","south-west","west","north-west"],
+  foot:"Prototype. Stop positions and routes come from OpenStreetMap (© OpenStreetMap contributors, ODbL) and stop names from opentransportdata.swiss, snapshot of {date}. Markers are labelled by the letter on the stop sign where OSM records one, otherwise A, B, C. Check the sign and the timetable on site."},
+ de:{tagline:"Finde die richtige Strassenseite für deinen Bus oder dein Tram",stopLabel:"Haltestelle",destLabel:"Wohin willst du?",destPh:"Haltestelle eingeben, z. B. Seebach",
+  waitAt:"Warte an Haltekante {p}",waitSub:"{n} Halt(e) bis {d}",take:"Nimm",towards:"Richtung",next:"nächster Halt",travels:"Der Bus fährt Richtung {dir} ab.",
+  pickHere:"Tippe auf der Karte unten auf die Markierung, an der du gerade stehst.",same:"Du stehst schon richtig. Bleib hier.",
+  cross:"Geh von Kante {a} zu Kante {b}, etwa {m} m. {c}",crossZebra:"Nutze den Fussgängerstreifen – der nächste ist etwa {z} m entfernt.",crossNone:"Überquere die Strasse nur am Fussgängerstreifen oder an der Ampel.",
+  noMatch:"Von {s} fährt kein Bus oder Tram direkt nach «{d}». Prüfe die Schreibweise oder wähle aus der Liste.",empty:"Gib dein Ziel ein. Wir zeigen dir, wo du warten musst.",
+  tapHint:"Tippe auf eine Markierung, um zu zeigen, wo du stehst.",lgGo:"Deine Haltekante",lgHere:"Du bist hier",lgOther:"Andere Kanten mit diesem Namen",lgArrow:"Pfeil = Abfahrtsrichtung",
+  allPoles:"Alle Haltekanten «{s}»",poleN:"Kante {p}",sayLab:"Zeig das jemandem in der Nähe",sayTr:"Bedeutet: «Entschuldigung, ich möchte nach {d}. Bin ich hier richtig?»",
+  dirs:["Norden","Nordosten","Osten","Südosten","Süden","Südwesten","Westen","Nordwesten"],
+  foot:"Prototyp. Haltekanten und Linien aus OpenStreetMap (© OpenStreetMap-Mitwirkende, ODbL), Namen von opentransportdata.swiss, Stand {date}. Kanten tragen den Buchstaben vom Haltestellenschild, sofern in OSM erfasst, sonst A, B, C. Bitte Schild und Fahrplan vor Ort prüfen."},
+ fr:{tagline:"Trouvez le bon côté de la rue pour votre bus ou tram",stopLabel:"Arrêt",destLabel:"Où allez-vous ?",destPh:"Tapez un arrêt, p. ex. Seebach",
+  waitAt:"Attendez au quai {p}",waitSub:"{n} arrêt(s) jusqu’à {d}",take:"Prenez",towards:"direction",next:"prochain arrêt",travels:"Le bus part vers le {dir}.",
+  pickHere:"Touchez sur la carte le repère où vous vous trouvez pour être guidé.",same:"Vous êtes déjà au bon arrêt. Restez ici.",
+  cross:"Allez du quai {a} au quai {b}, environ {m} m. {c}",crossZebra:"Traversez au passage piéton – le plus proche est à environ {z} m.",crossNone:"Traversez uniquement au passage piéton ou au feu.",
+  noMatch:"Aucun bus ni tram ne va directement de {s} à « {d} ». Vérifiez l’orthographe ou choisissez dans la liste.",empty:"Indiquez votre destination. Nous vous montrons où attendre.",
+  tapHint:"Touchez un repère pour indiquer où vous êtes.",lgGo:"Votre quai",lgHere:"Vous êtes ici",lgOther:"Autres quais du même nom",lgArrow:"Flèche = sens de départ",
+  allPoles:"Tous les quais « {s} »",poleN:"Quai {p}",sayLab:"Montrez ceci à quelqu’un",sayTr:"Signifie : « Excusez-moi, je veux aller à {d}. Est-ce le bon arrêt ? »",
+  dirs:["nord","nord-est","est","sud-est","sud","sud-ouest","ouest","nord-ouest"],
+  foot:"Prototype. Quais et lignes issus d’OpenStreetMap (© contributeurs OpenStreetMap, ODbL), noms d’opentransportdata.swiss, état du {date}. Les quais portent la lettre du panneau si OSM la connaît, sinon A, B, C. Vérifiez le panneau et l’horaire sur place."},
+ it:{tagline:"Trova il lato giusto della strada per il tuo bus o tram",stopLabel:"Fermata",destLabel:"Dove vuoi andare?",destPh:"Scrivi una fermata, es. Seebach",
+  waitAt:"Aspetta alla fermata {p}",waitSub:"{n} fermata/e fino a {d}",take:"Prendi",towards:"direzione",next:"prossima fermata",travels:"Il bus parte verso {dir}.",
+  pickHere:"Tocca sulla mappa il segnaposto dove ti trovi ora per avere indicazioni.",same:"Sei già alla fermata giusta. Resta qui.",
+  cross:"Vai dalla fermata {a} alla fermata {b}, circa {m} m. {c}",crossZebra:"Attraversa sulle strisce pedonali – le più vicine sono a circa {z} m.",crossNone:"Attraversa solo sulle strisce o al semaforo.",
+  noMatch:"Nessun bus o tram va direttamente da {s} a «{d}». Controlla l’ortografia o scegli dalla lista.",empty:"Scrivi la tua destinazione. Ti mostriamo dove aspettare.",
+  tapHint:"Tocca un segnaposto per dire dove ti trovi.",lgGo:"La tua fermata",lgHere:"Sei qui",lgOther:"Altre fermate con questo nome",lgArrow:"Freccia = direzione di partenza",
+  allPoles:"Tutte le fermate «{s}»",poleN:"Fermata {p}",sayLab:"Mostralo a qualcuno vicino",sayTr:"Significa: «Mi scusi, voglio andare a {d}. È la fermata giusta?»",
+  dirs:["nord","nord-est","est","sud-est","sud","sud-ovest","ovest","nord-ovest"],
+  foot:"Prototipo. Fermate e linee da OpenStreetMap (© collaboratori di OpenStreetMap, ODbL), nomi da opentransportdata.swiss, aggiornato al {date}. Le fermate hanno la lettera del cartello se OSM la registra, altrimenti A, B, C. Controlla cartello e orario sul posto."},
+ es:{tagline:"Encuentra el lado correcto de la calle para tu bus o tranvía",stopLabel:"Parada",destLabel:"¿A dónde vas?",destPh:"Escribe una parada, p. ej. Seebach",
+  waitAt:"Espera en la parada {p}",waitSub:"{n} parada(s) hasta {d}",take:"Toma",towards:"dirección",next:"próxima parada",travels:"El bus sale hacia el {dir}.",
+  pickHere:"Toca en el mapa el marcador donde estás ahora para recibir indicaciones.",same:"Ya estás en la parada correcta. Quédate aquí.",
+  cross:"Ve de la parada {a} a la parada {b}, unos {m} m. {c}",crossZebra:"Cruza por el paso de peatones; el más cercano está a unos {z} m.",crossNone:"Cruza solo por un paso de peatones o semáforo.",
+  noMatch:"Ningún bus ni tranvía va directo de {s} a «{d}». Revisa cómo se escribe o elige de la lista.",empty:"Escribe tu destino. Te mostramos dónde esperar.",
+  tapHint:"Toca un marcador para indicar dónde estás.",lgGo:"Tu parada",lgHere:"Estás aquí",lgOther:"Otras paradas con este nombre",lgArrow:"Flecha = sentido de salida",
+  allPoles:"Todas las paradas «{s}»",poleN:"Parada {p}",sayLab:"Muéstraselo a alguien cerca",sayTr:"Significa: «Disculpe, quiero ir a {d}. ¿Es esta la parada correcta?»",
+  dirs:["norte","noreste","este","sureste","sur","suroeste","oeste","noroeste"],
+  foot:"Prototipo. Paradas y líneas de OpenStreetMap (© colaboradores de OpenStreetMap, ODbL), nombres de opentransportdata.swiss, datos del {date}. Las paradas llevan la letra del poste si OSM la tiene; si no, A, B, C. Comprueba el poste y el horario en el lugar."},
+ uk:{tagline:"Знайдіть правильний бік вулиці для свого автобуса чи трамвая",stopLabel:"Зупинка",destLabel:"Куди ви їдете?",destPh:"Введіть зупинку, напр. Seebach",
+  waitAt:"Чекайте на зупинці {p}",waitSub:"{n} зуп. до {d}",take:"Сідайте на",towards:"напрямок",next:"наступна зупинка",travels:"Автобус від’їжджає на {dir}.",
+  pickHere:"Торкніться на мапі нижче позначки, де ви зараз стоїте.",same:"Ви вже на правильній зупинці. Залишайтеся тут.",
+  cross:"Перейдіть від зупинки {a} до зупинки {b}, приблизно {m} м. {c}",crossZebra:"Переходьте по пішохідному переходу — найближчий приблизно за {z} м.",crossNone:"Переходьте лише по переходу або на світлофорі.",
+  noMatch:"З {s} немає прямого автобуса чи трамвая до «{d}». Перевірте написання або виберіть зі списку.",empty:"Введіть пункт призначення. Ми покажемо, де чекати.",
+  tapHint:"Торкніться позначки, щоб показати, де ви стоїте.",lgGo:"Ваша зупинка",lgHere:"Ви тут",lgOther:"Інші зупинки з цією назвою",lgArrow:"Стрілка = напрямок руху",
+  allPoles:"Усі зупинки «{s}»",poleN:"Зупинка {p}",sayLab:"Покажіть це комусь поруч",sayTr:"Означає: «Перепрошую, мені потрібно до {d}. Це правильна зупинка?»",
+  dirs:["північ","північний схід","схід","південний схід","південь","південний захід","захід","північний захід"],
+  foot:"Прототип. Зупинки й маршрути з OpenStreetMap (© учасники OpenStreetMap, ODbL), назви з opentransportdata.swiss, стан на {date}. Позначки мають літеру зі знака зупинки, якщо вона є в OSM, інакше A, B, C. Перевіряйте знак і розклад на місці."}
+};
+const T_LOC={
+ en:{locBtn:"Use my location",locWait:"Finding your location…",locNear:"You are about {d} m from {s}. The closest stop is {p}.",locRough:" Your location is only accurate to about {a} m, so check the letter on the stop sign.",locFar:"The closest stop in this prototype is {s}, {km} km away.",locDenied:"Location is blocked here. Allow it in your browser, or enter coordinates below.",locNA:"Location isn't available here. Enter coordinates or a map link below.",locPaste:"Enter coordinates or paste a map link",locGo:"Find stop",locBad:"Couldn't read that. Example: 46.8065, 7.1620"},
+ de:{locBtn:"Meinen Standort verwenden",locWait:"Standort wird gesucht…",locNear:"Du bist etwa {d} m von {s} entfernt. Am nächsten ist Kante {p}.",locRough:" Der Standort ist nur auf etwa {a} m genau – prüfe den Buchstaben am Haltestellenschild.",locFar:"Die nächste Haltestelle in diesem Prototyp ist {s}, {km} km entfernt.",locDenied:"Der Standort ist hier blockiert. Erlaube ihn im Browser oder gib unten Koordinaten ein.",locNA:"Der Standort ist hier nicht verfügbar. Gib unten Koordinaten oder einen Kartenlink ein.",locPaste:"Koordinaten oder Kartenlink eingeben",locGo:"Haltestelle finden",locBad:"Das konnte ich nicht lesen. Beispiel: 46.8065, 7.1620"},
+ fr:{locBtn:"Utiliser ma position",locWait:"Recherche de votre position…",locNear:"Vous êtes à environ {d} m de {s}. Le quai le plus proche est {p}.",locRough:" La position n’est précise qu’à environ {a} m : vérifiez la lettre sur le panneau.",locFar:"L’arrêt le plus proche dans ce prototype est {s}, à {km} km.",locDenied:"La localisation est bloquée ici. Autorisez-la dans le navigateur ou saisissez des coordonnées ci-dessous.",locNA:"La localisation n’est pas disponible ici. Saisissez des coordonnées ou un lien de carte ci-dessous.",locPaste:"Saisir des coordonnées ou un lien de carte",locGo:"Trouver l’arrêt",locBad:"Lecture impossible. Exemple : 46.8065, 7.1620"},
+ it:{locBtn:"Usa la mia posizione",locWait:"Ricerca della posizione…",locNear:"Sei a circa {d} m da {s}. La fermata più vicina è {p}.",locRough:" La posizione è precisa solo a circa {a} m: controlla la lettera sul cartello.",locFar:"La fermata più vicina in questo prototipo è {s}, a {km} km.",locDenied:"La posizione è bloccata qui. Consentila nel browser o inserisci le coordinate qui sotto.",locNA:"La posizione non è disponibile qui. Inserisci coordinate o un link della mappa qui sotto.",locPaste:"Inserisci coordinate o un link della mappa",locGo:"Trova fermata",locBad:"Non riesco a leggerlo. Esempio: 46.8065, 7.1620"},
+ es:{locBtn:"Usar mi ubicación",locWait:"Buscando tu ubicación…",locNear:"Estás a unos {d} m de {s}. La parada más cercana es {p}.",locRough:" La ubicación solo es precisa a unos {a} m: revisa la letra del poste.",locFar:"La parada más cercana de este prototipo es {s}, a {km} km.",locDenied:"La ubicación está bloqueada aquí. Permítela en el navegador o introduce coordenadas abajo.",locNA:"La ubicación no está disponible aquí. Introduce coordenadas o un enlace de mapa abajo.",locPaste:"Introduce coordenadas o un enlace de mapa",locGo:"Buscar parada",locBad:"No se pudo leer. Ejemplo: 46.8065, 7.1620"},
+ uk:{locBtn:"Моє місцезнаходження",locWait:"Шукаємо ваше місцезнаходження…",locNear:"Ви приблизно за {d} м від {s}. Найближча зупинка — {p}.",locRough:" Точність лише близько {a} м, тож перевірте літеру на знаку зупинки.",locFar:"Найближча зупинка в цьому прототипі — {s}, за {km} км.",locDenied:"Геолокацію тут заблоковано. Дозвольте її в браузері або введіть координати нижче.",locNA:"Геолокація тут недоступна. Введіть координати або посилання на мапу нижче.",locPaste:"Координати або посилання на мапу",locGo:"Знайти зупинку",locBad:"Не вдалося прочитати. Приклад: 46.8065, 7.1620"}
+};
+for(const l in T_LOC) Object.assign(T[l],T_LOC[l]);
+// Languages of the largest newcomer, refugee and student groups in Switzerland
+const T_MORE={
+ pt:{tagline:"Encontre o lado certo da rua para o seu autocarro ou elétrico",stopLabel:"Paragem",destLabel:"Para onde vai?",destPh:"Escreva uma paragem, p. ex. Seebach",
+  waitAt:"Espere na paragem {p}",waitSub:"{n} paragem(ns) até {d}",towards:"direção",next:"próxima paragem",travels:"Sentido de partida: {dir}.",
+  pickHere:"Toque no mapa abaixo no marcador onde está agora para receber indicações.",same:"Já está na paragem certa. Fique aqui.",
+  cross:"Vá da paragem {a} para a paragem {b}, cerca de {m} m. {c}",crossZebra:"Use a passadeira — a mais próxima fica a cerca de {z} m.",crossNone:"Atravesse apenas numa passadeira ou num semáforo.",
+  noMatch:"Nenhum autocarro ou elétrico vai diretamente de {s} para «{d}». Verifique a escrita ou escolha da lista.",empty:"Escreva o seu destino. Mostramos onde deve esperar.",
+  tapHint:"Toque num marcador para indicar onde está.",lgGo:"A sua paragem",lgHere:"Está aqui",lgOther:"Outras paragens com este nome",lgArrow:"Seta = sentido de partida",
+  allPoles:"Todas as paragens «{s}»",poleN:"Paragem {p}",sayLab:"Mostre isto a alguém por perto",sayTr:"Significa: «Desculpe, quero ir para {d}. Esta é a paragem certa?»",
+  dirs:["norte","nordeste","leste","sudeste","sul","sudoeste","oeste","noroeste"],
+  foot:"Protótipo. Paragens e linhas do OpenStreetMap (© contribuidores do OpenStreetMap, ODbL), nomes de opentransportdata.swiss, dados de {date}. As paragens têm a letra da placa quando o OSM a regista; caso contrário A, B, C. Confirme a placa e o horário no local.",
+  locBtn:"Usar a minha localização",locWait:"A procurar a sua localização…",locNear:"Está a cerca de {d} m de {s}. A paragem mais próxima é {p}.",locRough:" A localização só tem precisão de cerca de {a} m: confirme a letra na placa.",locFar:"A paragem mais próxima neste protótipo é {s}, a {km} km.",locDenied:"A localização está bloqueada aqui. Permita-a no navegador ou introduza coordenadas abaixo.",locNA:"A localização não está disponível aqui. Introduza coordenadas ou um link de mapa abaixo.",locPaste:"Introduza coordenadas ou um link de mapa",locGo:"Encontrar paragem",locBad:"Não foi possível ler. Exemplo: 46.8065, 7.1620"},
+ sq:{tagline:"Gjej anën e duhur të rrugës për autobusin ose tramvajin tënd",stopLabel:"Stacioni",destLabel:"Ku po shkon?",destPh:"Shkruaj një stacion, p.sh. Seebach",
+  waitAt:"Prit te stacioni {p}",waitSub:"{n} stacion(e) deri në {d}",towards:"drejt",next:"stacioni i radhës",travels:"Drejtimi i nisjes: {dir}.",
+  pickHere:"Prek në hartën më poshtë shenjën ku ndodhesh tani për të marrë udhëzime.",same:"Je tashmë te stacioni i duhur. Qëndro këtu.",
+  cross:"Shko nga stacioni {a} te stacioni {b}, rreth {m} m. {c}",crossZebra:"Kalo te vendkalimi i këmbësorëve (vijat e bardha) — më i afërti është rreth {z} m larg.",crossNone:"Kalo rrugën vetëm te vendkalimi i këmbësorëve ose te semafori.",
+  noMatch:"Asnjë autobus apo tramvaj nuk shkon drejtpërdrejt nga {s} në «{d}». Kontrollo shkrimin ose zgjidh nga lista.",empty:"Shkruaj ku do të shkosh. Do të të tregojmë ku të presësh.",
+  tapHint:"Prek një shenjë për të treguar ku ndodhesh.",lgGo:"Stacioni yt",lgHere:"Ti je këtu",lgOther:"Stacione të tjera me këtë emër",lgArrow:"Shigjeta = drejtimi i nisjes",
+  allPoles:"Të gjitha stacionet «{s}»",poleN:"Stacioni {p}",sayLab:"Tregoja këtë dikujt afër",sayTr:"Do të thotë: «Më falni, dua të shkoj në {d}. A jam në stacionin e duhur?»",
+  dirs:["veri","verilindje","lindje","juglindje","jug","jugperëndim","perëndim","veriperëndim"],
+  foot:"Prototip. Stacionet dhe linjat nga OpenStreetMap (© kontribuuesit e OpenStreetMap, ODbL), emrat nga opentransportdata.swiss, të dhëna të {date}. Stacionet kanë shkronjën e tabelës kur OSM e ka; përndryshe A, B, C. Kontrollo tabelën dhe orarin në vend.",
+  locBtn:"Përdor vendndodhjen time",locWait:"Po kërkohet vendndodhja jote…",locNear:"Je rreth {d} m nga {s}. Stacioni më i afërt është {p}.",locRough:" Vendndodhja është e saktë vetëm rreth {a} m, ndaj kontrollo shkronjën në tabelën e stacionit.",locFar:"Stacioni më i afërt në këtë prototip është {s}, {km} km larg.",locDenied:"Vendndodhja është e bllokuar këtu. Lejoje në shfletues ose shkruaj koordinatat më poshtë.",locNA:"Vendndodhja nuk është e disponueshme këtu. Shkruaj koordinatat ose një lidhje harte më poshtë.",locPaste:"Shkruaj koordinatat ose ngjit një lidhje harte",locGo:"Gjej stacionin",locBad:"Nuk u lexua. Shembull: 46.8065, 7.1620"},
+ bs:{tagline:"Pronađi pravu stranu ulice za svoj autobus ili tramvaj",stopLabel:"Stanica",destLabel:"Kuda ideš?",destPh:"Upiši stanicu, npr. Seebach",
+  waitAt:"Čekaj na stanici {p}",waitSub:"{n} stanica do {d}",towards:"smjer",next:"sljedeća stanica",travels:"Smjer polaska: {dir}.",
+  pickHere:"Na mapi ispod dodirni oznaku na kojoj sada stojiš da dobiješ uputstva.",same:"Već si na pravoj stanici. Ostani ovdje.",
+  cross:"Idi od stanice {a} do stanice {b}, oko {m} m. {c}",crossZebra:"Koristi pješački prelaz (zebru) — najbliži je oko {z} m od tebe.",crossNone:"Prelazi ulicu samo na pješačkom prelazu ili na semaforu.",
+  noMatch:"Nijedan autobus ni tramvaj ne ide direktno od {s} do „{d}”. Provjeri pisanje ili izaberi s liste.",empty:"Upiši kuda želiš ići. Pokazat ćemo ti gdje da čekaš.",
+  tapHint:"Dodirni oznaku da pokažeš gdje stojiš.",lgGo:"Tvoja stanica",lgHere:"Ti si ovdje",lgOther:"Druge stanice s ovim imenom",lgArrow:"Strelica = smjer polaska",
+  allPoles:"Sve stanice „{s}”",poleN:"Stanica {p}",sayLab:"Pokaži ovo nekome u blizini",sayTr:"Znači: „Izvinite, želim ići do {d}. Jesam li na pravoj stanici?”",
+  dirs:["sjever","sjeveroistok","istok","jugoistok","jug","jugozapad","zapad","sjeverozapad"],
+  foot:"Prototip. Stanice i linije iz OpenStreetMapa (© saradnici OpenStreetMapa, ODbL), nazivi s opentransportdata.swiss, podaci od {date}. Stanice nose slovo s table ako ga OSM ima, inače A, B, C. Provjeri tablu i red vožnje na licu mjesta.",
+  locBtn:"Koristi moju lokaciju",locWait:"Tražim tvoju lokaciju…",locNear:"Nalaziš se oko {d} m od {s}. Najbliža stanica je {p}.",locRough:" Lokacija je tačna samo na oko {a} m, zato provjeri slovo na tabli stanice.",locFar:"Najbliža stanica u ovom prototipu je {s}, {km} km odavde.",locDenied:"Lokacija je ovdje blokirana. Dozvoli je u pregledniku ili upiši koordinate ispod.",locNA:"Lokacija ovdje nije dostupna. Upiši koordinate ili link mape ispod.",locPaste:"Upiši koordinate ili zalijepi link mape",locGo:"Nađi stanicu",locBad:"Nije moguće pročitati. Primjer: 46.8065, 7.1620"},
+ tr:{tagline:"Otobüsün veya tramvayın için yolun doğru tarafını bul",stopLabel:"Durak",destLabel:"Nereye gidiyorsun?",destPh:"Bir durak yaz, ör. Seebach",
+  waitAt:"{p} durağında bekle",waitSub:"{d} durağına {n} durak",towards:"hedef:",next:"sonraki durak",travels:"Kalkış yönü: {dir}.",
+  pickHere:"Yol tarifi için aşağıdaki haritada şu an durduğun işarete dokun.",same:"Zaten doğru duraktasın. Burada kal.",
+  cross:"{a} durağından {b} durağına git, yaklaşık {m} m. {c}",crossZebra:"Yaya geçidini (zebra çizgileri) kullan — en yakını yaklaşık {z} m uzakta.",crossNone:"Yolu yalnızca yaya geçidinden veya trafik ışığından geç.",
+  noMatch:"{s} durağından “{d}” durağına doğrudan giden otobüs veya tramvay yok. Yazımı kontrol et ya da listeden seç.",empty:"Nereye gitmek istediğini yaz. Nerede beklemen gerektiğini gösterelim.",
+  tapHint:"Nerede durduğunu göstermek için bir işarete dokun.",lgGo:"Senin durağın",lgHere:"Buradasın",lgOther:"Aynı adlı diğer duraklar",lgArrow:"Ok = kalkış yönü",
+  allPoles:"“{s}” adlı tüm duraklar",poleN:"Durak {p}",sayLab:"Bunu yakındaki birine göster",sayTr:"Anlamı: “Affedersiniz, {d} yönüne gitmek istiyorum. Doğru durakta mıyım?”",
+  dirs:["kuzey","kuzeydoğu","doğu","güneydoğu","güney","güneybatı","batı","kuzeybatı"],
+  foot:"Prototip. Duraklar ve hatlar OpenStreetMap'ten (© OpenStreetMap katkıda bulunanları, ODbL), adlar opentransportdata.swiss'ten, {date} tarihli veriler. Duraklar, OSM'de kayıtlıysa tabeladaki harfi taşır; yoksa A, B, C. Tabelayı ve tarifeyi yerinde kontrol et.",
+  locBtn:"Konumumu kullan",locWait:"Konumun bulunuyor…",locNear:"{s} durağına yaklaşık {d} m uzaklıktasın. En yakın durak {p}.",locRough:" Konum yalnızca yaklaşık {a} m doğrulukta; durak tabelasındaki harfi kontrol et.",locFar:"Bu prototipteki en yakın durak {s}, {km} km uzakta.",locDenied:"Konum burada engellendi. Tarayıcıda izin ver veya aşağıya koordinat gir.",locNA:"Konum burada kullanılamıyor. Aşağıya koordinat veya harita bağlantısı gir.",locPaste:"Koordinat gir veya harita bağlantısı yapıştır",locGo:"Durağı bul",locBad:"Okunamadı. Örnek: 46.8065, 7.1620"},
+ ar:{tagline:"اعثر على الجانب الصحيح من الشارع لحافلتك أو الترام",stopLabel:"المحطة",destLabel:"إلى أين تذهب؟",destPh:"اكتب اسم محطة، مثل Seebach",
+  waitAt:"انتظر عند الموقف {p}",waitSub:"{n} محطة حتى {d}",towards:"باتجاه",next:"المحطة التالية",travels:"اتجاه الانطلاق: {dir}.",
+  pickHere:"المس على الخريطة أدناه العلامة التي تقف عندها الآن لتحصل على إرشادات.",same:"أنت في الموقف الصحيح. ابقَ هنا.",
+  cross:"اذهب من الموقف {a} إلى الموقف {b}، حوالي {m} م. {c}",crossZebra:"استخدم ممر المشاة (الخطوط البيضاء) — أقربها على بعد حوالي {z} م منك.",crossNone:"اعبر الشارع فقط من ممر المشاة أو عند الإشارة الضوئية.",
+  noMatch:"لا توجد حافلة أو ترام مباشر من {s} إلى «{d}». تحقق من الكتابة أو اختر من القائمة.",empty:"اكتب وجهتك. سنريك أين تنتظر.",
+  tapHint:"المس علامة لتحدد أين تقف.",lgGo:"موقفك",lgHere:"أنت هنا",lgOther:"مواقف أخرى بالاسم نفسه",lgArrow:"السهم = اتجاه انطلاق الحافلة",
+  allPoles:"كل مواقف «{s}»",poleN:"الموقف {p}",sayLab:"اعرض هذا على شخص قريب",sayTr:"المعنى: «عذرًا، أريد الذهاب إلى {d}. هل هذه هي المحطة الصحيحة؟»",
+  dirs:["الشمال","الشمال الشرقي","الشرق","الجنوب الشرقي","الجنوب","الجنوب الغربي","الغرب","الشمال الغربي"],
+  foot:"نموذج أولي. المواقف والخطوط من OpenStreetMap (© المساهمون في OpenStreetMap، ODbL)، والأسماء من opentransportdata.swiss، بيانات بتاريخ {date}. تحمل المواقف الحرف المكتوب على لافتة المحطة إن وُجد في OSM، وإلا A وB وC. تحقق من اللافتة والجدول الزمني في المكان.",
+  locBtn:"استخدم موقعي",locWait:"جارٍ تحديد موقعك…",locNear:"أنت على بعد حوالي {d} م من {s}. أقرب موقف هو {p}.",locRough:" دقة الموقع حوالي {a} م فقط، لذا تحقق من الحرف على لافتة المحطة.",locFar:"أقرب محطة في هذا النموذج هي {s}، على بعد {km} كم.",locDenied:"تحديد الموقع محظور هنا. اسمح به في المتصفح أو أدخل الإحداثيات أدناه.",locNA:"تحديد الموقع غير متاح هنا. أدخل الإحداثيات أو رابط خريطة أدناه.",locPaste:"أدخل الإحداثيات أو الصق رابط خريطة",locGo:"ابحث عن المحطة",locBad:"تعذّرت القراءة. مثال: 46.8065, 7.1620"},
+ fa:{tagline:"سمت درست خیابان را برای اتوبوس یا تراموای خود پیدا کنید",stopLabel:"ایستگاه",destLabel:"کجا می‌روید؟",destPh:"نام یک ایستگاه را بنویسید، مثلاً Seebach",
+  waitAt:"در ایستگاه {p} منتظر بمانید",waitSub:"{n} ایستگاه تا {d}",towards:"به سمت",next:"ایستگاه بعدی",travels:"جهت حرکت: {dir}.",
+  pickHere:"روی نقشهٔ پایین، علامتی را که الان کنارش ایستاده‌اید لمس کنید تا راهنمایی بگیرید.",same:"شما در ایستگاه درست هستید. همین‌جا بمانید.",
+  cross:"از ایستگاه {a} به ایستگاه {b} بروید، حدود {m} متر. {c}",crossZebra:"از خط عابر پیاده عبور کنید — نزدیک‌ترین آن حدود {z} متر با شما فاصله دارد.",crossNone:"فقط از خط عابر پیاده یا سر چراغ راهنما از خیابان عبور کنید.",
+  noMatch:"هیچ اتوبوس یا ترامی مستقیم از {s} به «{d}» نمی‌رود. املا را بررسی کنید یا از فهرست انتخاب کنید.",empty:"مقصد خود را بنویسید. به شما نشان می‌دهیم کجا منتظر بمانید.",
+  tapHint:"برای نشان دادن جای خود، یک علامت را لمس کنید.",lgGo:"ایستگاه شما",lgHere:"شما اینجا هستید",lgOther:"ایستگاه‌های دیگر با همین نام",lgArrow:"فلش = جهت حرکت",
+  allPoles:"همهٔ ایستگاه‌های «{s}»",poleN:"ایستگاه {p}",sayLab:"این را به کسی در نزدیکی نشان دهید",sayTr:"یعنی: «ببخشید، می‌خواهم به {d} بروم. آیا ایستگاه درست همین است؟»",
+  dirs:["شمال","شمال شرقی","شرق","جنوب شرقی","جنوب","جنوب غربی","غرب","شمال غربی"],
+  foot:"نمونهٔ اولیه. ایستگاه‌ها و خطوط از OpenStreetMap (© مشارکت‌کنندگان OpenStreetMap، ODbL)، نام‌ها از opentransportdata.swiss، داده‌های {date}. ایستگاه‌ها اگر در OSM ثبت شده باشد حرف روی تابلو را دارند، وگرنه A، B، C. تابلو و جدول زمانی را در محل بررسی کنید.",
+  locBtn:"استفاده از موقعیت من",locWait:"در حال یافتن موقعیت شما…",locNear:"شما حدود {d} متر از {s} فاصله دارید. نزدیک‌ترین ایستگاه {p} است.",locRough:" دقت موقعیت فقط حدود {a} متر است، پس حرف روی تابلوی ایستگاه را بررسی کنید.",locFar:"نزدیک‌ترین ایستگاه در این نمونه {s} است، در فاصلهٔ {km} کیلومتری.",locDenied:"موقعیت مکانی اینجا مسدود است. در مرورگر اجازه دهید یا مختصات را پایین وارد کنید.",locNA:"موقعیت مکانی اینجا در دسترس نیست. مختصات یا پیوند نقشه را پایین وارد کنید.",locPaste:"مختصات را وارد کنید یا پیوند نقشه را بچسبانید",locGo:"یافتن ایستگاه",locBad:"خوانده نشد. مثال: 46.8065, 7.1620"},
+ ru:{tagline:"Найдите нужную сторону улицы для своего автобуса или трамвая",stopLabel:"Остановка",destLabel:"Куда вы едете?",destPh:"Введите остановку, напр. Seebach",
+  waitAt:"Ждите на остановке {p}",waitSub:"{n} ост. до {d}",towards:"направление",next:"следующая остановка",travels:"Направление отправления: {dir}.",
+  pickHere:"Нажмите на карте ниже на значок, где вы сейчас стоите, чтобы получить подсказку.",same:"Вы уже на правильной остановке. Оставайтесь здесь.",
+  cross:"Перейдите от остановки {a} к остановке {b}, около {m} м. {c}",crossZebra:"Используйте пешеходный переход (зебру) — ближайший примерно в {z} м от вас.",crossNone:"Переходите улицу только по пешеходному переходу или на светофоре.",
+  noMatch:"От {s} нет прямого автобуса или трамвая до «{d}». Проверьте написание или выберите из списка.",empty:"Введите пункт назначения. Мы покажем, где ждать.",
+  tapHint:"Нажмите на значок, чтобы показать, где вы стоите.",lgGo:"Ваша остановка",lgHere:"Вы здесь",lgOther:"Другие остановки с таким названием",lgArrow:"Стрелка = направление отправления",
+  allPoles:"Все остановки «{s}»",poleN:"Остановка {p}",sayLab:"Покажите это кому-нибудь рядом",sayTr:"Означает: «Извините, мне нужно в {d}. Это правильная остановка?»",
+  dirs:["север","северо-восток","восток","юго-восток","юг","юго-запад","запад","северо-запад"],
+  foot:"Прототип. Остановки и маршруты из OpenStreetMap (© участники OpenStreetMap, ODbL), названия с opentransportdata.swiss, данные на {date}. Остановки обозначены буквой с таблички, если она есть в OSM, иначе A, B, C. Проверяйте табличку и расписание на месте.",
+  locBtn:"Моё местоположение",locWait:"Определяем ваше местоположение…",locNear:"Вы примерно в {d} м от {s}. Ближайшая остановка — {p}.",locRough:" Точность всего около {a} м, поэтому проверьте букву на табличке остановки.",locFar:"Ближайшая остановка в этом прототипе — {s}, в {km} км.",locDenied:"Геолокация здесь заблокирована. Разрешите её в браузере или введите координаты ниже.",locNA:"Геолокация здесь недоступна. Введите координаты или ссылку на карту ниже.",locPaste:"Введите координаты или вставьте ссылку на карту",locGo:"Найти остановку",locBad:"Не удалось распознать. Пример: 46.8065, 7.1620"},
+ zh:{tagline:"为你的公交车或电车找到马路正确的一侧",stopLabel:"车站",destLabel:"你要去哪里？",destPh:"输入站名，例如 Seebach",
+  waitAt:"在站台 {p} 等车",waitSub:"到 {d} 共 {n} 站",towards:"开往",next:"下一站",travels:"出发方向：{dir}。",
+  pickHere:"在下方地图上点击你现在所在的标记，即可获得步行指引。",same:"你已经在正确的站台了，请留在这里。",
+  cross:"从站台 {a} 走到站台 {b}，约 {m} 米。{c}",crossZebra:"请走人行横道（斑马线）——最近的一条离你约 {z} 米。",crossNone:"只在人行横道或红绿灯处过马路。",
+  noMatch:"从 {s} 没有直达“{d}”的公交车或电车。请检查拼写或从列表中选择。",empty:"输入你的目的地，我们会告诉你在哪里等车。",
+  tapHint:"点击标记，告诉我们你站在哪里。",lgGo:"你的站台",lgHere:"你在这里",lgOther:"同名的其他站台",lgArrow:"箭头 = 车辆出发方向",
+  allPoles:"所有名为“{s}”的站台",poleN:"站台 {p}",sayLab:"把这句话给附近的人看",sayTr:"意思是：“打扰一下，我想去 {d}。我在这个站等车对吗？”",
+  dirs:["北","东北","东","东南","南","西南","西","西北"],
+  foot:"原型。站台和线路来自 OpenStreetMap（© OpenStreetMap 贡献者，ODbL），站名来自 opentransportdata.swiss，数据日期 {date}。若 OSM 记录了站牌上的字母则使用该字母，否则标为 A、B、C。请在现场核对站牌和时刻表。",
+  locBtn:"使用我的位置",locWait:"正在获取你的位置…",locNear:"你距离 {s} 约 {d} 米。最近的站台是 {p}。",locRough:"定位精度只有约 {a} 米，请核对站牌上的字母。",locFar:"本原型中最近的车站是 {s}，距离 {km} 公里。",locDenied:"此处已阻止定位。请在浏览器中允许，或在下方输入坐标。",locNA:"此处无法定位。请在下方输入坐标或地图链接。",locPaste:"输入坐标或粘贴地图链接",locGo:"查找车站",locBad:"无法识别。示例：46.8065, 7.1620"}
+};
+Object.assign(T,T_MORE);
+// Twin stops: same name, a few metres apart, opposite directions
+const T_TWIN={
+ en:{twinWarn:"Careful: stop {q} is only {m} m away and goes the other way (towards {o}).",signCheck:"Check the sign at the stop: it must show line {l} towards {d}. If it shows {o}, cross to the other side.",sides:["north side","east side","south side","west side"],zoomAll:"Show all stops",zoomMine:"Zoom to my stop"},
+ de:{twinWarn:"Achtung: Kante {q} ist nur {m} m entfernt und fährt in die andere Richtung (nach {o}).",signCheck:"Prüfe das Schild an der Haltestelle: Es muss Linie {l} Richtung {d} zeigen. Steht dort {o}, geh auf die andere Seite.",sides:["Nordseite","Ostseite","Südseite","Westseite"],zoomAll:"Alle Kanten zeigen",zoomMine:"Auf meine Kante zoomen"},
+ fr:{twinWarn:"Attention : le quai {q} n’est qu’à {m} m et part dans l’autre sens (direction {o}).",signCheck:"Vérifiez le panneau de l’arrêt : il doit indiquer la ligne {l} direction {d}. S’il indique {o}, passez de l’autre côté.",sides:["côté nord","côté est","côté sud","côté ouest"],zoomAll:"Voir tous les quais",zoomMine:"Zoomer sur mon quai"},
+ it:{twinWarn:"Attenzione: la fermata {q} è a soli {m} m e va nella direzione opposta (verso {o}).",signCheck:"Controlla il cartello della fermata: deve indicare la linea {l} direzione {d}. Se indica {o}, passa dall’altra parte.",sides:["lato nord","lato est","lato sud","lato ovest"],zoomAll:"Mostra tutte le fermate",zoomMine:"Zoom sulla mia fermata"},
+ es:{twinWarn:"Cuidado: la parada {q} está a solo {m} m y va en sentido contrario (hacia {o}).",signCheck:"Mira el cartel de la parada: debe indicar la línea {l} dirección {d}. Si indica {o}, cruza al otro lado.",sides:["lado norte","lado este","lado sur","lado oeste"],zoomAll:"Ver todas las paradas",zoomMine:"Acercar a mi parada"},
+ pt:{twinWarn:"Atenção: a paragem {q} fica a apenas {m} m e vai no sentido contrário (direção {o}).",signCheck:"Confirme a placa da paragem: deve indicar a linha {l} direção {d}. Se indicar {o}, passe para o outro lado.",sides:["lado norte","lado leste","lado sul","lado oeste"],zoomAll:"Ver todas as paragens",zoomMine:"Aproximar da minha paragem"},
+ sq:{twinWarn:"Kujdes: stacioni {q} është vetëm {m} m larg dhe shkon në drejtimin tjetër (drejt {o}).",signCheck:"Kontrollo tabelën e stacionit: duhet të tregojë linjën {l} drejt {d}. Nëse tregon {o}, kalo në anën tjetër.",sides:["ana veriore","ana lindore","ana jugore","ana perëndimore"],zoomAll:"Shfaq të gjitha stacionet",zoomMine:"Zmadho stacionin tim"},
+ bs:{twinWarn:"Pažnja: stanica {q} je samo {m} m dalje i vozi u suprotnom smjeru (prema {o}).",signCheck:"Provjeri tablu na stanici: mora pisati linija {l} smjer {d}. Ako piše {o}, pređi na drugu stranu.",sides:["sjeverna strana","istočna strana","južna strana","zapadna strana"],zoomAll:"Prikaži sve stanice",zoomMine:"Uvećaj moju stanicu"},
+ tr:{twinWarn:"Dikkat: {q} durağı yalnızca {m} m uzakta ve ters yöne gidiyor ({o} yönüne).",signCheck:"Duraktaki tabelayı kontrol et: {l} numaralı hat ve {d} yazmalı. {o} yazıyorsa karşı tarafa geç.",sides:["kuzey tarafı","doğu tarafı","güney tarafı","batı tarafı"],zoomAll:"Tüm durakları göster",zoomMine:"Durağıma yakınlaştır"},
+ uk:{twinWarn:"Увага: зупинка {q} лише за {m} м і їде в інший бік (напрямок {o}).",signCheck:"Перевірте табличку на зупинці: там має бути лінія {l}, напрямок {d}. Якщо там {o}, перейдіть на інший бік.",sides:["північний бік","східний бік","південний бік","західний бік"],zoomAll:"Показати всі зупинки",zoomMine:"Наблизити мою зупинку"},
+ ru:{twinWarn:"Внимание: остановка {q} всего в {m} м и идёт в обратную сторону (направление {o}).",signCheck:"Проверьте табличку на остановке: там должна быть линия {l}, направление {d}. Если там {o}, перейдите на другую сторону.",sides:["северная сторона","восточная сторона","южная сторона","западная сторона"],zoomAll:"Показать все остановки",zoomMine:"Приблизить мою остановку"},
+ ar:{twinWarn:"انتبه: الموقف {q} على بعد {m} م فقط ويسير في الاتجاه المعاكس (باتجاه {o}).",signCheck:"تحقق من لافتة الموقف: يجب أن تُظهر الخط {l} باتجاه {d}. إذا كانت تُظهر {o}، فاعبر إلى الجهة الأخرى.",sides:["الجهة الشمالية","الجهة الشرقية","الجهة الجنوبية","الجهة الغربية"],zoomAll:"عرض كل المواقف",zoomMine:"تكبير موقفي"},
+ fa:{twinWarn:"مراقب باشید: ایستگاه {q} فقط {m} متر فاصله دارد و در جهت مخالف می‌رود (به سمت {o}).",signCheck:"تابلوی ایستگاه را بررسی کنید: باید خط {l} به سمت {d} را نشان دهد. اگر {o} را نشان می‌دهد، به طرف دیگر بروید.",sides:["سمت شمالی","سمت شرقی","سمت جنوبی","سمت غربی"],zoomAll:"نمایش همهٔ ایستگاه‌ها",zoomMine:"بزرگ‌نمایی ایستگاه من"},
+ zh:{twinWarn:"注意：站台 {q} 离这里只有 {m} 米，但方向相反（开往 {o}）。",signCheck:"请看站牌：上面必须写着 {l} 路，开往 {d}。如果写的是 {o}，请到马路对面。",sides:["北侧","东侧","南侧","西侧"],zoomAll:"显示所有站台",zoomMine:"放大我的站台"}
+};
+for(const l in T_TWIN) Object.assign(T[l],T_TWIN[l]);
+// Reading aloud
+const T_AUDIO={
+ en:{listen:"Listen",stopAudio:"Stop",playPhrase:"Play it aloud for them",noVoice:"This device has no voice for this language. Read the text above.",audioOff:"Reading aloud is turned off for this page.",metres:"metres",lineSay:"Line {l}"},
+ de:{listen:"Anhören",stopAudio:"Stopp",playPhrase:"Laut vorspielen",noVoice:"Dieses Gerät hat keine Stimme für diese Sprache. Lies den Text oben.",audioOff:"Vorlesen ist für diese Seite ausgeschaltet.",metres:"Meter",lineSay:"Linie {l}"},
+ fr:{listen:"Écouter",stopAudio:"Arrêter",playPhrase:"Faire écouter",noVoice:"Cet appareil n’a pas de voix pour cette langue. Lisez le texte ci-dessus.",audioOff:"La lecture à voix haute est désactivée pour cette page.",metres:"mètres",lineSay:"Ligne {l}"},
+ it:{listen:"Ascolta",stopAudio:"Ferma",playPhrase:"Riproduci ad alta voce",noVoice:"Questo dispositivo non ha una voce per questa lingua. Leggi il testo sopra.",audioOff:"La lettura ad alta voce è disattivata per questa pagina.",metres:"metri",lineSay:"Linea {l}"},
+ es:{listen:"Escuchar",stopAudio:"Detener",playPhrase:"Reproducir en voz alta",noVoice:"Este dispositivo no tiene voz para este idioma. Lee el texto de arriba.",audioOff:"La lectura en voz alta está desactivada en esta página.",metres:"metros",lineSay:"Línea {l}"},
+ pt:{listen:"Ouvir",stopAudio:"Parar",playPhrase:"Reproduzir em voz alta",noVoice:"Este dispositivo não tem voz para esta língua. Leia o texto acima.",audioOff:"A leitura em voz alta está desativada nesta página.",metres:"metros",lineSay:"Linha {l}"},
+ sq:{listen:"Dëgjo",stopAudio:"Ndalo",playPhrase:"Luaje me zë",noVoice:"Kjo pajisje nuk ka zë për këtë gjuhë. Lexo tekstin më sipër.",audioOff:"Leximi me zë është i çaktivizuar për këtë faqe.",metres:"metra",lineSay:"Linja {l}"},
+ bs:{listen:"Poslušaj",stopAudio:"Zaustavi",playPhrase:"Pusti naglas",noVoice:"Ovaj uređaj nema glas za ovaj jezik. Pročitaj tekst iznad.",audioOff:"Čitanje naglas je isključeno za ovu stranicu.",metres:"metara",lineSay:"Linija {l}"},
+ tr:{listen:"Dinle",stopAudio:"Durdur",playPhrase:"Sesli oynat",noVoice:"Bu cihazda bu dil için ses yok. Yukarıdaki metni oku.",audioOff:"Bu sayfa için sesli okuma kapalı.",metres:"metre",lineSay:"{l} numaralı hat"},
+ uk:{listen:"Прослухати",stopAudio:"Зупинити",playPhrase:"Відтворити вголос",noVoice:"На цьому пристрої немає голосу для цієї мови. Прочитайте текст вище.",audioOff:"Читання вголос для цієї сторінки вимкнено.",metres:"метрів",lineSay:"Лінія {l}"},
+ ru:{listen:"Прослушать",stopAudio:"Остановить",playPhrase:"Воспроизвести вслух",noVoice:"На этом устройстве нет голоса для этого языка. Прочитайте текст выше.",audioOff:"Чтение вслух для этой страницы отключено.",metres:"метров",lineSay:"Линия {l}"},
+ ar:{listen:"استمع",stopAudio:"إيقاف",playPhrase:"شغّله بصوت عالٍ",noVoice:"لا يوجد صوت لهذه اللغة على هذا الجهاز. اقرأ النص أعلاه.",audioOff:"القراءة بصوت عالٍ متوقفة لهذه الصفحة.",metres:"متر",lineSay:"الخط {l}"},
+ fa:{listen:"گوش دهید",stopAudio:"توقف",playPhrase:"پخش با صدای بلند",noVoice:"این دستگاه صدایی برای این زبان ندارد. متن بالا را بخوانید.",audioOff:"خواندن با صدای بلند برای این صفحه خاموش است.",metres:"متر",lineSay:"خط {l}"},
+ zh:{listen:"朗读",stopAudio:"停止",playPhrase:"大声播放",noVoice:"此设备没有该语言的语音。请阅读上方文字。",audioOff:"此页面已关闭朗读。",metres:"米",lineSay:"{l} 路"}
+};
+for(const l in T_AUDIO) Object.assign(T[l],T_AUDIO[l]);
+// shown in each language's own script, so people can find theirs without reading English
+const LANG_NAMES={en:"English",de:"Deutsch",fr:"Français",it:"Italiano",es:"Español",pt:"Português",sq:"Shqip",bs:"Bosanski / Hrvatski / Srpski",tr:"Türkçe",uk:"Українська",ru:"Русский",ar:"العربية",fa:"فارسی / دری",zh:"中文"};
+const RTL=new Set(["ar","fa"]);
+// browser language codes that map onto one of ours
+const LANG_ALIAS={hr:"bs",sr:"bs",sh:"bs",cnr:"bs",prs:"fa",pb:"fa"};
+// What a local would understand at the stop: the region's own language.
+const LOCAL={de:"Entschuldigung, ich möchte nach {d}. Bin ich hier an der richtigen Haltestelle?",
+  fr:"Excusez-moi, je veux aller à {d}. Est-ce que je suis au bon arrêt ?",it:"Mi scusi, voglio andare a {d}. Sono alla fermata giusta?"};
+const REGION_LANG=n=>/^(Lausanne|Genève|Neuchâtel|Sion|Fribourg)/.test(n)?"fr":/^(Lugano|Locarno|Bellinzona)/.test(n)?"it":"de";
+
+let DATA,lang="en",stop,here=null;
+let showAll=false; // map: false = zoomed on your stop and its twin
+let me=null,watchId=null,locState=null; // me = {lat,lon,acc} from GPS or typed coordinates
+const $=id=>document.getElementById(id);
+const fmt=(s,o)=>s.replace(/\{(\w+)\}/g,(_,k)=>o[k]??"");
+const norm=s=>s.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase().trim();
+const t=()=>T[lang];
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+function dirWord(b){return t().dirs[Math.round(b/45)%8]}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+
+function matches(dest){
+  const q=norm(dest); if(!q) return null;
+  const find=test=>{const out=[];
+    for(const p of stop.platforms) for(const r of p.routes){const i=r.via.findIndex(v=>test(norm(v))); if(i>=0) out.push({p,r,n:i+1,name:r.via[i]})}
+    return out};
+  // an exact stop name always beats a partial one ("Bahnhof" must not land on "Bahnhofstrasse")
+  let out=find(v=>v===q); if(!out.length&&q.length>=3) out=find(v=>v.startsWith(q));
+  out.sort((a,b)=>a.n-b.n);
+  return out;
+}
+
+function renderAnswer(){
+  const el=$("answer"),dest=$("dest").value.trim(),L=t();
+  const m=matches(dest);
+  el.classList.toggle("ok",!!(m&&m.length));
+  if(!m){el.innerHTML=`<p class="muted">${L.empty}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
+  if(!m.length){el.innerHTML=`<p>${fmt(L.noMatch,{s:esc(stop.name),d:esc(dest)})}</p>`;drawMap(null);renderPlats(null);renderPhrase(dest);return null}
+  const best=m[0].p, same=m.filter(x=>x.p===best), name=m[0].name;
+  const rides=same.map(x=>`<li><span class="ln">${esc(x.r.line)}</span><span>${L.towards} <b>${esc(x.r.to)}</b> · ${L.next}: ${esc(x.r.next)}</span></li>`).join("");
+  let walk;
+  if(!here) walk=`<div class="step"><span class="dot"></span><span>${L.pickHere}</span></div>`;
+  else if(here.id===best.id) walk=`<div class="step same"><span class="dot"></span><span><b>${L.same}</b></span></div>`;
+  else{
+    const z=nearestCrossing(here,best);
+    walk=`<div class="step"><span class="dot"></span><span>${fmt(L.cross,{a:here.label,b:best.label,m:Math.round(dist(here,best)),c:z!=null?fmt(L.crossZebra,{z}):L.crossNone})}</span></div>`;
+  }
+  const other=[...new Set(m.filter(x=>x.p!==best).map(x=>x.p.label))];
+  // a twin across the street going the other way is the classic mix-up: warn, and give a check that needs no German
+  const tw=twinsOf(best)[0];
+  const careful=tw?`<div class="careful"><b>${fmt(L.twinWarn,{q:esc(tw.label),m:Math.round(dist(tw,best)),o:esc(tw.routes[0].to)})}</b><span>${fmt(L.signCheck,{l:esc(same[0].r.line),d:esc(same[0].r.to),o:esc(tw.routes[0].to)})}</span></div>`:"";
+  const side=sideLabel(best);
+  el.innerHTML=`<div class="big"><div class="pole" aria-hidden="true">${esc(best.label)}</div><div><h2>${fmt(L.waitAt,{p:esc(best.label)})}</h2>${side?`<p class="side">${esc(side)}</p>`:""}<p>${fmt(L.waitSub,{n:m[0].n,d:esc(name)})} · ${fmt(L.travels,{dir:dirWord(same[0].r.bearing)})}</p></div>${speakBtn("ansListen","answer",L.listen)}</div><span class="amsg" id="ansMsg" aria-live="polite"></span>
+  <ul class="rides">${rides}</ul>${careful}${walk}${other.length?`<p class="muted" style="margin:0;font-size:13px">+ ${other.map(o=>fmt(L.poleN,{p:o})).join(", ")}</p>`:""}`;
+  // what "Listen" says: the card, top to bottom, in the viewer's language
+  const q=s=>(el.querySelector(s)?.textContent||"").trim();
+  answerSpeech=forSpeech([q("h2"),q(".side"),q(".big h2 ~ p:last-of-type"),
+    ...same.map(x=>`${fmt(L.lineSay,{l:x.r.line})}, ${L.towards} ${x.r.to}. ${L.next}: ${x.r.next}`),
+    q(".careful b"),q(".careful span"),q(".step")].filter(Boolean).map(s=>s.replace(/[.。]$/,"")).join(". ")+".");
+  drawMap(best);renderPlats(best);renderPhrase(name);
+  return best;
+}
+
+// ---- reading aloud ---------------------------------------------------------
+// Claude's voice where the viewer has it (claude.ai, Chromium); otherwise the phone's own
+// voice, which also works offline. Swiss regional tags first for the local-phrase card.
+const SPEECH_TAG={en:"en-GB",de:"de-CH",fr:"fr-CH",it:"it-CH",es:"es-ES",pt:"pt-PT",sq:"sq-AL",bs:"bs-BA",tr:"tr-TR",uk:"uk-UA",ru:"ru-RU",ar:"ar",fa:"fa-IR",zh:"zh-CN"};
+const SPEECH_ALT={bs:["hr","sr"]};
+let TTS=null,ttsOff=false,speaking=null,VOICES=[]; // speaking: "answer" | "phrase" | null
+let answerSpeech="",phraseSpeech=null;
+const SPEAK_ICON=`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+const STOP_ICON=`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>`;
+
+function loadVoices(){try{VOICES=speechSynthesis.getVoices()||[]}catch(e){VOICES=[]}}
+function pickVoice(tag){
+  if(!VOICES.length)loadVoices();
+  const want=tag.toLowerCase(),base=want.split("-")[0],alts=[base,...(SPEECH_ALT[base]||[])];
+  const vl=v=>String(v.lang||"").toLowerCase().replace("_","-");
+  return VOICES.find(v=>vl(v)===want)||alts.map(a=>VOICES.find(v=>vl(v).split("-")[0]===a)).find(Boolean)||null;
+}
+function speakBtn(id,kind,label){
+  const on=speaking===kind,L=t();
+  return `<button type="button" class="speak" id="${id}" data-kind="${kind}" aria-pressed="${on}">${on?STOP_ICON:SPEAK_ICON}<span>${esc(on?L.stopAudio:label)}</span></button>`;
+}
+function setSpeaking(k){
+  speaking=k;const L=t();
+  for(const [id,kind,label] of [["ansListen","answer",L.listen],["phraseListen","phrase",L.playPhrase]]){
+    const b=$(id); if(b) b.outerHTML=speakBtn(id,kind,label);
+  }
+}
+function audioMsg(kind,msg){const el=$(kind==="answer"?"ansMsg":"phraseMsg");if(el)el.textContent=msg}
+function stopSpeech(){
+  if(TTS&&speaking)TTS.t.stop().catch(()=>{});
+  try{speechSynthesis.cancel()}catch(e){}
+  if(speaking)setSpeaking(null);
+}
+// spoken text: "·" becomes a pause, "13 m" becomes "13 metres" so voices don't read "em"
+// and written plural hints become the spoken plural: stop(s)→stops, Halt(e)→Halte, paragem(ns)→paragens, fermata/e→fermate
+function forSpeech(s){const L=t();return s.replace(/\s*·\s*/g,". ")
+  .replace(/m\(ns\)/g,"ns").replace(/(\p{L})a\/e\b/gu,"$1e").replace(/(\p{L}+)\((\p{L}{1,2})\)/gu,"$1$2")
+  .replace(/(\d+)\s?(m|м|م)(?=[\s.,،)]|$)/g,`$1 ${L.metres}`)}
+
+function speakText(kind,text,tag){
+  const L=t();stopSpeech();audioMsg(kind,"");
+  if(!text)return;
+  // the viewer switched Claude's voice off for this page: respect that, never swap in another voice
+  if(TTS&&ttsOff){audioMsg(kind,L.audioOff);return}
+  const base=tag.split("-")[0],alts=[base,...(SPEECH_ALT[base]||[])];
+  const viaClaude=language=>{
+    setSpeaking(kind);
+    TTS.t.speak(text,language?{language,rate:0.9}:{rate:0.9}).then(()=>{if(speaking===kind)setSpeaking(null)}).catch(e=>{
+      if(e&&(e.code==="not_granted"||e.code==="unavailable")){ttsOff=true;audioMsg(kind,L.audioOff)}
+      if(speaking===kind)setSpeaking(null)});
+  };
+  if(TTS&&(!TTS.langs||TTS.langs.some(l=>alts.includes(l)))){
+    const hit=TTS.langs?alts.find(a=>TTS.langs.includes(a)):base;
+    viaClaude(hit===base?tag:hit);return;
+  }
+  const v=pickVoice(tag);
+  if(v&&"speechSynthesis" in window){
+    const u=new SpeechSynthesisUtterance(text);u.voice=v;u.lang=v.lang;u.rate=0.9;
+    u.onend=u.onerror=()=>{if(speaking===kind)setSpeaking(null)};
+    setSpeaking(kind);speechSynthesis.speak(u);return;
+  }
+  if(TTS){viaClaude(null);return} // no phone voice either: let Claude's voice guess the language
+  audioMsg(kind,L.noVoice);
+}
+
+// ---- twin stops and street side -----------------------------------------
+const angDiff=(a,b)=>Math.abs(((a-b+540)%360)-180);
+// same-named poles close to the target whose buses all leave the opposite way
+function twinsOf(target){
+  const tb=target.routes.map(r=>r.bearing);
+  return stop.platforms.filter(p=>p!==target&&dist(p,target)<40&&p.routes.every(r=>tb.every(b=>angDiff(b,r.bearing)>100)))
+    .sort((a,b)=>dist(a,target)-dist(b,target));
+}
+// which side of the nearest street a pole stands on, from the OSM centreline
+const ROADS=new Set(["trunk","primary","secondary","tertiary","residential","unclassified","living_street","pedestrian","service"]);
+function sideOf(p){
+  if(p._side!==undefined) return p._side;
+  let best=null;
+  for(const w of stop.streets){ if(!ROADS.has(w.k)) continue;
+    for(let i=1;i<w.p.length;i++){
+      const [ax,ay]=w.p[i-1],[bx,by]=w.p[i],dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;
+      const u=Math.max(0,Math.min(1,((p.x-ax)*dx+(p.y-ay)*dy)/L2)),qx=ax+u*dx,qy=ay+u*dy;
+      const d=Math.hypot(p.x-qx,p.y-qy)+(w.k==="service"?6:0)+(w.n?0:4); // prefer real, named streets
+      if(!best||d<best.d) best={d,qx,qy,n:w.n};
+    }}
+  let r=null;
+  if(best&&best.d<30&&Math.hypot(p.x-best.qx,p.y-best.qy)>0.5){
+    const b=(Math.atan2(p.x-best.qx,-(p.y-best.qy))*180/Math.PI+360)%360;
+    r={st:best.n||"",s:Math.round(b/90)%4};
+  }
+  return p._side=r;
+}
+// Only say "north side of X" when it tells this pole apart from its twin on the SAME street.
+// Dual carriageways and tram islands can put both twins on one side of a centreline; then we stay quiet.
+function sideLabel(p){
+  const s=sideOf(p);if(!s||!s.st)return"";
+  if(!twinsOf(p).some(q=>{const o=sideOf(q);return o&&o.st===s.st&&o.s!==s.s}))return"";
+  return `${s.st}, ${t().sides[s.s]}`;
+}
+
+function nearestCrossing(a,b){
+  if(!stop.crossings.length) return null;
+  const mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+  let best=null,bd=1e9;
+  for(const [x,y] of stop.crossings){const d=Math.hypot(x-mid.x,y-mid.y); if(d<bd){bd=d;best={x,y}}}
+  return bd<80?Math.round(dist(a,best)):null;
+}
+
+// ---- destination dropdown ------------------------------------------------
+let DESTS=[],shown=[],active=-1;
+function openList(q){
+  const n=norm(q||"");
+  shown=n?DESTS.filter(d=>norm(d.name).includes(n)).sort((a,b)=>(norm(b.name).startsWith(n)-norm(a.name).startsWith(n))||a.name.localeCompare(b.name)):DESTS;
+  active=-1;
+  const L=t();
+  $("destList").innerHTML=shown.length?shown.map((d,i)=>`<li role="option" id="opt${i}" data-i="${i}" aria-selected="false"><span>${esc(d.name)}</span><span class="hint">${esc(fmt(L.poleN,{p:d.label}))} · ${esc(d.line)}</span></li>`).join("")
+    :`<li class="none">${esc(fmt(L.noMatch,{s:stop.name,d:q}))}</li>`;
+  $("destList").hidden=false;$("dest").setAttribute("aria-expanded","true");$("destList").scrollTop=0;
+}
+function closeList(){$("destList").hidden=true;$("dest").setAttribute("aria-expanded","false");$("dest").removeAttribute("aria-activedescendant")}
+function move(dir){
+  if($("destList").hidden)openList($("dest").value);
+  if(!shown.length)return;
+  active=(active+dir+shown.length)%shown.length;
+  $("destList").querySelectorAll("li").forEach((li,i)=>li.setAttribute("aria-selected",i===active));
+  const li=$("opt"+active);li.scrollIntoView({block:"nearest"});$("dest").setAttribute("aria-activedescendant",li.id);
+}
+function pick(i){$("dest").value=shown[i].name;closeList();renderAnswer()}
+
+// ---- live location -------------------------------------------------------
+function hav(a1,o1,a2,o2){const R=6371000,r=Math.PI/180,da=(a2-a1)*r,dl=(o2-o1)*r;
+  const q=Math.sin(da/2)**2+Math.cos(a1*r)*Math.cos(a2*r)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
+function proj(lat,lon){return [(lon-stop.lon)*111320*Math.cos(stop.lat*Math.PI/180),-(lat-stop.lat)*110540]}
+
+function applyPosition(lat,lon,acc){
+  me={lat,lon,acc};
+  let best=null;
+  DATA.stops.forEach((s,i)=>s.platforms.forEach(p=>{const d=hav(lat,lon,p.lat,p.lon);if(!best||d<best.d)best={i,p,d}}));
+  const s=DATA.stops[best.i],near=best.d<400;
+  // second-closest pole of the same stop: if GPS error is bigger than half the gap, we can't tell the sides apart
+  const gap=Math.min(...s.platforms.filter(p=>p!==best.p).map(p=>hav(lat,lon,p.lat,p.lon)))-best.d;
+  if(s!==stop){$("dest").value="";setStop(best.i,true,near?best.p:null)}
+  else{if(near)here=best.p;renderAnswer()}
+  locState=near?{k:"near",d:best.d,p:best.p.label,s:s.name,rough:acc>Math.max(8,gap/2),a:acc}:{k:"far",d:best.d,s:s.name};
+  renderLoc();
+}
+function renderLoc(){
+  const el=$("locMsg"),L=t();el.className="";
+  if(!locState){el.textContent="";return}
+  const S=locState;
+  if(S.k==="near")el.textContent=fmt(L.locNear,{d:Math.round(S.d),s:S.s,p:S.p})+(S.rough?fmt(L.locRough,{a:Math.round(S.a)}):"");
+  else if(S.k==="far")el.textContent=fmt(L.locFar,{s:S.s,km:(S.d/1000).toFixed(1)});
+  else{el.textContent=L[S.k];if(S.k!=="locWait")el.className="warn"}
+  $("locBtn").setAttribute("aria-busy",S.k==="locWait");
+}
+function stopWatch(){if(watchId!=null){try{navigator.geolocation.clearWatch(watchId)}catch(e){}watchId=null}}
+function locate(){
+  stopWatch();
+  const fail=k=>{locState={k};renderLoc();if(k!=="locWait")$("coordBox").open=true};
+  if(!("geolocation" in navigator)){fail("locNA");return}
+  fail("locWait");
+  try{
+    watchId=navigator.geolocation.watchPosition(
+      pos=>applyPosition(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy||50),
+      err=>{stopWatch();fail(err.code===1?"locDenied":"locNA")},
+      {enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+  }catch(e){fail("locNA")}
+}
+// accepts "46.80, 7.16", OSM "#map=18/46.80/7.16", Google "@46.80,7.16"
+function parseCoords(s){
+  const m=s.match(/(-?\d{1,2}\.\d+)\s*[,/ ]\s*(-?\d{1,3}\.\d+)/);
+  if(!m)return null;const a=+m[1],b=+m[2];
+  return Math.abs(a)<=90&&Math.abs(b)<=180?[a,b]:null;
+}
+
+const W={trunk:16,primary:15,secondary:13,tertiary:11,residential:8,unclassified:8,living_street:7,pedestrian:7,service:5,footway:1.6};
+function drawMap(target){
+  const svg=$("map"),L=t(); let s="";
+  // zoom to the poles: half-width h metres around their centre, never tighter than 55 m
+  // with an answer, frame just your stop, its twin and where you stand; otherwise every pole
+  let pts=stop.platforms;
+  if(target&&!showAll){pts=[target,...twinsOf(target)];if(here&&here!==target&&dist(here,target)<120)pts.push(here)}
+  const focused=pts.length<stop.platforms.length;
+  const zb=$("zoomBtn");zb.hidden=!target||(!focused&&!showAll);zb.textContent=showAll?L.zoomMine:L.zoomAll;
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;
+  const h=Math.min(150,Math.max(focused?32:55,Math.max(...xs.map(x=>Math.abs(x-cx)),...ys.map(y=>Math.abs(y-cy)))+(focused?22:40)));
+  const k=h/150;
+  svg.setAttribute("viewBox",`${cx-h} ${cy-h} ${2*h} ${2*h}`);
+  const roads=stop.streets.filter(w=>w.k!=="footway").sort((a,b)=>W[a.k]-W[b.k]);
+  const d=w=>"M"+w.p.map(q=>q.join(",")).join("L");
+  for(const w of stop.streets.filter(w=>w.k==="footway")) s+=`<path d="${d(w)}" fill="none" stroke="var(--path)" stroke-width="1" stroke-dasharray="2 2"/>`;
+  for(const w of roads) s+=`<path d="${d(w)}" fill="none" stroke="var(--asphalt-edge)" stroke-width="${W[w.k]+1.6}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  for(const w of roads) s+=`<path d="${d(w)}" fill="none" stroke="var(--asphalt)" stroke-width="${W[w.k]}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  for(const [x,y] of stop.crossings) s+=`<g transform="translate(${x},${y})"><rect x="-2" y="-2" width="4" height="4" fill="none" stroke="var(--surface)" stroke-width="0.8" stroke-dasharray="0.8 0.7"/></g>`;
+  // street names: one label per name, on its longest visible segment
+  const seen=new Set();
+  for(const w of [...roads].sort((a,b)=>W[b.k]-W[a.k])){
+    if(!w.n||seen.has(w.n)||W[w.k]<8) continue;
+    let bs=null,bl=0;
+    for(let i=1;i<w.p.length;i++){const [x1,y1]=w.p[i-1],[x2,y2]=w.p[i];const l=Math.hypot(x2-x1,y2-y1);const mx=(x1+x2)/2,my=(y1+y2)/2;if(l>bl&&Math.abs(mx-cx)<h*.85&&Math.abs(my-cy)<h*.9){bl=l;bs=[x1,y1,x2,y2]}}
+    if(!bs||bl<35*k) continue; seen.add(w.n);
+    let a=Math.atan2(bs[3]-bs[1],bs[2]-bs[0])*180/Math.PI; if(a>90)a-=180; if(a<-90)a+=180;
+    s+=`<text class="st-label" text-anchor="middle" dominant-baseline="middle" style="font-size:${5.5*k}px;stroke-width:${2*k}px" transform="translate(${(bs[0]+bs[2])/2},${(bs[1]+bs[3])/2}) rotate(${a})">${esc(w.n)}</text>`;
+  }
+  // departure arrows
+  for(const p of stop.platforms){
+    const bs=[...new Set(p.routes.map(r=>Math.round(r.bearing/20)*20))];
+    const col=target&&p.id===target.id?"var(--go)":"var(--fg)";
+    for(const b of bs){const r=b*Math.PI/180,dx=Math.sin(r),dy=-Math.cos(r);
+      const x1=p.x+dx*10*k,y1=p.y+dy*10*k,x2=p.x+dx*24*k,y2=p.y+dy*24*k;
+      s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${1.6*k}" stroke-linecap="round" marker-end="url(#ah${col.includes("go")?"g":"f"})"/>`}
+  }
+  if(me){const [mx,my]=proj(me.lat,me.lon);
+    if(Math.abs(mx-cx)<h*1.2&&Math.abs(my-cy)<h*1.2)
+      s+=`<g pointer-events="none"><circle cx="${mx}" cy="${my}" r="${Math.min(me.acc,300)}" fill="var(--here)" opacity=".12"/><circle cx="${mx}" cy="${my}" r="${4*k}" fill="var(--here)" stroke="var(--surface)" stroke-width="${1.5*k}"/></g>`}
+  for(const p of stop.platforms){
+    const isT=target&&p.id===target.id,isH=here&&p.id===here.id;
+    const ring=isT?"var(--go)":isH?"var(--here)":"var(--stop)";
+    s+=`<g class="mk" tabindex="0" role="button" aria-label="${esc(fmt(L.poleN,{p:p.label}))}" data-id="${p.id}" transform="translate(${p.x},${p.y}) scale(${k})">
+      ${isT?`<circle class="ring" r="9" fill="var(--go)"/>`:""}${isH&&!isT?`<circle r="13" fill="var(--here)" opacity=".25"/>`:""}
+      <circle r="${isT||isH?8.5:7}" fill="var(--pole)" stroke="${ring}" stroke-width="${isT||isH?2.6:1.6}"/>
+      <text text-anchor="middle" dominant-baseline="central" style="font-size:${isT||isH?9:8}px">${esc(p.label)}</text></g>`;
+  }
+  // north + scale
+  const sb=h>100?50:20;
+  s+=`<g transform="translate(${cx+h-18*k},${cy-h+22*k}) scale(${k})"><path d="M0,-9 L5,5 L0,2 L-5,5Z" fill="var(--fg)"/><text y="14" text-anchor="middle" style="font:700 7px var(--display);fill:var(--fg)">N</text></g>`;
+  s+=`<g transform="translate(${cx-h+10*k},${cy+h-12*k})"><rect width="${sb}" height="${2.5*k}" fill="var(--fg)"/><text x="${sb+4*k}" y="${3*k}" style="font:600 ${6*k}px var(--body);fill:var(--muted)">${sb} m</text></g>`;
+  svg.innerHTML=`<defs><marker id="ahf" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="var(--fg)"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="var(--go)"/></marker></defs>`+s;
+  svg.setAttribute("aria-label",stop.name);
+  // a manual tap overrides live tracking
+  svg.querySelectorAll(".mk").forEach(g=>{const f=()=>{stopWatch();here=stop.platforms.find(p=>p.id===g.dataset.id);renderAnswer()};g.addEventListener("click",f);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}})});
+}
+
+function renderPlats(target){
+  const L=t();
+  $("plats").innerHTML=stop.platforms.map(p=>`<div class="plat${target&&p.id===target.id?" on":""}${here&&p.id===here.id?" me":""}">
+    <h3><span class="pl">${esc(p.label)}</span><span>${fmt(L.poleN,{p:esc(p.label)})}${sideLabel(p)?`<small class="sd">${esc(sideLabel(p))}</small>`:""}</span></h3>
+    <ul>${p.routes.map(r=>`<li><span class="ln">${esc(r.line)}</span> ${L.towards} <b>${esc(r.to)}</b><br><span class="muted">${L.next}: ${esc(r.next)} · ${dirWord(r.bearing)}</span></li>`).join("")}</ul></div>`).join("");
+}
+
+function renderPhrase(dest){
+  const L=t(),d=dest||stop.platforms[0].routes[0].to,rl=REGION_LANG(stop.name);
+  phraseSpeech={text:fmt(LOCAL[rl],{d}),tag:SPEECH_TAG[rl]};
+  $("phrase").innerHTML=`<span class="lab">${L.sayLab}</span><span class="say" lang="${rl}">${esc(fmt(LOCAL[rl],{d}))}</span>${lang!==rl?`<span class="tr">${esc(fmt(L.sayTr,{d}))}</span>`:""}<div class="prow">${speakBtn("phraseListen","phrase",L.playPhrase)}<span class="amsg" id="phraseMsg" aria-live="polite"></span></div>`;
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function applyLang(){
+  stopSpeech();
+  const L=t(); document.documentElement.lang=lang;
+  document.querySelectorAll("[data-t]").forEach(e=>{e.textContent=fmt(L[e.dataset.t],{s:stop.name.split(",").pop().trim()})});
+  $("dest").placeholder=fmt(L.destPh,{});
+  document.documentElement.dir=RTL.has(lang)?"rtl":"ltr";
+  $("langSel").value=lang;
+  renderLoc();
+  $("foot").innerHTML=fmt(L.foot,{date:DATA.generated})+` <a href="https://www.openstreetmap.org/#map=18/${stop.lat}/${stop.lon}" target="_blank" rel="noopener">openstreetmap.org</a>`;
+  renderAnswer();
+}
+
+function setStop(i,keepDest,hereP){
+  stop=DATA.stops[i]; here=null; showAll=false; $("stop").value=i;
+  // every reachable stop, with the pole + line that gets there in the fewest stops
+  const byName={};
+  for(const p of stop.platforms) for(const r of p.routes) r.via.forEach((v,i)=>{
+    if(!byName[v]||i+1<byName[v].n) byName[v]={name:v,label:p.label,line:r.line,n:i+1}});
+  DESTS=Object.values(byName).sort((a,b)=>a.name.localeCompare(b.name));
+  closeList();
+  if(!keepDest){ // example destination: the end of the first line
+    const v=stop.platforms[stop.platforms.length-1].routes[0].via; $("dest").value=v[Math.min(3,v.length-1)];
+  }
+  // example "you are here": the pole farthest from the answer, to show the crossing help
+  const best=(matches($("dest").value)||[])[0];
+  if(hereP) here=hereP;
+  else if(best) here=stop.platforms.slice().sort((a,b)=>dist(b,best.p)-dist(a,best.p))[0];
+  applyLang();
+}
+
+async function boot(){
+  DATA=window.STOPS_DATA||await (await fetch("stops.json")).json();
+  $("langSel").innerHTML=Object.keys(LANG_NAMES).map(l=>`<option value="${l}" lang="${l}">${LANG_NAMES[l]}</option>`).join("");
+  $("langSel").addEventListener("change",e=>{lang=e.target.value;store.set("ws-lang",lang);applyLang()});
+  // remembered choice, else the first of the phone's languages we have
+  const saved=store.get("ws-lang");
+  if(saved&&T[saved]) lang=saved;
+  else for(const full of (navigator.languages||[navigator.language||"en"])){
+    const c=String(full).toLowerCase().split("-")[0],m=T[c]?c:LANG_ALIAS[c];
+    if(m){lang=m;break}
+  }
+  $("stop").innerHTML=DATA.stops.map((s,i)=>`<option value="${i}">${esc(s.name)} · ${s.platforms.length}</option>`).join("");
+  $("stop").addEventListener("change",e=>{stopWatch();me=null;locState=null;setStop(+e.target.value)});
+  $("locBtn").addEventListener("click",locate);
+  // speech: resolve both engines up front so a tap can speak straight away
+  if("speechSynthesis" in window){loadVoices();try{speechSynthesis.addEventListener("voiceschanged",loadVoices)}catch(e){}}
+  if(window.claude?.use) window.claude.use("tts").then(async tt=>{
+    if(!tt)return;
+    let langs;try{langs=await tt.languages?.()}catch(e){}
+    TTS={t:tt,langs:Array.isArray(langs)&&langs.length?langs:null};
+    try{tt.onState(({state,reason})=>{if(state==="idle"){if(reason==="not_granted"||reason==="unavailable")ttsOff=true;if(speaking)setSpeaking(null)}})}catch(e){}
+  }).catch(()=>{});
+  document.addEventListener("click",e=>{
+    const b=e.target.closest(".speak");if(!b)return;
+    const kind=b.dataset.kind;
+    if(speaking===kind){stopSpeech();return}
+    if(kind==="answer")speakText("answer",answerSpeech,SPEECH_TAG[lang]);
+    else if(phraseSpeech)speakText("phrase",phraseSpeech.text,phraseSpeech.tag);
+  });
+  $("zoomBtn").addEventListener("click",()=>{showAll=!showAll;renderAnswer()});
+  $("coordForm").addEventListener("submit",e=>{e.preventDefault();stopWatch();
+    const c=parseCoords($("coord").value);
+    if(!c){locState={k:"locBad"};renderLoc();return}
+    applyPosition(c[0],c[1],3)}); // a typed point is treated as precise
+  const dest=$("dest");
+  // tapping the box shows ALL destinations (the pre-filled example is selected, so typing replaces it)
+  dest.addEventListener("focus",()=>{dest.select();openList("")});
+  dest.addEventListener("click",()=>{if($("destList").hidden)openList("")});
+  dest.addEventListener("input",()=>{openList(dest.value);renderAnswer()});
+  dest.addEventListener("keydown",e=>{
+    if(e.key==="ArrowDown"){e.preventDefault();move(1)}
+    else if(e.key==="ArrowUp"){e.preventDefault();move(-1)}
+    else if(e.key==="Enter"){if(active>=0){e.preventDefault();pick(active)}else if(shown.length===1){e.preventDefault();pick(0)}else closeList()}
+    else if(e.key==="Escape"&&!$("destList").hidden){e.preventDefault();closeList()}}); // claim Escape only when it closes the list
+  dest.addEventListener("blur",()=>setTimeout(closeList,150));
+  $("destList").addEventListener("mousedown",e=>{e.preventDefault();const li=e.target.closest("li[data-i]");if(li)pick(+li.dataset.i)});
+  $("destClear").addEventListener("click",()=>{dest.value="";renderAnswer();dest.focus();openList("")});
+  // open on Bern, Zytglogge: eight poles share the name, so the side really matters
+  const start=Math.max(0,DATA.stops.findIndex(s=>s.name.startsWith("Bern")));
+  $("stop").value=start; setStop(start);
+}
+boot().catch(e=>{$("answer").textContent="Could not load stop data: "+e.message});
+</script>

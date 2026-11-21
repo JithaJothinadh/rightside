@@ -1,0 +1,10 @@
+# local tooling
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS clutter
+.DS_Store
+Thumbs.db
