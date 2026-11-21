@@ -2,6 +2,11 @@
 
 Dates are CalVer `YYYY.MM.DD.hhmm` in local time, each with the short commit hash it records.
 
+## [2026.11.21.1740] - 8da7446
+
+- "Use my location" more than 400 m from every covered stop no longer brings the demo pole
+  back. The page shows the nearest stop, says how far it is, and waits for a tap.
+
 ## [2026.11.21.1739] - 28f0f3e
 
 - `AGENTS.md` corrected: `via[0]` is the next stop, platforms keep lat/lon for GPS distance
