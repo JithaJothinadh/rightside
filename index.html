@@ -1313,7 +1313,7 @@ function applyPosition(lat,lon,acc){
   const s=DATA.stops[best.i],near=best.d<400;
   // second-closest pole of the same stop: if GPS error is bigger than half the gap, we can't tell the sides apart
   const gap=Math.min(...s.platforms.filter(p=>p!==best.p).map(p=>hav(lat,lon,p.lat,p.lon)))-best.d;
-  if(s!==stop){$("dest").value="";setStop(best.i,true,near?best.p:null)}
+  if(s!==stop){setStop(best.i,true,near?best.p:null)}
   else{if(near&&!hereLock)here=best.p;renderAnswer()}   // a scanned sign is not overridden by GPS
   locState=near?{k:"near",d:best.d,p:best.p.label,s:s.name,rough:acc>Math.max(8,gap/2),a:acc}:{k:"far",d:best.d,s:s.name};
   renderLoc();
