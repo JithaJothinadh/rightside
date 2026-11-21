@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rightside FAQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Same tokens as the app; one reading column of questions that open in place. */
+:root{
+  --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
+  --here:#1f5fd1; --stop:#d52b1e; --pole:#ffd400; --pole-fg:#1b1f1d;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121514; --surface:#1b1f1d; --fg:#eef1ee; --muted:#9ba49f; --line:#2e3431; --here:#7aa7ff; --stop:#ff5a4c; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body)}
+.wrap{max-width:720px;margin:0 auto;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}
+.brand .h{flex:none;width:44px;height:44px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 24px var(--display);box-shadow:inset 0 0 0 4px var(--stop)}
+.brand b{font:800 26px/1 var(--display);letter-spacing:-.01em}
+.back{font:600 14px var(--body);color:var(--here)}
+h1{font:800 32px/1.15 var(--display);margin:0 0 8px;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 24px;max-width:60ch}
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+summary{cursor:pointer;list-style:none;padding:16px 48px 16px 18px;font:700 17px/1.35 var(--display);position:relative}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font:400 24px var(--body);color:var(--muted)}
+details[open] summary::after{content:"−"}
+summary:focus-visible{outline:3px solid var(--here);outline-offset:2px;border-radius:12px}
+.a{padding:0 18px 16px;max-width:65ch}
+.a p{margin:0 0 10px}.a p:last-child{margin:0}
+.a ul{margin:0 0 10px;padding-left:20px}
+.a a{color:var(--here)}
+.pole{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--pole);color:var(--pole-fg);font:800 12px var(--display);vertical-align:-4px}
+footer{margin-top:32px;font-size:13px;color:var(--muted)}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="./"><span class="h" aria-hidden="true">H</span><b>Rightside</b></a>
+    <a class="back" href="./">← Back to Rightside</a>
+  </div>
+
+  <h1>Frequently asked questions</h1>
+  <p class="lead">Rightside helps you find which side of the road to wait on for your bus or tram in Switzerland, especially if you are new here and don't speak German, French or Italian.</p>
+
+  <details open>
+    <summary>Why do two bus stops have the same name?</summary>
+    <div class="a">
+      <p>In Switzerland, one stop name usually covers several waiting points, called poles or platforms. Often there is one on each side of the street, one for each direction. A navigation app tells you the stop name, but not which of those poles your bus leaves from.</p>
+      <p>If you wait on the wrong side, the bus goes the other way, or doesn't stop for you at all.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How do I know I'm at the right pole?</summary>
+    <div class="a">
+      <p>Rightside gives you three checks:</p>
+      <ul>
+        <li><b>The letter.</b> Wait at the pole Rightside shows, for example <span class="pole">D</span>.</li>
+        <li><b>The sign.</b> Every pole has a sign listing its lines and where they go. It must show your line and your destination, for example "12 → Zentrum Paul Klee". If it shows a different destination, cross to the other side. This check works even if you can't read German.</li>
+        <li><b>The street side.</b> Where it helps, Rightside also tells you which side of which street, for example "Kramgasse, south side".</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>What do the letters A, B, C mean?</summary>
+    <div class="a">
+      <p>Where OpenStreetMap records the letter printed on the real stop sign, Rightside uses that letter. Where it doesn't, Rightside numbers the poles A, B, C itself, and then the letter may not match the sign. That's why the sign check, line and destination, is the one to trust.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Which stops are included?</summary>
+    <div class="a">
+      <p>Rightside is a prototype. It covers only these 8 stops, chosen because several poles there share the same name:</p>
+      <ul>
+        <li>Basel, Aeschenplatz</li>
+        <li>Bern, Zytglogge</li>
+        <li>Fribourg, Tilleul/Cathédrale</li>
+        <li>Genève, Plainpalais</li>
+        <li>Lausanne, Chauderon</li>
+        <li>Luzern, Kantonalbank</li>
+        <li>Zürich, Bucheggplatz</li>
+        <li>Zürich, Schaffhauserplatz</li>
+      </ul>
+      <p>Other stops are not included yet. More can be added from Swiss open transport data.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Does it show live departure times?</summary>
+    <div class="a">
+      <p>No. Rightside tells you <i>where</i> to wait, not <i>when</i> the bus comes. For times, use the SBB app or the timetable on the stop sign. Rightside also only covers direct journeys, not trips where you change lines.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Is my location shared or stored?</summary>
+    <div class="a">
+      <p>No. When you tap "Use my location", your phone works out the nearest stop inside the page itself. Your position is not sent to Rightside or anyone else, and nothing is stored. The only thing the page remembers, on your own device, is the language you picked.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Why doesn't "Listen" speak my language?</summary>
+    <div class="a">
+      <p>Listen uses the voices installed on your phone or computer. If your device has no voice for your language, Rightside tells you and links to how to add one. Many devices have no voice for Albanian, Bosnian, Macedonian, Persian or Tamil, and almost none have Kurdish or Tigrinya yet. In those cases, read the text, or use "Show this to someone nearby".</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Why is my language marked "beta"?</summary>
+    <div class="a">
+      <p>Kurdish, Tamil and Tigrinya have not yet been checked by a native speaker. The directions should be understandable, but some wording may be wrong. If you speak one of these languages and can help review it, please get in touch through the project page below.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Does it work without internet?</summary>
+    <div class="a">
+      <p>Once the page has loaded, yes. Choosing stops, the map and the directions all keep working without a connection, and so does GPS. Opening the page for the first time needs internet.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Where does the information come from?</summary>
+    <div class="a">
+      <p>Pole positions, routes and streets come from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (© OpenStreetMap contributors, ODbL). Stop names and coordinates come from <a href="https://opentransportdata.swiss/" target="_blank" rel="noopener">opentransportdata.swiss</a>. The data is a snapshot, so always check the sign on site.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Something is wrong. How can I tell you?</summary>
+    <div class="a">
+      <p>Please report it on the <a href="https://github.com/JithaJothinadh/rightside/issues" target="_blank" rel="noopener">project page on GitHub</a>: which stop, which language, and what you saw. Wrong pole positions can also be fixed directly in OpenStreetMap.</p>
+    </div>
+  </details>
+
+  <footer>Rightside is a prototype. <a href="./">Back to Rightside</a></footer>
+</div>
+</body>
+</html>

@@ -1,10 +1,12 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Rightside</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* Layout: a single working column — stop + destination on top, the answer card, then the street plan with pole markers. */
+/* Layout: header; then a two-column stage on wide screens (inputs + answer on the left, the street plan
+   on the right, sticky so it stays on screen); on phones the same blocks stack, map right after the answer. */
 :root{
   --bg:#f3f4f2; --surface:#ffffff; --fg:#1b1f1d; --muted:#5d6661; --line:#d9ddd9;
   --asphalt:#c9cdc9; --asphalt-edge:#aeb3af; --path:#9aa29d; --block:#e6e8e4;
@@ -21,22 +23,62 @@
   --go:#3fcf83; --go-soft:#16372a; --here:#7aa7ff; --here-soft:#1c2a45; --stop:#ff5a4c; --pole:#ffd400; --pole-fg:#1b1f1d; --warn:#f5b04c; --warn-soft:#3a2a12; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0}
-.wrap{max-width:760px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px}
-.brand .h{width:34px;height:34px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 19px var(--display);box-shadow:inset 0 0 0 3px var(--stop)}
-h1{font:800 24px/1 var(--display);margin:0;letter-spacing:-.01em}
-.tag{color:var(--muted);margin:2px 0 0;font-size:13px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .h{flex:none;width:64px;height:64px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 34px var(--display);box-shadow:inset 0 0 0 6px var(--stop)}
+h1{font:800 48px/1 var(--display);margin:0;letter-spacing:-.02em}
+.tag{color:var(--muted);margin:6px 0 0;font-size:14px}
+@media (max-width:480px){.brand .h{width:52px;height:52px;font-size:28px;box-shadow:inset 0 0 0 5px var(--stop)} h1{font-size:38px}}
+.topnav{display:flex;align-items:center;gap:14px}
+.topnav a{font:600 14px var(--body);color:var(--fg);text-decoration:none;padding:8px 4px;border-bottom:2px solid transparent}
+.topnav a:hover{border-bottom-color:var(--pole)}
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
+/* phones: one column — the two dropdowns first, then the map (still on screen when the page opens),
+   then location and the answer */
+@media (max-width:719px){
+  .stage{display:flex;flex-direction:column;gap:14px}
+  .panel{display:contents}
+  .stage .ask{order:1} .stage .mapcard{order:2} .stage .locate{order:3} .stage .coord{order:4} .stage .answer{order:5}
+  .stage svg.map{max-height:38vh}
+  .mapcard .hint{padding:8px 12px}
+  .legend{padding:8px 12px;gap:10px}
+}
+/* from small laptops up: search + answer on the left, the map beside them on the right */
+@media (min-width:720px){
+  .stage{grid-template-columns:minmax(0,360px) minmax(0,1fr);align-items:start}
+  .stage .ask{grid-template-columns:1fr}
+  .stage .mapcard{position:sticky;top:16px}
+  .stage svg.map{max-height:calc(100vh - 170px)}
+}
+@media (min-width:1100px){.stage{grid-template-columns:minmax(0,430px) minmax(0,1fr)}}
+.lbl{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+.lbl label{margin:0}
+.info{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:0;font:600 12px var(--body);color:var(--here);cursor:pointer;text-align:start}
+.info svg{flex:none}
+.info span{text-decoration:underline;text-underline-offset:2px}
+dialog.sheet{border:1px solid var(--line);border-radius:14px;padding:20px;max-width:min(440px,calc(100vw - 32px));width:100%;background:var(--surface);color:var(--fg);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog.sheet::backdrop{background:rgba(10,14,12,.55)}
+dialog.sheet h2{font:800 20px/1.2 var(--display);margin:0 0 8px}
+dialog.sheet p{margin:0 0 12px;color:var(--muted)}
+.stoplist{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.stoplist button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:600 14px var(--body);cursor:pointer;text-align:start}
+.stoplist button:hover{border-color:var(--here)}
+.stoplist .poles{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}
+.stoplist .poles i{font:800 10px/18px var(--display);font-style:normal;width:18px;height:18px;border-radius:50%;background:var(--pole);color:var(--pole-fg);text-align:center}
+.sheetrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheetrow a{font:600 14px var(--body);color:var(--here)}
 .langs{display:flex;gap:4px;flex-wrap:wrap}
 .langs button{font:600 12px var(--body);letter-spacing:.04em;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;padding:5px 8px;cursor:pointer}
 .langs button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .ask{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:560px){.ask{grid-template-columns:1fr}}
 label{display:block;font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-select,input{width:100%;font:500 16px var(--body);padding:11px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+select,input{width:100%;font:500 14px var(--body);padding:9px 11px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
 select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--here);outline-offset:2px}
 .langpick{display:flex;align-items:center;gap:8px;margin:0;color:var(--fg)}
-.langpick select{width:auto;max-width:62vw;font:600 15px var(--body);padding:8px 10px}
+.langpick select{width:auto;max-width:62vw;font:600 13px var(--body);padding:7px 9px}
 /* Arabic/Persian read right-to-left; the street plan and Latin stop names stay as drawn */
 [dir="rtl"] svg.map{direction:ltr}
 [dir="rtl"] .say[lang]{direction:ltr;text-align:left}
@@ -44,7 +86,7 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .combo input{padding-inline-end:40px}
 .clear{position:absolute;inset-inline-end:4px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;border-radius:6px}
 #destList{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-height:320px;overflow-y:auto}
-#destList li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer}
+#destList li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:13px}
 #destList li[aria-selected="true"],#destList li:hover{background:var(--here-soft)}
 #destList li .hint{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 #destList li.none{cursor:default;color:var(--muted)}
@@ -66,7 +108,8 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .rides{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
 .rides li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
 .ln{font:700 13px var(--display);min-width:38px;text-align:center;padding:2px 7px;border-radius:5px;background:var(--fg);color:var(--bg);font-variant-numeric:tabular-nums}
-.big>div{min-width:0}
+.big{flex-wrap:wrap}
+.big>div:not(.pole){min-width:0;flex:1 1 170px}
 .speak{margin-inline-start:auto;align-self:flex-start;flex:none;display:inline-flex;align-items:center;gap:6px;font:600 13px var(--body);padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 .speak svg{color:var(--here)}
 .speak[aria-pressed="true"]{background:var(--here);border-color:var(--here);color:var(--bg)}
@@ -90,23 +133,25 @@ select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid 
 .muted{color:var(--muted)}
 .mapcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .mapcard .hint{padding:10px 14px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-svg.map{display:block;width:100%;height:auto;max-height:70vh;background:var(--block);touch-action:manipulation}
+svg.map{display:block;width:100%;height:auto;max-height:55vh;background:var(--block);touch-action:manipulation}
 .st-label{font:600 5.5px var(--body);fill:var(--muted);paint-order:stroke;stroke:var(--block);stroke-width:2px}
 .mk{cursor:pointer}
 .mk text{font:800 8px var(--display);fill:var(--pole-fg);pointer-events:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
-.plats{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.plat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.plats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.plat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 11px;display:flex;flex-direction:column;gap:5px;min-width:0}
 .plat.on{border-color:var(--go)} .plat.me{border-color:var(--here)}
-.plat h3{margin:0;font:700 14px var(--display);display:flex;align-items:center;gap:8px}
-.plat h3 .pl{width:24px;height:24px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 13px var(--display)}
-.plat ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.plat h3{margin:0;font:700 13px var(--display);display:flex;align-items:center;gap:7px}
+.plat h3 .pl{flex:none;width:20px;height:20px;border-radius:50%;background:var(--pole);color:var(--pole-fg);display:grid;place-items:center;font:800 11px var(--display)}
+.plat h3 .sd{font-size:11px}
+.plat ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.45}
+.plat .ln{font-size:11px;min-width:30px;padding:1px 5px}
 .phrase{background:var(--fg);color:var(--bg);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
 .phrase .lab{font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.7}
 .phrase .say{font:700 22px/1.3 var(--display);text-wrap:balance}
 .phrase .tr{opacity:.75;font-size:14px}
-h4{font:700 15px var(--display);margin:6px 0 0}
+h4{font:700 14px var(--display);margin:6px 0 0}
 footer{font-size:12px;color:var(--muted);line-height:1.6}
 footer a{color:inherit}
 @keyframes pulse{0%{r:9;opacity:.6}100%{r:20;opacity:0}}
@@ -117,11 +162,16 @@ footer a{color:inherit}
 <div class="wrap">
   <header>
     <div class="brand"><div class="h" aria-hidden="true">H</div><div><h1>Rightside</h1><p class="tag" data-t="tagline"></p></div></div>
-    <label class="langpick"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22M12 2C9 5 7.5 8.5 7.5 12S9 19 12 22" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="langSel" aria-label="Language / Sprache / Langue / Lingua / اللغة / Язык / 语言"></select></label>
+    <nav class="topnav">
+      <a href="faq.html" id="faqLink" data-t="faq"></a>
+      <label class="langpick"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22M12 2C9 5 7.5 8.5 7.5 12S9 19 12 22" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><select id="langSel" aria-label="Language / Sprache / Langue / Lingua / اللغة / Язык / 语言"></select></label>
+    </nav>
   </header>
 
+  <div class="stage">
+  <div class="panel">
   <div class="ask">
-    <div><label for="stop" data-t="stopLabel"></label><select id="stop"></select></div>
+    <div><div class="lbl"><label for="stop" data-t="stopLabel"></label><button type="button" class="info" id="infoBtn" aria-haspopup="dialog"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.4" fill="currentColor"/></svg><span data-t="infoTitle"></span></button></div><select id="stop"></select></div>
     <div><label for="dest" data-t="destLabel"></label><div class="combo"><input id="dest" role="combobox" aria-expanded="false" aria-controls="destList" aria-autocomplete="list" autocomplete="off" spellcheck="false"><button type="button" id="destClear" class="clear" aria-label="Clear">×</button><ul id="destList" role="listbox" hidden></ul></div></div>
   </div>
 
@@ -135,6 +185,7 @@ footer a{color:inherit}
   </details>
 
   <section class="answer" id="answer" aria-live="polite"></section>
+  </div>
 
   <section class="mapcard">
     <div class="hint"><span data-t="tapHint"></span><button type="button" id="zoomBtn" class="linkbtn" hidden></button></div>
@@ -146,6 +197,7 @@ footer a{color:inherit}
       <span data-t="lgArrow"></span>
     </div>
   </section>
+  </div>
 
   <h4 data-t="allPoles"></h4>
   <div class="plats" id="plats"></div>
@@ -154,6 +206,15 @@ footer a{color:inherit}
 
   <footer id="foot"></footer>
 </div>
+
+<!-- "Which stops are included?" -->
+<dialog class="sheet" id="infoDlg" aria-labelledby="infoDlgTitle">
+  <h2 id="infoDlgTitle"></h2>
+  <p id="infoDlgBody"></p>
+  <ul class="stoplist" id="infoDlgList"></ul>
+  <p id="infoDlgMore"></p>
+  <div class="sheetrow"><a href="faq.html" id="infoDlgFaq"></a><button type="button" class="btn" id="infoDlgClose"></button></div>
+</dialog>
 
 <script>
 const T={
@@ -444,6 +505,30 @@ const T_VOICEHELP={
  zh:{installHint:"你可以在 {os} 设置中添加语音，然后再试一次。",installHintGeneric:"你可以在设备的语音设置中为该语言添加语音，然后再试一次。",howTo:"查看方法",noVoiceAnywhere:"大多数手机和电脑还没有该语言的语音。请阅读上方文字，或把它给别人看。"}
 };
 for(const l in T_VOICEHELP) Object.assign(T[l],T_VOICEHELP[l]);
+// "Which stops are included?" window + FAQ link
+const T_INFO={
+ en:{infoTitle:"Which stops are included?",infoBody:"Rightside is a prototype. It only covers these {n} stops, chosen because several poles there share the same name:",infoMore:"Other stops are not included yet.",close:"Close",faq:"FAQ"},
+ de:{infoTitle:"Welche Haltestellen sind dabei?",infoBody:"Rightside ist ein Prototyp. Er umfasst nur diese {n} Haltestellen, an denen mehrere Haltekanten denselben Namen tragen:",infoMore:"Andere Haltestellen sind noch nicht enthalten.",close:"Schliessen",faq:"FAQ"},
+ fr:{infoTitle:"Quels arrêts sont inclus ?",infoBody:"Rightside est un prototype. Il ne couvre que ces {n} arrêts, choisis parce que plusieurs quais y portent le même nom :",infoMore:"Les autres arrêts ne sont pas encore inclus.",close:"Fermer",faq:"FAQ"},
+ it:{infoTitle:"Quali fermate sono incluse?",infoBody:"Rightside è un prototipo. Copre solo queste {n} fermate, scelte perché lì più pali hanno lo stesso nome:",infoMore:"Le altre fermate non sono ancora incluse.",close:"Chiudi",faq:"FAQ"},
+ es:{infoTitle:"¿Qué paradas están incluidas?",infoBody:"Rightside es un prototipo. Solo cubre estas {n} paradas, elegidas porque allí varios postes tienen el mismo nombre:",infoMore:"Las demás paradas aún no están incluidas.",close:"Cerrar",faq:"Preguntas"},
+ pt:{infoTitle:"Que paragens estão incluídas?",infoBody:"O Rightside é um protótipo. Só abrange estas {n} paragens, escolhidas porque aí vários postes têm o mesmo nome:",infoMore:"As outras paragens ainda não estão incluídas.",close:"Fechar",faq:"Perguntas"},
+ sq:{infoTitle:"Cilat stacione përfshihen?",infoBody:"Rightside është një prototip. Përfshin vetëm këto {n} stacione, të zgjedhura sepse aty disa shtylla kanë të njëjtin emër:",infoMore:"Stacionet e tjera ende nuk përfshihen.",close:"Mbyll",faq:"Pyetje"},
+ bs:{infoTitle:"Koje stanice su uključene?",infoBody:"Rightside je prototip. Pokriva samo ovih {n} stanica, odabranih jer tamo više stubova ima isto ime:",infoMore:"Ostale stanice još nisu uključene.",close:"Zatvori",faq:"Pitanja"},
+ mk:{infoTitle:"Кои постојки се вклучени?",infoBody:"Rightside е прототип. Ги опфаќа само овие {n} постојки, избрани затоа што таму повеќе столбови го носат истото име:",infoMore:"Другите постојки сè уште не се вклучени.",close:"Затвори",faq:"Прашања"},
+ tr:{infoTitle:"Hangi duraklar dahil?",infoBody:"Rightside bir prototiptir. Yalnızca birden fazla direğin aynı adı taşıdığı şu {n} durağı kapsar:",infoMore:"Diğer duraklar henüz dahil değil.",close:"Kapat",faq:"SSS"},
+ ku:{infoTitle:"Kîjan rawestgeh tê de ne?",infoBody:"Rightside prototîpek e. Tenê van {n} rawestgehan digire, ku li wan çend stûn heman navî hene:",infoMore:"Rawestgehên din hîn tê de nînin.",close:"Bigire",faq:"Pirs"},
+ ar:{infoTitle:"ما المحطات المشمولة؟",infoBody:"Rightside نموذج أولي. يغطي فقط هذه المحطات الـ{n}، التي اختيرت لأن فيها عدة مواقف تحمل الاسم نفسه:",infoMore:"المحطات الأخرى غير مشمولة بعد.",close:"إغلاق",faq:"أسئلة"},
+ fa:{infoTitle:"کدام ایستگاه‌ها پوشش داده می‌شوند؟",infoBody:"Rightside یک نمونهٔ اولیه است. فقط این {n} ایستگاه را پوشش می‌دهد که در آن‌ها چند سکو نام یکسانی دارند:",infoMore:"ایستگاه‌های دیگر هنوز اضافه نشده‌اند.",close:"بستن",faq:"پرسش‌ها"},
+ ta:{infoTitle:"எந்த நிறுத்தங்கள் சேர்க்கப்பட்டுள்ளன?",infoBody:"Rightside ஒரு முன்மாதிரி. ஒரே பெயருள்ள பல நிறுத்தக் கம்பங்கள் உள்ள இந்த {n} நிறுத்தங்களை மட்டுமே இது உள்ளடக்குகிறது:",infoMore:"மற்ற நிறுத்தங்கள் இன்னும் சேர்க்கப்படவில்லை.",close:"மூடு",faq:"கேள்விகள்"},
+ ti:{infoTitle:"ኣየኖት መዕረፍታት ይርከቡ?",infoBody:"Rightside ፕሮቶታይፕ እዩ። ብዙሓት ዓንድታት ሓደ ስም ዘለዎም ነዞም {n} መዕረፍታት ጥራይ ይሽፍን:",infoMore:"ካልኦት መዕረፍታት ገና ኣይተወሰኹን።",close:"ዕጸው",faq:"ሕቶታት"},
+ uk:{infoTitle:"Які зупинки охоплено?",infoBody:"Rightside — це прототип. Він охоплює лише ці {n} зупинок, де кілька стовпчиків мають однакову назву:",infoMore:"Інші зупинки ще не додано.",close:"Закрити",faq:"Питання"},
+ ru:{infoTitle:"Какие остановки охвачены?",infoBody:"Rightside — это прототип. Он охватывает только эти {n} остановок, где несколько столбиков носят одно название:",infoMore:"Другие остановки пока не добавлены.",close:"Закрыть",faq:"Вопросы"},
+ pl:{infoTitle:"Które przystanki są uwzględnione?",infoBody:"Rightside to prototyp. Obejmuje tylko te przystanki ({n}), na których kilka słupków ma tę samą nazwę:",infoMore:"Inne przystanki nie są jeszcze uwzględnione.",close:"Zamknij",faq:"Pytania"},
+ ro:{infoTitle:"Ce stații sunt incluse?",infoBody:"Rightside este un prototip. Acoperă doar aceste {n} stații, alese pentru că acolo mai mulți stâlpi au același nume:",infoMore:"Celelalte stații nu sunt încă incluse.",close:"Închide",faq:"Întrebări"},
+ zh:{infoTitle:"包含哪些车站？",infoBody:"Rightside 是一个原型。它只包含这 {n} 个车站，这些车站都有多个同名站台：",infoMore:"其他车站暂未收录。",close:"关闭",faq:"常见问题"}
+};
+for(const l in T_INFO) Object.assign(T[l],T_INFO[l]);
 // shown in each language's own script, so people can find theirs without reading English
 // Menu order: English and the national languages first, then the largest immigrant language communities.
 // "beta" = not yet checked by a native speaker.
@@ -867,6 +952,23 @@ async function boot(){
     else if(phraseSpeech)speakText("phrase",phraseSpeech.text,phraseSpeech.tag);
   });
   $("zoomBtn").addEventListener("click",()=>{showAll=!showAll;renderAnswer()});
+  // "Which stops are included?": the prototype's stop list; tapping one opens it
+  $("infoBtn").addEventListener("click",()=>{
+    const L=t(),dlg=$("infoDlg");
+    $("infoDlgTitle").textContent=L.infoTitle;
+    $("infoDlgBody").textContent=fmt(L.infoBody,{n:DATA.stops.length});
+    $("infoDlgMore").textContent=L.infoMore;
+    $("infoDlgFaq").textContent=L.faq;
+    $("infoDlgClose").textContent=L.close;
+    $("infoDlgList").innerHTML=DATA.stops.map((s,i)=>`<li><button type="button" data-i="${i}"><span>${esc(s.name)}</span><span class="poles" aria-label="${s.platforms.length}">${s.platforms.map(p=>`<i>${esc(p.label)}</i>`).join("")}</span></button></li>`).join("");
+    if(dlg.showModal)dlg.showModal();else dlg.setAttribute("open","");
+  });
+  $("infoDlgList").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-i]");if(!b)return;
+    stopWatch();me=null;locState=null;$("infoDlg").close();setStop(+b.dataset.i);
+  });
+  $("infoDlgClose").addEventListener("click",()=>$("infoDlg").close());
+  $("infoDlg").addEventListener("click",e=>{if(e.target===$("infoDlg"))$("infoDlg").close()}); // tap outside closes
   $("coordForm").addEventListener("submit",e=>{e.preventDefault();stopWatch();
     const c=parseCoords($("coord").value);
     if(!c){locState={k:"locBad"};renderLoc();return}
