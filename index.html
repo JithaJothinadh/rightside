@@ -196,6 +196,11 @@ footer a{color:inherit}
 .ar-panel b{font:800 22px/1.2 var(--display)}
 .ar-panel span{font-size:15px}
 .ar-panel small{font-size:13px;opacity:.85}
+.ar-scan{align-self:center;display:inline-flex;align-items:center;gap:8px;font:700 16px var(--body);padding:12px 20px;border-radius:999px;border:0;background:#fff;color:#1b1f1d;cursor:pointer;margin-bottom:4px}
+.ar-scan:disabled{opacity:.6;cursor:progress}
+.ar-scan:focus-visible{outline:3px solid #7aa7ff;outline-offset:3px}
+.ar-scanmsg{font-weight:600;font-size:15px;color:#ffd400}
+.ar-scanmsg:empty{display:none}
 @media (prefers-reduced-motion:reduce){.ar-arrow{transition:none}}
 @keyframes pulse{0%{r:9;opacity:.6}100%{r:20;opacity:0}}
 .ring{animation:pulse 1.6s ease-out infinite}
@@ -261,7 +266,11 @@ footer a{color:inherit}
   <div class="ar-labels" id="arLabels" aria-hidden="true"></div>
   <button type="button" class="ar-close" id="arClose"><span aria-hidden="true">×</span> <span id="arCloseTxt"></span></button>
   <div class="ar-arrow" id="arArrow" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50 6 L84 74 L50 58 L16 74 Z" fill="var(--go)" stroke="#fff" stroke-width="5" stroke-linejoin="round"/></svg></div>
-  <div class="ar-panel"><b id="arTarget"></b><span id="arMsg" aria-live="polite"></span><small id="arCheck"></small></div>
+  <div class="ar-panel">
+    <button type="button" class="ar-scan" id="arScan"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span id="arScanTxt"></span></button>
+    <span id="arScanMsg" class="ar-scanmsg" aria-live="polite"></span>
+    <b id="arTarget"></b><span id="arMsg" aria-live="polite"></span><small id="arCheck"></small>
+  </div>
 </div>
 
 <!-- "Which stops are included?" -->
@@ -670,6 +679,31 @@ const T_AR={
  zh:["AR 视图","你的站台 {p}：约 {m} 米","AR 视图仅供参考。请务必核对站台上的字母和站牌。","此设备没有指南针，箭头无法随你转动。请改用地图。","无法使用相机。请在浏览器中允许访问相机，或使用地图。","人行横道"]
 };
 for(const l in T_AR)AR_KEYS.forEach((k,i)=>{T[l][k]=T_AR[l][i]});
+// Scan the stop sign: button, loading, reading, found, unsure, failed
+const SCAN_KEYS=["scanBtn","scanLoading","scanning","scanFound","scanUnsure","scanFailed"];
+const T_SCAN={
+ en:["Scan sign","Loading text recognition (first time only)…","Reading the sign…","Sign read: you are at stop {p}.","Couldn't read the sign clearly. Move closer, hold still and try again.","Text recognition could not start on this device. Check the sign yourself."],
+ de:["Schild scannen","Texterkennung wird geladen (nur beim ersten Mal)…","Schild wird gelesen…","Schild gelesen: Du stehst an Kante {p}.","Das Schild war nicht klar lesbar. Geh näher heran, halte still und versuch es nochmal.","Die Texterkennung konnte auf diesem Gerät nicht starten. Prüfe das Schild selbst."],
+ fr:["Scanner le panneau","Chargement de la reconnaissance de texte (première fois seulement)…","Lecture du panneau…","Panneau lu : vous êtes au quai {p}.","Le panneau n’a pas pu être lu clairement. Approchez-vous, restez immobile et réessayez.","La reconnaissance de texte n’a pas pu démarrer sur cet appareil. Vérifiez le panneau vous-même."],
+ it:["Scansiona il cartello","Caricamento del riconoscimento del testo (solo la prima volta)…","Lettura del cartello…","Cartello letto: sei alla fermata {p}.","Non è stato possibile leggere bene il cartello. Avvicinati, tieni fermo il telefono e riprova.","Il riconoscimento del testo non è partito su questo dispositivo. Controlla tu il cartello."],
+ es:["Escanear cartel","Cargando el reconocimiento de texto (solo la primera vez)…","Leyendo el cartel…","Cartel leído: estás en la parada {p}.","No se pudo leer bien el cartel. Acércate, no te muevas y vuelve a intentarlo.","El reconocimiento de texto no pudo iniciarse en este dispositivo. Revisa el cartel tú mismo."],
+ pt:["Ler a placa","A carregar o reconhecimento de texto (só da primeira vez)…","A ler a placa…","Placa lida: está na paragem {p}.","Não foi possível ler bem a placa. Aproxime-se, mantenha o telemóvel quieto e tente de novo.","O reconhecimento de texto não arrancou neste dispositivo. Confirme a placa você mesmo."],
+ sq:["Skano tabelën","Po ngarkohet njohja e tekstit (vetëm herën e parë)…","Po lexohet tabela…","Tabela u lexua: je te stacioni {p}.","Tabela nuk u lexua qartë. Afrohu, mbaje telefonin pa lëvizur dhe provo sërish.","Njohja e tekstit nuk u nis në këtë pajisje. Kontrolloje vetë tabelën."],
+ bs:["Skeniraj tablu","Učitavam prepoznavanje teksta (samo prvi put)…","Čitam tablu…","Tabla pročitana: na stanici si {p}.","Tabla nije jasno pročitana. Priđi bliže, drži mirno i pokušaj ponovo.","Prepoznavanje teksta nije se pokrenulo na ovom uređaju. Sam provjeri tablu."],
+ mk:["Скенирај табла","Се вчитува препознавањето текст (само првиот пат)…","Се чита таблата…","Таблата е прочитана: вие сте на постојката {p}.","Таблата не се прочита јасно. Приближете се, држете мирно и обидете се повторно.","Препознавањето текст не започна на овој уред. Проверете ја таблата сами."],
+ tr:["Tabelayı tara","Metin tanıma yükleniyor (yalnızca ilk sefer)…","Tabela okunuyor…","Tabela okundu: {p} durağındasın.","Tabela net okunamadı. Yaklaş, telefonu sabit tut ve tekrar dene.","Metin tanıma bu cihazda başlatılamadı. Tabelayı kendin kontrol et."],
+ ku:["Tabelê bixwîne","Naskirina nivîsê tê barkirin (tenê cara yekem)…","Tabel tê xwendin…","Tabel hat xwendin: tu li rawestgeha {p} yî.","Tabel bi zelalî nehat xwendin. Nêzîk bibe, telefonê bê tevger bigire û dîsa biceribîne.","Naskirina nivîsê li ser vê amûrê dest pê nekir. Tabelê bi xwe kontrol bike."],
+ ar:["امسح اللافتة","جارٍ تحميل التعرف على النص (في المرة الأولى فقط)…","جارٍ قراءة اللافتة…","تمت قراءة اللافتة: أنت عند الموقف {p}.","تعذّرت قراءة اللافتة بوضوح. اقترب، وثبّت الهاتف، وحاول مرة أخرى.","تعذّر تشغيل التعرف على النص على هذا الجهاز. تحقق من اللافتة بنفسك."],
+ fa:["اسکن تابلو","در حال بارگیری تشخیص متن (فقط بار اول)…","در حال خواندن تابلو…","تابلو خوانده شد: شما در ایستگاه {p} هستید.","تابلو به‌خوبی خوانده نشد. نزدیک‌تر بروید، گوشی را ثابت نگه دارید و دوباره امتحان کنید.","تشخیص متن روی این دستگاه شروع نشد. خودتان تابلو را بررسی کنید."],
+ ta:["பலகையை ஸ்கேன் செய்","உரை அறிதல் ஏற்றப்படுகிறது (முதல் முறை மட்டும்)…","பலகை படிக்கப்படுகிறது…","பலகை படிக்கப்பட்டது: நீங்கள் நிறுத்தம் {p}-இல் இருக்கிறீர்கள்.","பலகையைத் தெளிவாகப் படிக்க முடியவில்லை. அருகில் சென்று, அசையாமல் பிடித்து, மீண்டும் முயலுங்கள்.","இந்தச் சாதனத்தில் உரை அறிதல் தொடங்கவில்லை. பலகையை நீங்களே சரிபார்க்கவும்."],
+ ti:["ሰሌዳ ኣንብብ","ምፍላጥ ጽሑፍ ይጽዕን ኣሎ (ንመጀመርታ ግዜ ጥራይ)…","ሰሌዳ ይንበብ ኣሎ…","ሰሌዳ ተነቢቡ: ኣብ መዕረፊ {p} ኣለኹም።","ሰሌዳ ብንጹር ክንበብ ኣይከኣለን። ቀረባ ኪዱ፡ ብዘይ ምንቅስቓስ ሓዝዎ እሞ እንደገና ፈትኑ።","ምፍላጥ ጽሑፍ ኣብዚ መሳርሒ ክጅምር ኣይከኣለን። ሰሌዳ ባዕልኹም ኣረጋግጹ።"],
+ uk:["Сканувати табличку","Завантаження розпізнавання тексту (лише вперше)…","Читаю табличку…","Табличку прочитано: ви на зупинці {p}.","Не вдалося чітко прочитати табличку. Підійдіть ближче, тримайте телефон нерухомо й спробуйте знову.","Не вдалося запустити розпізнавання тексту на цьому пристрої. Перевірте табличку самі."],
+ ru:["Сканировать табличку","Загрузка распознавания текста (только в первый раз)…","Читаю табличку…","Табличка прочитана: вы на остановке {p}.","Не удалось чётко прочитать табличку. Подойдите ближе, держите телефон неподвижно и попробуйте снова.","Не удалось запустить распознавание текста на этом устройстве. Проверьте табличку сами."],
+ pl:["Zeskanuj tabliczkę","Ładowanie rozpoznawania tekstu (tylko za pierwszym razem)…","Odczytuję tabliczkę…","Odczytano tabliczkę: jesteś na przystanku {p}.","Nie udało się wyraźnie odczytać tabliczki. Podejdź bliżej, trzymaj telefon nieruchomo i spróbuj ponownie.","Nie udało się uruchomić rozpoznawania tekstu na tym urządzeniu. Sprawdź tabliczkę sam."],
+ ro:["Scanează indicatorul","Se încarcă recunoașterea textului (doar prima dată)…","Se citește indicatorul…","Indicator citit: ești la stația {p}.","Indicatorul nu a putut fi citit clar. Apropie-te, ține telefonul nemișcat și încearcă din nou.","Recunoașterea textului nu a putut porni pe acest dispozitiv. Verifică singur indicatorul."],
+ zh:["扫描站牌","正在加载文字识别（仅首次）…","正在读取站牌…","已读取站牌：你在站台 {p}。","没能看清站牌。请靠近一些，保持手机不动，再试一次。","此设备无法启动文字识别。请自行核对站牌。"]
+};
+for(const l in T_SCAN)SCAN_KEYS.forEach((k,i)=>{T[l][k]=T_SCAN[l][i]});
 // shown in each language's own script, so people can find theirs without reading English
 // Menu order: English and the national languages first, then the largest immigrant language communities.
 // "beta" = not yet checked by a native speaker.
@@ -983,6 +1017,79 @@ const DRIVE=new Set(["trunk","primary","secondary","tertiary","residential","unc
 let route=null;                      // last computed route, drawn by drawMap
 let curTarget=null;                  // the pole the answer currently sends you to (for the AR view)
 
+// ---- Scan the stop sign --------------------------------------------------------
+// Reads the sign's text ON THE PHONE (Tesseract.js, loaded the first time you scan) and matches it to the
+// stops: the destination counts most, then line numbers and next stops. One clear winner → "you are here"
+// is locked to that stop, so GPS drift can't move it. Unsure → ask to try again. The photo never leaves the phone.
+const TESS_URL="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+let tessP=null,hereLock=false;const tessWorkers={};
+function loadTess(){
+  if(window.Tesseract)return Promise.resolve();
+  if(!tessP)tessP=new Promise((res,rej)=>{const s=document.createElement("script");s.src=TESS_URL;s.async=true;
+    s.onload=res;s.onerror=()=>{tessP=null;rej(new Error("load"))};document.head.appendChild(s)});
+  return tessP;
+}
+const signLang=()=>({fr:"fra",it:"ita"}[REGION_LANG(stop.name)]||"deu");
+function getWorker(lg){if(!tessWorkers[lg])tessWorkers[lg]=Tesseract.createWorker(lg).catch(e=>{delete tessWorkers[lg];throw e});return tessWorkers[lg]}
+function lev(a,b){
+  const m=a.length,n=b.length;if(!m||!n)return m||n;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur}
+  return prev[n];
+}
+const signWords=s=>norm(s).replace(/[^\p{L}\p{N}]+/gu," ").split(" ").filter(Boolean);
+// share of a name's words (3+ letters) found in the sign, allowing small OCR slips
+function nameFound(name,tokens){
+  const ws=signWords(name).filter(w=>w.length>=3);if(!ws.length)return 0;
+  let hit=0;
+  for(const w of ws){const tol=w.length>=8?2:w.length>=4?1:0;
+    if(tokens.some(t=>t===w||(tol&&Math.abs(t.length-w.length)<=tol&&lev(t,w)<=tol)))hit++}
+  return hit/ws.length;
+}
+// returns the pole the sign belongs to, or null when it isn't clear
+function matchSign(text){
+  const tokens=signWords(text);if(tokens.length<2)return null;
+  const scored=stop.platforms.map(p=>{
+    let s=0;const dests=new Set(),nexts=new Set(),vias=new Set();
+    for(const r of p.routes){
+      if(tokens.includes(norm(r.line)))s+=1;                                      // line number on the sign
+      dests.add(r.to);nexts.add(r.next);r.via.slice(1,4).forEach(v=>vias.add(v));
+    }
+    for(const d of dests){const f=nameFound(d,tokens);s+=f>=.99?3:f>=.5?1.5:0}  // destination: the strongest clue
+    for(const n of nexts)if(nameFound(n,tokens)>=.99)s+=1;                      // next stop
+    for(const v of vias)if(nameFound(v,tokens)>=.99)s+=.5;                      // later stops listed on the sign
+    return {p,s};
+  }).sort((a,b)=>b.s-a.s);
+  const [a,b]=scored;
+  return a&&a.s>=3&&(!b||a.s-b.s>=1.5)?a.p:null;
+}
+function grabFrame(){
+  const v=$("arVideo");if(!v||!v.videoWidth)return null;
+  const w=Math.min(1600,v.videoWidth),h=Math.round(v.videoHeight*w/v.videoWidth);
+  const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(v,0,0,w,h);
+  return c;
+}
+async function scanSign(){
+  const L=t(),btn=$("arScan"),say=m=>{$("arScanMsg").textContent=m};
+  if(btn.disabled)return;btn.disabled=true;
+  try{
+    const frame=grabFrame();if(!frame){say(L.scanUnsure);return}
+    const lg=signLang();
+    if(!window.Tesseract||!tessWorkers[lg])say(L.scanLoading);
+    await loadTess();
+    const w=await getWorker(lg);
+    say(L.scanning);
+    const {data}=await w.recognize(frame);
+    const p=matchSign(data&&data.text||"");
+    if(!p){say(L.scanUnsure);return}
+    here=p;hereLock=true;renderAnswer();   // pin, walking route and AR arrow now start from the scanned stop
+    let m=fmt(L.scanFound,{p:p.label});
+    if(curTarget)m+=" "+(curTarget.id===p.id?L.same:fmt(L.arTarget,{p:curTarget.label,m:Math.round(route?route.len:dist(p,curTarget))}));
+    say(m);
+  }catch(e){say(L.scanFailed)}
+  finally{btn.disabled=false}
+}
+
 // ---- AR view ---------------------------------------------------------------------
 // Camera + compass + GPS, no WebXR, so it works in Safari on iPhone and Chrome on Android.
 // The camera picture never leaves the screen. GPS (10–20 m in old towns) and compass error mean it
@@ -994,6 +1101,7 @@ function arShowProblems(){const L=t(),m=[];if(arProblem.cam)m.push(L.arNoCamera)
 const sDiff=(a,b)=>((a-b+540)%360)-180;              // signed angle a-b in -180..180
 const brgXY=(P,Q)=>(Math.atan2(Q.x-P.x,-(Q.y-P.y))*180/Math.PI+360)%360;
 function arPos(){
+  if(hereLock&&here)return{x:here.x,y:here.y};   // a scanned sign beats GPS
   if(me){const [x,y]=proj(me.lat,me.lon);return{x,y}}
   return here?{x:here.x,y:here.y}:null;
 }
@@ -1017,6 +1125,7 @@ async function openAR(){
     ?navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false}).catch(()=>null):Promise.resolve(null);
   arOn=true;arHeading=null;arProblem.cam=false;arProblem.compass=false;$("ar").hidden=false;document.body.style.overflow="hidden";
   $("arCloseTxt").textContent=L.close;$("arCheck").textContent=L.arCheck;$("arMsg").textContent=L.locWait;$("arTarget").textContent="";
+  $("arScanTxt").textContent=L.scanBtn;$("arScanMsg").textContent="";
   if(!me&&watchId==null)locate();   // live position while you walk
   const [ori,stream]=await Promise.all([oriP,camP]);
   if(!arOn){if(stream)stream.getTracks().forEach(tr=>tr.stop());return}
@@ -1046,7 +1155,7 @@ function arFrame(ts){
   if(!P){$("arMsg").textContent=L.locWait;return}
   // panel: your stop and how far
   if(tg){const m=Math.round(route&&here&&here.id!==tg.id?route.len:dist(P,tg));
-    $("arTarget").textContent=fmt(L.arTarget,{p:tg.label,m});
+    $("arTarget").textContent=(here&&here.id===tg.id&&(hereLock||m<5))?L.same:fmt(L.arTarget,{p:tg.label,m});
     arShowProblems();}
   // big arrow: turns with you, always points at your stop
   const arrow=$("arArrow");
@@ -1198,7 +1307,7 @@ function applyPosition(lat,lon,acc){
   // second-closest pole of the same stop: if GPS error is bigger than half the gap, we can't tell the sides apart
   const gap=Math.min(...s.platforms.filter(p=>p!==best.p).map(p=>hav(lat,lon,p.lat,p.lon)))-best.d;
   if(s!==stop){$("dest").value="";setStop(best.i,true,near?best.p:null)}
-  else{if(near)here=best.p;renderAnswer()}
+  else{if(near&&!hereLock)here=best.p;renderAnswer()}   // a scanned sign is not overridden by GPS
   locState=near?{k:"near",d:best.d,p:best.p.label,s:s.name,rough:acc>Math.max(8,gap/2),a:acc}:{k:"far",d:best.d,s:s.name};
   renderLoc();
 }
@@ -1301,7 +1410,7 @@ function drawMap(target){
   svg.innerHTML=`<defs><marker id="ahf" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="var(--fg)"/></marker><marker id="ahg" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="var(--go)"/></marker></defs>`+s;
   svg.setAttribute("aria-label",stop.name);
   // a manual tap overrides live tracking
-  svg.querySelectorAll(".mk").forEach(g=>{const f=()=>{stopWatch();here=stop.platforms.find(p=>p.id===g.dataset.id);renderAnswer()};g.addEventListener("click",f);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}})});
+  svg.querySelectorAll(".mk").forEach(g=>{const f=()=>{stopWatch();hereLock=false;here=stop.platforms.find(p=>p.id===g.dataset.id);renderAnswer()};g.addEventListener("click",f);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();f()}})});
 }
 
 function renderPlats(target){
@@ -1332,6 +1441,7 @@ function applyLang(){
 }
 
 function setStop(i,keepDest,hereP){
+  hereLock=false;   // a sign scanned at another stop doesn't apply here
   stop=DATA.stops[i]; here=null; showAll=false; $("stop").value=i;
   // every reachable stop, with the pole + line that gets there in the fewest stops
   const byName={};
@@ -1367,6 +1477,7 @@ async function boot(){
   if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)$("arBtn").hidden=false;
   $("arBtn").addEventListener("click",openAR);
   $("arClose").addEventListener("click",closeAR);
+  $("arScan").addEventListener("click",scanSign);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&arOn)closeAR()});
   // speech: resolve both engines up front so a tap can speak straight away
   if("speechSynthesis" in window){loadVoices();try{speechSynthesis.addEventListener("voiceschanged",loadVoices)}catch(e){}}
