@@ -51,13 +51,15 @@ The prototype covers eight stops with confusing same-named poles:
 ```sh
 python build_data.py "Winterthur, Technikum" "Bern, Bahnhof"   # writes stops.json
 mv stops.json stops_c.json                                       # keep each batch as stops_<x>.json
-python merge_data.py                                             # merges every stops_*.json into stops.json
-python add_access.py                                             # adds step-free / accessibility details (run last)
+python merge_data.py                                             # merges stops_*.json, applies access.json
+python add_access.py                                             # enriches access.json, then merges again
+python check_data.py                                             # reports data problems
 ```
 
 - `build_data.py` looks up each stop on [transport.opendata.ch](https://transport.opendata.ch) and then queries OpenStreetMap through the Overpass API. It collects the stop's poles, the bus and tram routes serving each one in stop order (which gives the direction), and the surrounding streets and crossings. Overpass is often busy. The script retries, but a stop can still time out, so run it again later. Set `OUT=stops_x.json` to write to another file.
-- `merge_data.py` removes duplicate lines. It labels each pole with the letter on its real stop sign where OSM records one (`local_ref`), otherwise A, B, C. It also trims streets that fall outside the drawn map.
-- `add_access.py` adds what OSM records about accessibility: for each pole, step-free access (`wheelchair`), tactile paving, bench and shelter; for nearby crossings, traffic lights and lowered kerbs. Run it after `merge_data.py`, which rebuilds `stops.json` without these fields. It saves after every stop and skips stops already done, so if the Overpass servers time out, just run it again.
+- `merge_data.py` removes duplicate lines. It labels each pole with the letter on its real stop sign where OSM records one (`local_ref`), otherwise A, B, C. It also trims streets that fall outside the drawn map, then applies the accessibility details from `access.json`.
+- `add_access.py` records what OSM knows about accessibility: for each pole, step-free access (`wheelchair`), tactile paving, bench and shelter; for nearby crossings, traffic lights and lowered kerbs. It writes `access.json`, keyed by stop name and platform id, saves after every stop and skips stops already done, so if the Overpass servers time out, just run it again. Because the details live outside the raw batches, a later refresh of `stops.json` keeps them.
+- `check_data.py` reads `stops.json` and reports problems: structural errors fail, while unknown route names (`?`), poles far from the stop centre and stops still missing accessibility data print as warnings. Use `--strict` to fail on warnings too.
 - `stops_a.json` and `stops_b.json` are the raw batches behind the current `stops.json`.
 
 ## Before real-world use

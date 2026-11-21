@@ -1,20 +1,23 @@
-"""Add step-free / accessibility details from OpenStreetMap to stops.json.
+"""Add step-free / accessibility details from OpenStreetMap into access.json.
 
-Run after merge_data.py (merge rebuilds stops.json and drops these fields):
+merge_data.py writes stops.json from the raw batches and then re-applies access.json, so
+enrichment survives every data refresh and never has to be redone.
+
+Run:
     python build_data.py ...   ->  python merge_data.py  ->  python add_access.py
 
 For each pole (platform) it reads:  wheelchair, tactile_paving, bench, shelter
-and stores them as  platform["acc"] = {"wc": "yes|limited|no", "tact": ..., "bench": ..., "shelter": ...}
+and stores them in access.json as  {"poles": {"<platform id>": {"wc": "yes|limited|no", ...}}}
 (keys only when OSM records them).
 
 For each pedestrian crossing near the stop it stores
-    stop["xings"] = [{"x", "y", "sig": bool, "kerb": "lowered|flush|raised|...", "tact": ..., "snd": ...}]
+    "xings": [{"x", "y", "sig": bool, "kerb": "lowered|flush|raised|...", "tact": ..., "snd": ...}]
 where sig = has traffic lights. Positions use the same local metre grid as the rest of stops.json.
 
 The public Overpass servers are often busy. The script saves after every stop and skips stops
 it has already done, so if some fail, just run it again later.
 """
-import json, math, sys, time, urllib.parse, urllib.request
+import json, math, os, sys, time, urllib.parse, urllib.request
 
 SERVERS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
 UA = {"User-Agent": "rightside-prototype/0.1 (hackathon demo)"}
@@ -50,10 +53,11 @@ def enrich(s):
     els = overpass(q)["elements"]
 
     tags = {f'{e["type"]}/{e["id"]}': e.get("tags", {}) for e in els}
+    poles = {}
     for p in s["platforms"]:
         t = tags.get(p["id"], {})
-        p["acc"] = {k2: t[k1] for k1, k2 in [("wheelchair", "wc"), ("tactile_paving", "tact"),
-                                             ("bench", "bench"), ("shelter", "shelter")] if k1 in t}
+        poles[p["id"]] = {k2: t[k1] for k1, k2 in [("wheelchair", "wc"), ("tactile_paving", "tact"),
+                                                   ("bench", "bench"), ("shelter", "shelter")] if k1 in t}
 
     xings = []
     for e in els:
@@ -72,30 +76,40 @@ def enrich(s):
             if k1 in t:
                 xi[k2] = t[k1]
         xings.append(xi)
-    s["xings"] = xings
 
-    wc = [p["acc"].get("wc", "?") for p in s["platforms"]]
+    wc = [poles[p["id"]].get("wc", "?") for p in s["platforms"]]
     print(f"   poles wheelchair: {wc}   crossings: {len(xings)} ({sum(x['sig'] for x in xings)} with lights, "
           f"{sum(1 for x in xings if x.get('kerb') in ('lowered', 'flush'))} lowered kerb)", file=sys.stderr)
+    return {"poles": poles, "xings": xings}
+
+
+def save(data):
+    json.dump(data, open("access.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
 
 
 def main():
-    data = json.load(open("stops.json", encoding="utf-8"))
+    stops = json.load(open("stops.json", encoding="utf-8"))
+    data = json.load(open("access.json", encoding="utf-8")) if os.path.exists("access.json") \
+        else {"generated": time.strftime("%Y-%m-%d"), "stops": {}}
     failed = []
-    for s in data["stops"]:
-        if "xings" in s and all("acc" in p for p in s["platforms"]):
+    for s in stops["stops"]:
+        if s["name"] in data["stops"]:
             print("-- already done:", s["name"], file=sys.stderr)
             continue
         print("->", s["name"], file=sys.stderr)
         try:
-            enrich(s)
+            data["stops"][s["name"]] = enrich(s)
         except Exception as e:
             print("  FAILED, run again later:", e, file=sys.stderr)
             failed.append(s["name"])
             continue
         # keep each finished stop, even if a later one fails
-        json.dump(data, open("stops.json", "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+        save(data)
         time.sleep(2)
+    save(data)
+    # access.json is the source of truth; merge applies it to stops.json
+    import merge_data
+    merge_data.main()
     print("missing:", ", ".join(failed) if failed else "none", file=sys.stderr)
     sys.exit(1 if failed else 0)
 
